@@ -7,7 +7,7 @@
   const data = new Array(100) // 弹幕数据
 
   let ulEl // ul dom对象
-  let couldScroll: boolean = true // 判断能否自动滚动到底部
+  let couldScroll: boolean = false // 判断能否自动滚动到底部
   const checkCouldScroll = () => {
     couldScroll = ulEl.clientHeight + ulEl.scrollTop >= ulEl.scrollHeight
   }

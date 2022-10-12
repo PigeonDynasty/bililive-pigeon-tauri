@@ -3,12 +3,12 @@
 @tailwind utilities;
 @layer components {
   .btn-primary {
-    @apply font-semibold shadow text-gray-100 bg-sky-400 hover:bg-sky-500  dark:text-gray-300 dark:hover:bg-sky-600 dark:bg-sky-700;
+    @apply font-semibold shadow text-zinc-100 bg-sky-400 hover:bg-sky-500  dark:text-zinc-300 dark:hover:bg-sky-600 dark:bg-sky-700;
   }
 }
 @layer base {
   :root {
-    @apply font-sans text-gray-800 bg-gray-100 dark:text-gray-400 dark:bg-gray-800 scroll-smooth;
+    @apply font-sans text-zinc-800 bg-gray-100 dark:text-zinc-400 dark:bg-zinc-800 scroll-smooth;
   }
 
   html,
@@ -19,21 +19,19 @@
   button {
     @apply relative overflow-hidden;
   }
-
-  button:after {
-    @apply block absolute w-full h-full top-0 left-0 pointer-events-none bg-no-repeat opacity-0;
-    content: '';
-    /* 设置径向渐变 */
-    background-image: radial-gradient(circle, #666 10%, transparent 10.01%);
-    background-position: 50%;
-    transform: scale(10, 10);
-    transition: transform 0.3s, opacity 0.5s;
+  span.ripple {
+    position: absolute;
+    border-radius: 50%;
+    transform: scale(0);
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.7);
+    animation: ripple 600ms linear;
   }
 
-  button:active:after {
-    transform: scale(0, 0);
-    opacity: 0.3;
-    /* 设置初始状态 */
-    transition: 0s;
+  @keyframes ripple {
+    to {
+      transform: scale(4);
+      opacity: 0;
+    }
   }
 }
