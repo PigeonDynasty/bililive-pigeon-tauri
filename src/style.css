@@ -16,4 +16,24 @@
   #app {
     @apply h-full overflow-hidden;
   }
+  button {
+    @apply relative overflow-hidden;
+  }
+
+  button:after {
+    @apply block absolute w-full h-full top-0 left-0 pointer-events-none bg-no-repeat opacity-0;
+    content: '';
+    /* 设置径向渐变 */
+    background-image: radial-gradient(circle, #666 10%, transparent 10.01%);
+    background-position: 50%;
+    transform: scale(10, 10);
+    transition: transform 0.3s, opacity 0.5s;
+  }
+
+  button:active:after {
+    transform: scale(0, 0);
+    opacity: 0.3;
+    /* 设置初始状态 */
+    transition: 0s;
+  }
 }
