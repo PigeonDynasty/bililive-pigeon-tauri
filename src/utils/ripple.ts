@@ -1,6 +1,8 @@
 export default function ripple() {
   const createRipple = event => {
-    const button = event.currentTarget
+    const e = event || window.event
+    const button = e.srcElement || e.target
+    if (button.tagName.toLowerCase() !== 'button') return
     const rippleSize = Math.max(button.clientWidth, button.clientHeight)
     const moved = rippleSize / 2
     const circle = document.createElement('span')
@@ -15,7 +17,5 @@ export default function ripple() {
     }
     button.append(circle)
   }
-  document.querySelectorAll('button').forEach(btn => {
-    btn.addEventListener('mousedown', createRipple)
-  })
+  document.body.addEventListener('mousedown', createRipple)
 }
