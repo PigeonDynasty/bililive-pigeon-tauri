@@ -42,11 +42,11 @@
   <button on:click={loadPlugin}>加载插件</button>
   <button on:click={unloadPlugin}>卸载插件</button>
 </div>
-<div class="row">
+<!-- <div class="row">
   <button on:click={() => connect(15536)}>本气黑猫 connect</button>
   <button on:click={() => disconnect(15536)}>本气黑猫 disconnect</button>
   <button on:click={() => connect(5050)}>老E connect</button>
   <button on:click={() => disconnect(5050)}>老E disconnect</button>
   <button on:click={() => connect(213)}>C酱 connect</button>
   <button on:click={() => disconnect(213)}>C酱 disconnect</button>
-</div>
+</div> -->
