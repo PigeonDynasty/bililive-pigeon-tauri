@@ -1,4 +1,5 @@
 #![allow(unused)]
+use crate::db::plugin as db_plugin;
 use crate::fs;
 use crate::packet::Packet;
 use libloading::{Library, Symbol};
@@ -9,6 +10,8 @@ use tauri::AppHandle;
 pub trait Plugin: Any + Send + Sync {
     // Get a name describing the `Plugin`.
     fn name(&self) -> &'static str;
+    fn description(&self) -> &'static str;
+    fn contact(&self) -> &'static str;
     // A callback fired immediately after the plugin is loaded. Usually used
     // for initialization.
     fn on_plugin_load(&self, handle: &Option<AppHandle>) {}
@@ -17,6 +20,12 @@ pub trait Plugin: Any + Send + Sync {
     fn on_plugin_unload(&self, handle: &Option<AppHandle>) {}
     // Inspect (and possibly mutate) the request before it is sent.
     fn send(&self, _request: &mut Vec<Packet>, handle: &Option<AppHandle>) {}
+}
+
+pub struct PluginData {
+    name: Option<String>,
+    plugin_type: PluginType,
+    path: String,
 }
 pub struct PluginManager {
     handle: Option<AppHandle>,
@@ -35,27 +44,40 @@ impl PluginManager {
     pub fn set_handle(&mut self, handel: AppHandle) {
         self.handle = Some(handel)
     }
-    pub fn load_plugin_all(&mut self) {
-        let plugins = fs::read_plugin();
-        let config = fs::Config::new().read();
+    /**
+     * @description: 加载插件目录
+     * @param {bool} need_load true 初始化 需要加载插件 false 只获取目录
+     * @return {*}
+     */
+    pub fn load_plugin_all(&mut self, need_load: bool) -> Vec<PluginData> {
+        let plugins = read_plugin_dir();
+        let config = db_plugin::select_all();
+        let mut res = vec![];
         for plugin in plugins {
-            if plugin.plugin_type == "dylib" && Self::check_visible(&plugin, &config) {
-                self.load_plugin(plugin.path);
+            let mut bol = false;
+            let mut plugin_name = None;
+            for plugin_config in &config {
+                if plugin_config.path == plugin.path && plugin_config.visible == 1 {
+                    bol = true;
+                    break;
+                }
             }
-        }
-    }
-    fn check_visible(plugin: &fs::PluginPath, config: &serde_json::Value) -> bool {
-        let mut bol = false;
-        let arr = config["plugins"].as_array().unwrap();
-        for plugin_config in arr {
-            if plugin_config["path"] == plugin.path && plugin_config["visible"] == true {
-                bol = true;
-                break;
+            match plugin.plugin_type {
+                PluginType::Dylib => {
+                    let name = self.load_plugin(&plugin.path, need_load && bol).unwrap();
+                    plugin_name = Some(name.to_owned());
+                }
+                PluginType::Js => {}
             }
+            res.push(PluginData {
+                name: plugin_name,
+                plugin_type: plugin.plugin_type,
+                path: plugin.path,
+            })
         }
-        bol
+        res
     }
-    pub fn load_plugin<P: AsRef<OsStr>>(&mut self, path: P) -> Result<(), ()> {
+    pub fn load_plugin<P: AsRef<OsStr>>(&mut self, path: P, bol: bool) -> Result<&str, ()> {
         unsafe {
             type PluginCreate = unsafe fn() -> *mut dyn Plugin;
             let lib = Library::new(path.as_ref()).expect("Unable to load the plugin");
@@ -67,9 +89,12 @@ impl PluginManager {
             let boxed_raw = constructor();
             let plugin = Box::from_raw(boxed_raw);
             println!("Loaded plugin: {}", plugin.name());
+            let plugin_name = plugin.name();
             plugin.on_plugin_load(&self.handle);
-            self.plugins.push(plugin);
-            Ok(())
+            if bol {
+                self.plugins.push(plugin);
+            }
+            Ok(plugin_name)
         }
     }
 
@@ -127,4 +152,42 @@ macro_rules! declare_plugin {
             Box::into_raw(boxed)
         }
     };
+}
+
+use crate::{doc_dir, plugin_dir};
+use std::fs::{create_dir_all, metadata, read_dir, File, OpenOptions};
+use std::io::{Read, Write};
+
+enum PluginType {
+    Dylib,
+    Js,
+}
+
+struct PluginPath {
+    pub plugin_type: PluginType,
+    pub path: String,
+}
+// 读取插件目录下的插件
+fn read_plugin_dir() -> Vec<PluginPath> {
+    let plugin_dir = plugin_dir();
+    create_dir_all(&plugin_dir).unwrap();
+    let plugins = fs::read_all_path(&plugin_dir).unwrap();
+    let mut res: Vec<PluginPath> = vec![];
+    for path in plugins {
+        let mut plugin_type: Option<PluginType> = None;
+        if path.ends_with(".dylib") {
+            // 动态库
+            plugin_type = Some(PluginType::Dylib);
+        } else if path.ends_with(".js") {
+            // js插件
+            plugin_type = Some(PluginType::Js);
+        }
+        if plugin_type.is_some() {
+            res.push(PluginPath {
+                plugin_type: plugin_type.unwrap(),
+                path: path,
+            })
+        }
+    }
+    res
 }

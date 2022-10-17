@@ -3,7 +3,7 @@
 @tailwind utilities;
 @layer components {
   .btn-primary {
-    @apply font-semibold shadow text-zinc-100 bg-sky-400 hover:bg-sky-500  dark:text-zinc-300 dark:hover:bg-sky-700 dark:bg-sky-800;
+    @apply font-semibold shadow text-zinc-100 bg-sky-400 hover:bg-sky-500 hover:ring-sky-600 ring-1 ring-sky-500 dark:text-zinc-300 dark:hover:bg-sky-700 dark:hover:ring-sky-600 dark:bg-sky-800 dark:ring-sky-700;
   }
 }
 @layer base {
