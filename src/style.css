@@ -3,12 +3,12 @@
 @tailwind utilities;
 @layer components {
   .btn-primary {
-    @apply font-semibold shadow text-zinc-100 bg-sky-400 hover:bg-sky-500 hover:ring-sky-600 ring-1 ring-sky-500 dark:text-zinc-300 dark:hover:bg-sky-700 dark:hover:ring-sky-600 dark:bg-sky-800 dark:ring-sky-700;
+    @apply font-semibold drop-shadow text-zinc-100 bg-sky-400 hover:bg-sky-500 dark:text-zinc-300 dark:hover:bg-sky-700  dark:bg-sky-800;
   }
 }
 @layer base {
   :root {
-    @apply font-sans text-zinc-800 bg-gray-100 dark:text-zinc-400 dark:bg-zinc-800 scroll-smooth;
+    @apply font-sans text-zinc-900 bg-gray-100 dark:text-zinc-400 dark:bg-zinc-900 scroll-smooth;
   }
 
   html,
@@ -24,7 +24,7 @@
     border-radius: 50%;
     transform: scale(0);
     opacity: 1;
-    background-color: rgba(255, 255, 255, 0.7);
+    background-color: rgba(255, 255, 255, 0.4);
     animation: ripple 600ms linear;
   }
 

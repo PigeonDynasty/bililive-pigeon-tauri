@@ -12,7 +12,13 @@
   },
   "tauri": {
     "allowlist": {
-      "all": true
+      "all": true,
+      "protocol": {
+        "asset": true,
+        "assetScope": [
+          "$DOCUMENT/BililivePigeon/plugins/*.js"
+        ]
+      }
     },
     "bundle": {
       "active": true,
@@ -48,7 +54,7 @@
       }
     },
     "security": {
-      "csp": null
+      "csp": "script-src 'self' asset"
     },
     "updater": {
       "active": false

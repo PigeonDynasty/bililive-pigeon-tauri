@@ -21,6 +21,8 @@ pub async fn new(room_id: i32, win: &Window) {
     let list = res["data"]["host_list"].as_array().unwrap().to_owned();
     let token = res["data"]["token"].as_str().unwrap();
     let ws_stream = try_connect_async(list).await.unwrap();
+    let key = format!("stream-{}", room_id);
+    win.emit(&key, "connected").unwrap();
     join(ws_stream.unwrap(), room_id, token, win).await;
 }
 
@@ -73,8 +75,8 @@ async fn join(ws_stream: WsStream, room_id: i32, token: &str, win: &Window) {
     let _auth_reply = match rx.next().await {
         Some(Ok(Message::Binary(_auth_reply_bin))) => {
             println!("join success: {:?}", room_id);
-            let key = format!("joined-{}", room_id);
-            win.emit(&key, "").unwrap();
+            let key = format!("stream-{}", room_id);
+            win.emit(&key, "joined").unwrap();
         }
         other @ _ => {
             println!("other={:?}", other);
@@ -130,12 +132,8 @@ async fn join(ws_stream: WsStream, room_id: i32, token: &str, win: &Window) {
     }
 }
 pub async fn disconnect(room_id: i32, window: &Window, payload: &str) {
-    DANMAKU_POOL
-        .lock()
-        .unwrap()
-        .remove(&room_id)
-        .unwrap()
-        .abort();
+    let handle = DANMAKU_POOL.lock().unwrap().remove(&room_id);
+    handle.unwrap().abort();
     let key = format!("stream-{}", room_id);
     window.emit(&key, payload).unwrap();
 }

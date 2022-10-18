@@ -3,7 +3,7 @@
   import { invoke } from '@tauri-apps/api/tauri'
   import { appWindow } from '@tauri-apps/api/window'
   export let roomId: string | number
-  let listeners = null
+  let listener = null
   const data = new Array(100) // 弹幕数据
 
   let ulEl // ul dom对象
@@ -17,26 +17,26 @@
   onMount(() => {
     if (!roomId) return
     // invoke('connect', { roomId })
-    // if (listeners) {
+    // if (listener) {
     //   // 防止重复监听
-    //   listeners['stream']()
-    //   listeners['danmaku']()
+    //   listener['stream']()
+    //   listener['danmaku']()
     // }
-    // listeners['stream'] = appWindow.listen('stream-' + roomId, ev => {
+    // listener['stream'] = appWindow.listen('stream-' + roomId, ev => {
     //   console.log(ev)
     //   couldScroll && (ulEl.scrollTop = ulEl.scrollHeight)
     // })
-    // listeners['danmaku'] = appWindow.listen('danmaku-' + roomId, ev => {
+    // listener['danmaku'] = appWindow.listen('danmaku-' + roomId, ev => {
     //   console.log(ev)
     // })
   })
   onDestroy(() => {
     // invoke('disconnect', { roomId })
     // // 断开连接 解除监听
-    // if (listeners) {
-    //   listeners['stream']()
-    //   listeners['danmaku']()
-    //   listeners = null
+    // if (listener) {
+    //   listener['stream']()
+    //   listener['danmaku']()
+    //   listener = null
     // }
   })
 </script>

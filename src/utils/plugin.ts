@@ -1,10 +1,11 @@
 import { writable } from 'svelte/store'
-
+import { convertFileSrc } from '@tauri-apps/api/tauri'
 function createPlugins() {
   const { set, update } = writable([])
   return {
     appendAll: data => {
       data.forEach(plugin => {
+        plugin.path = convertFileSrc(plugin.path)
         const script = document.createElement('script')
         script.type = 'text/javascript'
         script.src = plugin.path
@@ -14,9 +15,12 @@ function createPlugins() {
     },
     appendSuccess: plugin => {
       update(p => {
-        p.push(plugin)
         const obj = p.find(item => item.path === plugin.path())
-        if (obj) obj.name = plugin.name
+        if (obj) {
+          Object.assign(obj, plugin)
+          obj.visible && obj.load()
+        }
+        console.log(obj)
         return p
       })
     },
@@ -42,9 +46,11 @@ export { plugins }
 // Define the plugin
 // const plugin = {
 //   name: '测试JS插件',
+//   description: ''
+//   contact:'',
 //   load: ()=> { console.log('loaded 测试JS插件')}
 //   unload:()=>{ console.log('unloaded 测试JS插件')}
 // };
 
 // Register the plugin
-// globalThis.BililivePlugin(squaredPlugin)
+// globalThis.BililivePlugin(plugin)

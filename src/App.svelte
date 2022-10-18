@@ -2,28 +2,37 @@
   import Greet from './lib/Greet.svelte'
   import Test from './lib/Test.svelte'
   import Danmaku from './lib/Danmaku.svelte'
+  import { Tabs, Tab } from './lib/Tabs'
 </script>
 
 <main class="flex h-full ">
-  <div class="flex-1 container px-2">
-    <h1>Welcome to Tauri!</h1>
+  <div class="flex-1 px-2">
+    <Tabs class="h-full">
+      <Tab header="Info" key="info">
+        <h1>Welcome to Tauri!</h1>
+        <div class="row">
+          <a href="https://vitejs.dev" target="_blank">
+            <img src="/vite.svg" class="logo vite" alt="Vite Logo" />
+          </a>
+          <a href="https://tauri.app" target="_blank">
+            <img src="/tauri.svg" class="logo tauri" alt="Tauri Logo" />
+          </a>
+          <a href="https://svelte.dev" target="_blank">
+            <img src="/svelte.svg" class="logo svelte" alt="Svelte Logo" />
+          </a>
+        </div>
 
-    <div class="row">
-      <a href="https://vitejs.dev" target="_blank">
-        <img src="/vite.svg" class="logo vite" alt="Vite Logo" />
-      </a>
-      <a href="https://tauri.app" target="_blank">
-        <img src="/tauri.svg" class="logo tauri" alt="Tauri Logo" />
-      </a>
-      <a href="https://svelte.dev" target="_blank">
-        <img src="/svelte.svg" class="logo svelte" alt="Svelte Logo" />
-      </a>
-    </div>
-
-    <p>Click on the Tauri, Vite, and Svelte logos to learn more.</p>
-
-    <Greet />
-    <Test />
+        <p>Click on the Tauri, Vite, and Svelte logos to learn more.</p>
+      </Tab>
+      <Tab header="Greet" key="greet">
+        <Greet />
+      </Tab>
+      <Tab header="Test" key="test">
+        <Test />
+      </Tab>
+      <Tab header="用户" key="user">用户1</Tab>
+      <Tab header="插件" key="plugin">插件1</Tab>
+    </Tabs>
   </div>
   <div class="flex-1 px-2">
     <Danmaku roomId={5050} />
@@ -45,15 +54,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
-  }
-
-  .container {
-    margin: 0;
-    padding-top: 10vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
   }
 
   .logo {
