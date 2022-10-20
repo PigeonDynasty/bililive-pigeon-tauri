@@ -42,7 +42,7 @@
 </script>
 
 <div
-  class="border-sky-400 rounded border-[1px] border-solid relative h-full dark:border-sky-800"
+  class="rounded border-[1px] border-solid relative h-full bg-white dark:bg-black shadow"
 >
   <ul
     class="overflow-y-auto h-full py-1 px-2"
@@ -57,7 +57,7 @@
   </ul>
 
   <button
-    class="btn-primary text-xs leading-3 rounded-2xl py-1 px-2 scale-90 absolute right-1 bottom-1"
+    class="btn-primary text-xs leading-3 rounded-full py-1 px-2 scale-90 absolute right-1 bottom-1"
     hidden={couldScroll}
     on:click={toBottom}
   >

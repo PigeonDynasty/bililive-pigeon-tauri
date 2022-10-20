@@ -3,10 +3,11 @@
   import Test from './lib/Test.svelte'
   import Danmaku from './lib/Danmaku.svelte'
   import { Tabs, Tab } from './lib/Tabs'
+  import Setting from './lib/Setting.svelte'
 </script>
 
 <main class="flex h-full ">
-  <div class="flex-1 px-2">
+  <div class="flex-1 pl-2 pr-1">
     <Tabs class="h-full">
       <Tab header="Info" key="info">
         <h1>Welcome to Tauri!</h1>
@@ -32,9 +33,12 @@
       </Tab>
       <Tab header="用户" key="user">用户1</Tab>
       <Tab header="插件" key="plugin">插件1</Tab>
+      <Tab header="设置" key="setting">
+        <Setting />
+      </Tab>
     </Tabs>
   </div>
-  <div class="flex-1 px-2">
+  <div class="flex-1 pl-1 pr-2">
     <Danmaku roomId={5050} />
   </div>
 </main>

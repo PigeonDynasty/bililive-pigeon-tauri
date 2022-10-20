@@ -5,7 +5,6 @@
 <script lang="ts">
   import { setContext, onDestroy } from 'svelte'
   import { writable } from 'svelte/store'
-  import { fade } from 'svelte/transition'
   let className = ''
   export { className as class }
   let tabs = []
@@ -32,24 +31,27 @@
   })
   const selectTab = key => {
     current.set(key)
-    console.log(current, key)
   }
 </script>
 
 <div class:tabs class={className}>
-  <div class="tabs-header flex flex-nowrap">
+  <div
+    class="tabs-header flex space-x-1 rounded-lg bg-slate-100 dark:bg-slate-800 p-1"
+  >
     {#each tabs as { header, key } ('tab-header_' + key)}
-      <span
-        class="tab-header relative cursor-pointer py-1 px-2 border-b-2 border-transparent"
+      <button
+        class="tab-header cursor-pointer py-1 px-3 rounded-md text-sm font-semibold"
+        class:text-slate-600={$current !== key}
+        class:dark:text-slate-300={$current !== key}
+        class:text-slate-800={$current === key}
+        class:dark:text-slate-100={$current === key}
+        class:shadow={$current === key}
+        class:bg-white={$current === key}
+        class:dark:bg-black={$current === key}
         on:click={() => selectTab(key)}
-        >{header}
-        {#if $current === key}
-          <p
-            transition:fade
-            class="h-[2px] absolute bottom-0 left-0 right-0 bg-sky-400 dark:bg-sky-800"
-          />
-        {/if}
-      </span>
+      >
+        {header}
+      </button>
     {/each}
   </div>
   <ul class="tabs-content">
