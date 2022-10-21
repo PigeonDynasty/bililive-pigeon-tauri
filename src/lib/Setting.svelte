@@ -1,10 +1,10 @@
 <script lang="ts">
   import Toggle from './Toogle.svelte'
   import { WebviewWindow, currentMonitor } from '@tauri-apps/api/window'
-  let toogleVal = false
-  let web = null
-  $: {
-    if (toogleVal && !web) {
+  let web: WebviewWindow = null
+  const toogleChange = async e => {
+    const val = e.detail
+    if (val && !web) {
       currentMonitor().then(monitor => {
         web = new WebviewWindow('sidewin', {
           url: '/side.html',
@@ -13,23 +13,23 @@
           // resizable: false,
           title: '',
           // transparent: true,
-          x: monitor.size.width,
+          // x: monitor.size.width ,
+          x: 0,
           y: monitor.size.height,
+          height: monitor.size.height,
           width: 300
         })
-        web.once('tauri://created', function () {
+        web.once('tauri://created', () => {
           setTimeout(() => {
-            web.emit('add', '<p>test</p>')
-          }, 10000)
+            web && web.emit('add', '<p>test</p>')
+          }, 5000)
         })
       })
-    } else if (!toogleVal && web) {
-      console.log('before', web)
-      web.close()
-      console.log('after', web)
+    } else if (!val && web) {
+      await web.close()
       web = null
     }
   }
 </script>
 
-<Toggle id="toggle" bind:value={toogleVal} />
+<Toggle id="toggle" on:change={toogleChange} />

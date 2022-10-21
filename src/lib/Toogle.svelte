@@ -1,10 +1,21 @@
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte'
+  const dispatch = createEventDispatcher()
   export let id = ''
   export let value = false
+  const change = () => {
+    dispatch('change', value)
+  }
 </script>
 
 <label class="inline-flex w-14" for={id}>
-  <input class="sr-only" type="checkbox" {id} bind:checked={value} />
+  <input
+    class="sr-only"
+    type="checkbox"
+    {id}
+    bind:checked={value}
+    on:change={change}
+  />
   <div
     class="h-6 w-full cursor-pointer bg-zinc-200 dark:bg-zinc-700 rounded-full shadow p-0.5"
   >
