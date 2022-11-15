@@ -3,18 +3,21 @@
   import { TABS_KEY } from './Tabs.svelte'
   const { register, current }: any = getContext(TABS_KEY)
   import { fade } from 'svelte/transition'
-  export let header = ''
+  export let header: string | number = ''
   export let key = ''
   register({
     header,
     key
-  }).then(i => {
-    if (i > -1) key = i
+  }).then(k => {
+    key = k
   })
 </script>
 
-{#if $current === key}
-  <li class="tab-content transition" in:fade>
-    <slot />
-  </li>
-{/if}
+<li
+  hidden={$current !== key}
+  data-key={key}
+  class="tab-content transition h-full"
+  in:fade
+>
+  <slot />
+</li>

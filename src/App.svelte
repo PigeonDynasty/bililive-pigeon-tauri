@@ -4,10 +4,25 @@
   import Danmaku from './lib/Danmaku.svelte'
   import { Tabs, Tab } from './lib/Tabs'
   import Setting from './lib/Setting.svelte'
+  let rooms = []
+  let roomId = ''
+  let tabsRef
+  const connect = () => {
+    console.log(rooms)
+    if (roomId && !rooms.includes(roomId)) {
+      rooms = [...rooms, roomId]
+      tabsRef.selectTab('room_' + roomId)
+    }
+  }
+  const tabClose = e => {
+    const { index } = e.detail
+    rooms.splice(index, 1)
+    rooms = rooms
+  }
 </script>
 
-<main class="flex h-full ">
-  <div class="flex-1 pl-2 pr-1">
+<main class="flex h-full py-2 px-1">
+  <div class="flex-1 px-1">
     <Tabs class="h-full">
       <Tab header="Info" key="info">
         <h1>Welcome to Tauri!</h1>
@@ -38,8 +53,32 @@
       </Tab>
     </Tabs>
   </div>
-  <div class="flex-1 pl-1 pr-2">
-    <Danmaku roomId={5050} />
+  <div class="flex flex-1 px-1 flex-col">
+    <div class="flex mb-1">
+      <input
+        class="rounded-md border-0 py-1 px-2 shadow flex-1 dark:bg-black bg-white"
+        placeholder="输入房间号"
+        bind:value={roomId}
+      />
+      <button
+        class="font-semibold text-zinc-600 dark:text-zinc-300 rounded-md py-1 px-3 shadow ml-2 bg-zinc-100 dark:bg-zinc-800"
+        on:click={connect}
+      >
+        连接
+      </button>
+    </div>
+    <Tabs
+      class="flex-1 overflow-hidden"
+      closeable
+      bind:this={tabsRef}
+      on:close={tabClose}
+    >
+      {#each rooms as roomid ('room_' + roomid)}
+        <Tab header={roomid} key={'room_' + roomid}>
+          <Danmaku roomId={Number(roomid)} />
+        </Tab>
+      {/each}
+    </Tabs>
   </div>
 </main>
 

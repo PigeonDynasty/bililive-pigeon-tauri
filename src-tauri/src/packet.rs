@@ -76,11 +76,7 @@ fn parse_buffer(buffer: &[u8]) -> Result<Vec<Packet>, ()> {
         0 => {
             if op == 5 {
                 let val = serde_json::from_slice(payload).unwrap();
-                vec![Packet {
-                    ver,
-                    op,
-                    body: serde_json::from_value(val).unwrap(),
-                }]
+                vec![Packet { ver, op, body: val }]
             } else {
                 vec![]
             }

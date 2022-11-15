@@ -27,13 +27,25 @@ impl Request {
     }
 
     // 获取wss服务器列表
-    pub async fn get_danmaku_hosts(&self, id: i32) -> serde_json::Value {
+    pub async fn get_danmaku_hosts(&self, id: i64) -> serde_json::Value {
         let mut query_map = HashMap::new();
         query_map.insert("id".to_string(), id.to_string());
         query_map.insert("type".to_string(), "0".to_string());
         let request_builder = HttpRequestBuilder::new(
             "GET",
             "https://api.live.bilibili.com/xlive/web-room/v1/index/getDanmuInfo",
+        )
+        .unwrap()
+        .query(query_map);
+        self.get(request_builder).await
+    }
+    // 获取真实房间号
+    pub async fn get_true_roomid(&self, id: i32) -> serde_json::Value {
+        let mut query_map = HashMap::new();
+        query_map.insert("id".to_string(), id.to_string());
+        let request_builder = HttpRequestBuilder::new(
+            "GET",
+            "https://api.live.bilibili.com/room/v1/Room/room_init",
         )
         .unwrap()
         .query(query_map);

@@ -3,10 +3,13 @@
 </script>
 
 <script lang="ts">
-  import { setContext, onDestroy } from 'svelte'
+  import { setContext, onDestroy, createEventDispatcher } from 'svelte'
   import { writable } from 'svelte/store'
+  const dispatch = createEventDispatcher()
+  let tabsContentRef
   let className = ''
-  export { className as class }
+  let closeable = false
+  $: tabsClass = ['tabs flex flex-col', className].join(' ')
   let tabs = []
   const current = writable<number | string>(-1)
   setContext(TABS_KEY, {
@@ -29,18 +32,33 @@
     },
     current
   })
-  const selectTab = key => {
+  const selectTab = (key: string | number) => {
     current.set(key)
   }
+  const onClose = (key: string | number, index: number) => {
+    if ($current === key) {
+      selectTab(
+        tabs[index + 1]
+          ? tabs[index + 1].key
+          : tabs[index - 1]
+          ? tabs[index - 1].key
+          : -1
+      )
+    }
+    dispatch('close', { key, index })
+  }
+
+  export { className as class, closeable, selectTab }
 </script>
 
-<div class:tabs class={className}>
+<div class={tabsClass}>
   <div
-    class="tabs-header flex space-x-1 rounded-lg bg-slate-100 dark:bg-slate-800 p-1"
+    class="tabs-header flex space-x-1 rounded-lg bg-slate-100 dark:bg-slate-800"
+    class:p-1={tabs.length > 0}
   >
-    {#each tabs as { header, key } ('tab-header_' + key)}
+    {#each tabs as { header, key }, index ('tab-header_' + key)}
       <button
-        class="tab-header cursor-pointer py-1 px-3 rounded-md text-sm font-semibold"
+        class="tab-header cursor-pointer py-1 px-3 rounded-md text-sm font-semibold whitespace-nowrap flex items-center"
         class:text-slate-600={$current !== key}
         class:dark:text-slate-300={$current !== key}
         class:text-slate-800={$current === key}
@@ -51,10 +69,29 @@
         on:click={() => selectTab(key)}
       >
         {header}
+        <button
+          hidden={!closeable}
+          class="w-3 h-3 ml-1 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700"
+          on:click={() => onClose(key, index)}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
       </button>
     {/each}
   </div>
-  <ul class="tabs-content">
+  <ul class="tabs-content flex-1 overflow-auto" bind:this={tabsContentRef}>
     <slot />
   </ul>
 </div>

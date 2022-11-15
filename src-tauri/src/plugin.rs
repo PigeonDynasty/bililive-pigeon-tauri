@@ -14,10 +14,10 @@ pub trait Plugin: Any + Send + Sync {
     fn contact(&self) -> &'static str;
     // A callback fired immediately after the plugin is loaded. Usually used
     // for initialization.
-    fn on_plugin_load(&self, handle: &Option<AppHandle>) {}
+    fn load(&self, handle: &Option<AppHandle>) {}
     // A callback fired immediately before the plugin is unloaded. Use this if
     // you need to do any cleanup.
-    fn on_plugin_unload(&self, handle: &Option<AppHandle>) {}
+    fn unload(&self, handle: &Option<AppHandle>) {}
     // Inspect (and possibly mutate) the request before it is sent.
     fn send(&self, _request: &mut Vec<Packet>, handle: &Option<AppHandle>) {}
 }
@@ -90,7 +90,7 @@ impl PluginManager {
             let plugin = Box::from_raw(boxed_raw);
             println!("Loaded plugin: {}", plugin.name());
             let plugin_name = plugin.name();
-            plugin.on_plugin_load(&self.handle);
+            plugin.load(&self.handle);
             if bol {
                 self.plugins.push(plugin);
             }
@@ -114,7 +114,7 @@ impl PluginManager {
 
         for plugin in self.plugins.drain(..) {
             println!("Firing on_plugin_unload for {:?}", plugin.name());
-            plugin.on_plugin_unload(&self.handle);
+            plugin.unload(&self.handle);
         }
 
         for lib in self.loaded_libraries.drain(..) {
@@ -124,7 +124,7 @@ impl PluginManager {
     pub fn unload(&mut self, name: &str) {
         for i in 0..self.plugins.len() {
             if self.plugins[i].name() == name {
-                self.plugins[i].on_plugin_unload(&self.handle);
+                self.plugins[i].unload(&self.handle);
                 drop(&self.loaded_libraries[i]);
             }
         }

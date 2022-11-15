@@ -7,7 +7,7 @@
     "withGlobalTauri": true
   },
   "package": {
-    "productName": "bililive-pigeon",
+    "productName": "Bililive Pigeon",
     "version": "0.0.0"
   },
   "tauri": {
@@ -35,7 +35,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.bililive.tauri",
+      "identifier": "com.bililive.pigeon",
       "longDescription": "",
       "macOS": {
         "entitlements": null,

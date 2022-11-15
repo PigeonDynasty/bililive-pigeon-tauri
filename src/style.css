@@ -4,13 +4,13 @@
 
 @layer components {
   .btn-primary {
-    @apply font-semibold drop-shadow text-zinc-100 bg-sky-400 hover:bg-sky-500 dark:text-zinc-300 dark:hover:bg-sky-700 dark:bg-sky-800;
+    @apply font-semibold shadow text-zinc-100 bg-sky-400 hover:bg-sky-500 dark:text-zinc-300 dark:hover:bg-sky-700 dark:bg-sky-800;
   }
 }
 
 @layer base {
   :root {
-    @apply font-sans text-zinc-900 bg-zinc-50 dark:text-zinc-50 dark:bg-zinc-900 scroll-smooth;
+    @apply font-sans text-zinc-900 bg-zinc-50 dark:text-zinc-50 dark:bg-zinc-900 scroll-smooth transition;
   }
 
   html,

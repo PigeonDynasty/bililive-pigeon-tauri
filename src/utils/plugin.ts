@@ -41,7 +41,7 @@ globalThis.BililivePlugin = plugin => {
   plugins.appendSuccess(plugin)
 }
 
-export { plugins }
+export default plugins
 
 // Define the plugin
 // const plugin = {

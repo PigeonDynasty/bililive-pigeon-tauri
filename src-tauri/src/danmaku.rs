@@ -17,13 +17,19 @@ use url::Url;
 static DANMAKU_POOL: Lazy<Mutex<HashMap<i32, JoinHandle<()>>>> =
     Lazy::new(|| Mutex::new(HashMap::new()));
 pub async fn new(room_id: i32, win: &Window) {
-    let res = Request::new().get_danmaku_hosts(room_id).await;
+    let key = format!("stream-{}", room_id);
+    let _request = Request::new();
+    let room_res = _request.get_true_roomid(room_id).await;
+    let _room_id = room_res["data"]["room_id"].as_i64().unwrap();
+    win.emit(&key, _room_id).unwrap();
+
+    let res = _request.get_danmaku_hosts(_room_id).await;
     let list = res["data"]["host_list"].as_array().unwrap().to_owned();
     let token = res["data"]["token"].as_str().unwrap();
     let ws_stream = try_connect_async(list).await.unwrap();
-    let key = format!("stream-{}", room_id);
+
     win.emit(&key, "connected").unwrap();
-    join(ws_stream.unwrap(), room_id, token, win).await;
+    join(ws_stream.unwrap(), room_id, _room_id, token, win).await;
 }
 
 // 递归尝试连接
@@ -58,13 +64,13 @@ fn try_connect_async(
         }
     })
 }
-async fn join(ws_stream: WsStream, room_id: i32, token: &str, win: &Window) {
+async fn join(ws_stream: WsStream, room_id: i32, _room_id: i64, token: &str, win: &Window) {
     let (mut wx, mut rx) = ws_stream.split();
     let raw = serde_json::to_string(&serde_json::json!({
             "uid": 0,
-            "roomid": room_id,
+            "roomid": _room_id,
             "protover": 3,
-            "platform": "danmaku",
+            "platform": "bililive_pigeon",
             "type":2,
             "key": token,
     }))
