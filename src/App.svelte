@@ -3,12 +3,12 @@
   import Test from './lib/Test.svelte'
   import Danmaku from './lib/Danmaku.svelte'
   import { Tabs, Tab } from './lib/Tabs'
+  import Plugin from './lib/Plugin.svelte'
   import Setting from './lib/Setting.svelte'
   let rooms = []
   let roomId = ''
   let tabsRef
   const connect = () => {
-    console.log(rooms)
     if (roomId && !rooms.includes(roomId)) {
       rooms = [...rooms, roomId]
       tabsRef.selectTab('room_' + roomId)
@@ -47,7 +47,9 @@
         <Test />
       </Tab>
       <Tab header="用户" key="user">用户1</Tab>
-      <Tab header="插件" key="plugin">插件1</Tab>
+      <Tab header="插件" key="plugin">
+        <Plugin />
+      </Tab>
       <Tab header="设置" key="setting">
         <Setting />
       </Tab>

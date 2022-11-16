@@ -10,7 +10,7 @@ use tauri::Window;
 use tokio::net::TcpStream;
 use tokio_tungstenite::{MaybeTlsStream, WebSocketStream};
 pub(crate) type WsStream = WebSocketStream<MaybeTlsStream<TcpStream>>;
-use bililive_pigeon::plugin::PluginManager;
+use bililive_pigeon::plugin::{PluginData, PluginManager};
 use bililive_pigeon::{db, doc_dir};
 use once_cell::sync::Lazy;
 use std::fs::create_dir_all;
@@ -33,22 +33,26 @@ async fn connect(room_id: i32, window: Window) {
 async fn disconnect(room_id: i32, window: Window) {
     danmaku::disconnect(room_id, &window, "disconnect").await;
 }
+// 读取并加载插件 bol判断是否需要加载
+#[tauri::command]
+fn load_plugin_all(load: bool) -> Vec<PluginData> {
+    let res = PLUGIN_MANAGER.lock().unwrap().load_plugin_all(load);
+    res
+}
 // 加载插件
 #[tauri::command]
-fn load_plugin() {
-    let path = String::from(
-        "/Users/takenokos/Documents/Rust/tauri-plugin-test/target/debug/libtauri_plugin_test.dylib",
-    );
-    PLUGIN_MANAGER
-        .lock()
-        .unwrap()
-        .load_plugin(path, true)
-        .unwrap();
+fn load_plugin(name: String) {
+    // PLUGIN_MANAGER
+    //     .lock()
+    //     .unwrap()
+    //     .load_plugin(path, true)
+    //     .unwrap();
+    PLUGIN_MANAGER.lock().unwrap().load(&name);
 }
 // 卸载插件
 #[tauri::command]
-fn unload_plugin() {
-    PLUGIN_MANAGER.lock().unwrap().unload_all();
+fn unload_plugin(name: String) {
+    PLUGIN_MANAGER.lock().unwrap().unload(&name);
 }
 fn main() {
     let doc_dir = doc_dir();
@@ -59,13 +63,13 @@ fn main() {
     tauri::Builder::default()
         .setup(|app| {
             PLUGIN_MANAGER.lock().unwrap().set_handle(app.handle());
-            PLUGIN_MANAGER.lock().unwrap().load_plugin_all(true);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             greet,
             connect,
             disconnect,
+            load_plugin_all,
             load_plugin,
             unload_plugin
         ])

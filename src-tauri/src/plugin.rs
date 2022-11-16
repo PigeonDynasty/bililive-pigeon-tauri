@@ -3,6 +3,7 @@ use crate::db::plugin as db_plugin;
 use crate::fs;
 use crate::packet::Packet;
 use libloading::{Library, Symbol};
+use serde::Serialize;
 use std::any::Any;
 use std::ffi::OsStr;
 use tauri::AppHandle;
@@ -10,6 +11,7 @@ use tauri::AppHandle;
 pub trait Plugin: Any + Send + Sync {
     // Get a name describing the `Plugin`.
     fn name(&self) -> &'static str;
+    fn author(&self) -> &'static str;
     fn description(&self) -> &'static str;
     fn contact(&self) -> &'static str;
     // A callback fired immediately after the plugin is loaded. Usually used
@@ -21,15 +23,29 @@ pub trait Plugin: Any + Send + Sync {
     // Inspect (and possibly mutate) the request before it is sent.
     fn send(&self, _request: &mut Vec<Packet>, handle: &Option<AppHandle>) {}
 }
-
+#[derive(Serialize)]
 pub struct PluginData {
     name: Option<String>,
+    author: Option<String>,
+    description: Option<String>,
+    contact: Option<String>,
     plugin_type: PluginType,
     path: String,
+    visible: bool,
+}
+pub struct PluginInfo {
+    name: Option<String>,
+    author: Option<String>,
+    description: Option<String>,
+    contact: Option<String>,
+}
+struct BoxPlugin {
+    visible: bool,
+    plugin: Box<dyn Plugin>,
 }
 pub struct PluginManager {
     handle: Option<AppHandle>,
-    plugins: Vec<Box<dyn Plugin>>,
+    plugins: Vec<BoxPlugin>,
     loaded_libraries: Vec<Library>,
 }
 
@@ -55,7 +71,7 @@ impl PluginManager {
         let mut res = vec![];
         for plugin in plugins {
             let mut bol = false;
-            let mut plugin_name = None;
+            let mut plugin_info = None;
             for plugin_config in &config {
                 if plugin_config.path == plugin.path && plugin_config.visible == 1 {
                     bol = true;
@@ -64,20 +80,35 @@ impl PluginManager {
             }
             match plugin.plugin_type {
                 PluginType::Dylib => {
-                    let name = self.load_plugin(&plugin.path, need_load && bol).unwrap();
-                    plugin_name = Some(name.to_owned());
+                    let info = self.load_plugin(&plugin.path, need_load && bol).unwrap();
+                    plugin_info = Some(info);
                 }
                 PluginType::Js => {}
             }
-            res.push(PluginData {
-                name: plugin_name,
-                plugin_type: plugin.plugin_type,
-                path: plugin.path,
-            })
+            match plugin_info {
+                Some(info) => res.push(PluginData {
+                    name: info.name,
+                    author: info.author,
+                    description: info.description,
+                    contact: info.contact,
+                    plugin_type: plugin.plugin_type,
+                    path: plugin.path,
+                    visible: bol,
+                }),
+                None => res.push(PluginData {
+                    name: None,
+                    author: None,
+                    description: None,
+                    contact: None,
+                    plugin_type: plugin.plugin_type,
+                    path: plugin.path,
+                    visible: bol,
+                }),
+            }
         }
         res
     }
-    pub fn load_plugin<P: AsRef<OsStr>>(&mut self, path: P, bol: bool) -> Result<&str, ()> {
+    pub fn load_plugin<P: AsRef<OsStr>>(&mut self, path: P, bol: bool) -> Result<PluginInfo, ()> {
         unsafe {
             type PluginCreate = unsafe fn() -> *mut dyn Plugin;
             let lib = Library::new(path.as_ref()).expect("Unable to load the plugin");
@@ -89,21 +120,34 @@ impl PluginManager {
             let boxed_raw = constructor();
             let plugin = Box::from_raw(boxed_raw);
             println!("Loaded plugin: {}", plugin.name());
-            let plugin_name = plugin.name();
-            plugin.load(&self.handle);
-            if bol {
-                self.plugins.push(plugin);
+            let name = plugin.name();
+            let author = plugin.author();
+            let description = plugin.description();
+            let contact = plugin.contact();
+            if bol == true {
+                plugin.load(&self.handle);
             }
-            Ok(plugin_name)
+            self.plugins.push(BoxPlugin {
+                visible: bol,
+                plugin: plugin,
+            });
+            Ok(PluginInfo {
+                name: Some(name.to_owned()),
+                author: Some(author.to_owned()),
+                description: Some(description.to_owned()),
+                contact: Some(contact.to_owned()),
+            })
         }
     }
 
     // Iterate over the plugins, running their `send()` hook.
     pub fn send(&mut self, request: &mut Vec<Packet>) {
         println!("Firing pre_send hooks");
-        for plugin in &mut self.plugins {
-            println!("Firing send for {:?}", plugin.name());
-            plugin.send(request, &self.handle);
+        for box_plugin in &mut self.plugins {
+            if box_plugin.visible == true {
+                println!("Firing send for {:?}", box_plugin.plugin.name());
+                box_plugin.plugin.send(request, &self.handle);
+            }
         }
     }
 
@@ -111,21 +155,31 @@ impl PluginManager {
     // their `on_plugin_unload()` methods so they can do any necessary cleanup.
     pub fn unload_all(&mut self) {
         println!("Unloading plugins");
-
-        for plugin in self.plugins.drain(..) {
-            println!("Firing on_plugin_unload for {:?}", plugin.name());
-            plugin.unload(&self.handle);
+        for mut box_plugin in self.plugins.drain(..) {
+            println!("Firing on_plugin_unload for {:?}", box_plugin.plugin.name());
+            box_plugin.plugin.unload(&self.handle);
+            box_plugin.visible = false;
         }
-
         for lib in self.loaded_libraries.drain(..) {
             drop(lib);
         }
     }
     pub fn unload(&mut self, name: &str) {
         for i in 0..self.plugins.len() {
-            if self.plugins[i].name() == name {
-                self.plugins[i].unload(&self.handle);
+            let plugin = &self.plugins[i].plugin;
+            if plugin.name() == name {
+                plugin.unload(&self.handle);
+                self.plugins[i].visible = false;
                 drop(&self.loaded_libraries[i]);
+            }
+        }
+    }
+    pub fn load(&mut self, name: &str) {
+        for i in 0..self.plugins.len() {
+            let plugin = &self.plugins[i].plugin;
+            if plugin.name() == name {
+                plugin.load(&self.handle);
+                self.plugins[i].visible = false;
             }
         }
     }
@@ -158,6 +212,7 @@ use crate::{doc_dir, plugin_dir};
 use std::fs::{create_dir_all, metadata, read_dir, File, OpenOptions};
 use std::io::{Read, Write};
 
+#[derive(Serialize)]
 enum PluginType {
     Dylib,
     Js,
@@ -175,7 +230,7 @@ fn read_plugin_dir() -> Vec<PluginPath> {
     let mut res: Vec<PluginPath> = vec![];
     for path in plugins {
         let mut plugin_type: Option<PluginType> = None;
-        if path.ends_with(".dylib") {
+        if path.ends_with(".dylib") || path.ends_with(".so") || path.ends_with(".dll") {
             // 动态库
             plugin_type = Some(PluginType::Dylib);
         } else if path.ends_with(".js") {

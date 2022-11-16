@@ -3,6 +3,8 @@
   import { invoke } from '@tauri-apps/api/tauri'
   import { appWindow } from '@tauri-apps/api/window'
   import { dateFormat } from '../utils/utils'
+  import { fade } from 'svelte/transition'
+
   export let roomId: string | number
   let listener = null
   let count = 0
@@ -14,7 +16,9 @@
     couldScroll = ulEl.clientHeight + ulEl.scrollTop >= ulEl.scrollHeight
   }
   const toBottom = () => {
-    ulEl.scrollTop = ulEl.scrollHeight
+    setTimeout(() => {
+      ulEl.scrollTop = ulEl.scrollHeight
+    }, 300)
   }
   onMount(async () => {
     if (!roomId) return
@@ -57,15 +61,15 @@
               // count = payload.body.count
               break
             case 5: // wss消息
-              console.log(payload.body)
+              // console.log(payload.body)
               switch (payload.body.cmd) {
                 case 'DANMU_MSG': // 用户发送的消息
                   const info = payload.body.info
                   msg = [
                     ...msg,
-                    `[${dateFormat(info[0][4], 'hh:MM:ss')}]${info[2][1]}：${
-                      info[1]
-                    }`
+                    `[${dateFormat(info[0][4], 'hh:mm:ss')}]
+                    ${info[2][1]}：
+                    ${info[1]}`
                   ]
                   break
                 case 'WATCHED_CHANGE': // 多少人看过
@@ -76,7 +80,7 @@
               break
           }
         })
-        console.log(couldScroll)
+        if (!couldScroll) console.log(roomId)
         couldScroll && toBottom()
       }
     )
@@ -101,7 +105,7 @@
     on:scroll={checkCouldScroll}
   >
     {#each msg as d, i}
-      <li>
+      <li in:fade>
         {@html d}
       </li>
     {/each}

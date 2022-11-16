@@ -1,14 +1,17 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte'
   const dispatch = createEventDispatcher()
-  export let id = ''
-  export let value = false
+  let id = ''
+  let value = false
+  let className = ''
+  export { className as class, id, value }
+  $: labelClass = ['inline-flex w-14', className].join(' ')
   const change = () => {
     dispatch('change', value)
   }
 </script>
 
-<label class="inline-flex w-14" for={id}>
+<label class={labelClass} for={id}>
   <input
     class="sr-only"
     type="checkbox"

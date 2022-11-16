@@ -43,7 +43,7 @@ fn check_table_existed(table_name: &str, conn: &Connection) -> bool {
     count > 0
 }
 // 检查是否存在表字段
-fn check_table_column_existed(column_name: &str, table_name: &str, conn: &Connection) -> bool {
+fn check_table_column_existed(table_name: &str, column_name: &str, conn: &Connection) -> bool {
     let sql: &str = "SELECT COUNT(*) FROM sqlite_master WHERE name=? and sql like ?";
     let mut stmt = conn.prepare(sql).unwrap();
     let count = stmt

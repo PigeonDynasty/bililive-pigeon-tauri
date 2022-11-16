@@ -1,26 +1,27 @@
 import { writable } from 'svelte/store'
 import { convertFileSrc } from '@tauri-apps/api/tauri'
 function createPlugins() {
-  const { set, update } = writable([])
+  const plugin_list = writable([])
+  const { set, update } = plugin_list
   return {
+    data: plugin_list,
     appendAll: data => {
       data.forEach(plugin => {
-        plugin.path = convertFileSrc(plugin.path)
+        plugin.asset_path = convertFileSrc(plugin.path)
         const script = document.createElement('script')
         script.type = 'text/javascript'
-        script.src = plugin.path
+        script.src = plugin.asset_path
         document.body.appendChild(script)
       })
       set(data)
     },
     appendSuccess: plugin => {
       update(p => {
-        const obj = p.find(item => item.path === plugin.path())
+        const obj = p.find(item => item.asset_path === plugin.getPath())
         if (obj) {
           Object.assign(obj, plugin)
           obj.visible && obj.load()
         }
-        console.log(obj)
         return p
       })
     },
@@ -37,7 +38,7 @@ function createPlugins() {
 const plugins = createPlugins()
 
 globalThis.BililivePlugin = plugin => {
-  plugin.path = () => document.currentScript.getAttribute('src')
+  plugin.getPath = () => document.currentScript.getAttribute('src')
   plugins.appendSuccess(plugin)
 }
 

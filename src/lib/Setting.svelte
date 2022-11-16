@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Toggle from './Toogle.svelte'
+  import Toogle from './Toogle.svelte'
   import { WebviewWindow, currentMonitor } from '@tauri-apps/api/window'
   let web: WebviewWindow = null
   const toogleChange = async e => {
@@ -32,4 +32,4 @@
   }
 </script>
 
-<Toggle id="toggle" on:change={toogleChange} />
+<Toogle id="toogle" on:change={toogleChange} />
