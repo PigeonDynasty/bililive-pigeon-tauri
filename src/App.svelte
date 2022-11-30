@@ -1,13 +1,16 @@
 <script lang="ts">
   import Greet from './lib/Greet.svelte'
-  import Test from './lib/Test.svelte'
   import Danmaku from './lib/Danmaku.svelte'
   import { Tabs, Tab } from './lib/Tabs'
   import Plugin from './lib/Plugin.svelte'
   import Setting from './lib/Setting.svelte'
+  import { appWindow } from '@tauri-apps/api/window'
+  import { TauriEvent } from '@tauri-apps/api/event'
+
   let rooms = []
   let roomId = ''
   let tabsRef
+  let roomRefs = []
   const connect = () => {
     if (roomId && !rooms.includes(roomId)) {
       rooms = [...rooms, roomId]
@@ -19,6 +22,14 @@
     rooms.splice(index, 1)
     rooms = rooms
   }
+  // 自定义关闭事件
+  appWindow.listen(TauriEvent.WINDOW_CLOSE_REQUESTED, () => {
+    roomRefs.forEach(roomRef => {
+      roomRef.write_danmaku()
+    })
+    // 关闭
+    appWindow.close()
+  })
 </script>
 
 <main class="flex h-full py-2 px-1">
@@ -42,9 +53,6 @@
       </Tab>
       <Tab header="Greet" key="greet">
         <Greet />
-      </Tab>
-      <Tab header="Test" key="test">
-        <Test />
       </Tab>
       <Tab header="用户" key="user">用户1</Tab>
       <Tab header="插件" key="plugin">
@@ -77,7 +85,7 @@
     >
       {#each rooms as roomid ('room_' + roomid)}
         <Tab header={roomid} key={'room_' + roomid}>
-          <Danmaku roomId={Number(roomid)} />
+          <Danmaku bind:this={roomRefs[roomid]} roomId={Number(roomid)} />
         </Tab>
       {/each}
     </Tabs>

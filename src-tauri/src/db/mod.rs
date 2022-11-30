@@ -1,6 +1,6 @@
 use crate::db_path;
 use rusqlite::{Connection, Result};
-use std::fs::File;
+use std::fs::OpenOptions;
 pub mod plugin;
 
 // 连接数据库
@@ -10,7 +10,15 @@ pub fn connect() -> Connection {
 }
 // 初始化数据库
 pub fn init() {
-    File::create(db_path()).expect("create db failed");
+    let _file = OpenOptions::new()
+        .create(true) // 新建，若文件存在则打开这个文件
+        .open(db_path());
+    // match File::open(db_path()) {
+    //     Ok(_file) => {}
+    //     Err(_) => {
+    //         File::create(db_path()).expect("create db failed");
+    //     }
+    // }
     let conn = connect();
     if !check_table_existed("plugin", &conn) {
         conn.execute(
@@ -48,7 +56,7 @@ fn check_table_column_existed(table_name: &str, column_name: &str, conn: &Connec
     let mut stmt = conn.prepare(sql).unwrap();
     let count = stmt
         .query_row(
-            [table_name, ("'%".to_owned() + column_name + "%'").as_ref()],
+            [table_name, ("%".to_owned() + column_name + "%").as_ref()],
             |row| row.get(0) as Result<i32>,
         )
         .unwrap();

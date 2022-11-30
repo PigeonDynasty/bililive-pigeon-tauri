@@ -11,7 +11,7 @@ use tokio::net::TcpStream;
 use tokio_tungstenite::{MaybeTlsStream, WebSocketStream};
 pub(crate) type WsStream = WebSocketStream<MaybeTlsStream<TcpStream>>;
 use bililive_pigeon::plugin::{PluginData, PluginManager};
-use bililive_pigeon::{db, doc_dir};
+use bililive_pigeon::{db, doc_dir, txt};
 use once_cell::sync::Lazy;
 use std::fs::create_dir_all;
 use std::sync::Mutex;
@@ -26,12 +26,18 @@ fn greet(name: &str) -> String {
 // 发起连接
 #[tauri::command]
 async fn connect(room_id: i32, window: Window) {
+    create_dir_all(txt::room_path(&room_id)).unwrap();
     danmaku::new(room_id, &window).await;
 }
 // 断开连接
 #[tauri::command]
 async fn disconnect(room_id: i32, window: Window) {
     danmaku::disconnect(room_id, &window, "disconnect").await;
+}
+// 弹幕信息写入文件
+#[tauri::command]
+fn write_danmaku_txt(room_id: i32, date: String, data: Vec<String>) {
+    txt::write_danmaku_txt(room_id, date, data);
 }
 // 读取并加载插件 bol判断是否需要加载
 #[tauri::command]
@@ -69,6 +75,7 @@ fn main() {
             greet,
             connect,
             disconnect,
+            write_danmaku_txt,
             load_plugin_all,
             load_plugin,
             unload_plugin

@@ -2,6 +2,7 @@ pub mod db;
 pub mod fs;
 pub mod packet;
 pub mod plugin;
+pub mod txt;
 
 use std::path::PathBuf;
 use tauri::api::path::document_dir;

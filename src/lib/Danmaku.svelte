@@ -4,12 +4,10 @@
   import { appWindow } from '@tauri-apps/api/window'
   import { dateFormat } from '../utils/utils'
   import { fade } from 'svelte/transition'
-
-  export let roomId: string | number
+  let roomId: string | number
   let listener = null
   let count = 0
   let msg = [] // 弹幕数据
-
   let ulEl // ul dom对象
   let couldScroll: boolean = true // 判断能否自动滚动到底部
   const checkCouldScroll = () => {
@@ -19,6 +17,20 @@
     setTimeout(() => {
       ulEl.scrollTop = ulEl.scrollHeight
     }, 300)
+  }
+
+  let txt_index = 0 // 记录保存数据第N条
+  let interval = null
+  const write_danmaku = () => {
+    const end = msg.length
+    if (end === txt_index) return
+    console.log('writr:', txt_index, end, msg.slice(txt_index, end))
+    invoke('write_danmaku_txt', {
+      roomId,
+      date: dateFormat(new Date(), 'yyyy-MM-dd'),
+      data: msg.slice(txt_index, end)
+    })
+    txt_index = end
   }
   onMount(async () => {
     if (!roomId) return
@@ -67,9 +79,9 @@
                   const info = payload.body.info
                   msg = [
                     ...msg,
-                    `[${dateFormat(info[0][4], 'hh:mm:ss')}]
-                    ${info[2][1]}：
-                    ${info[1]}`
+                    `[${dateFormat(info[0][4], 'hh:mm:ss')}] ${info[2][1]}：${
+                      info[1]
+                    }`
                   ]
                   break
                 case 'WATCHED_CHANGE': // 多少人看过
@@ -84,8 +96,14 @@
         couldScroll && toBottom()
       }
     )
+    // 定时写入文件 30s
+    interval = setInterval(() => {
+      write_danmaku()
+    }, 30 * 1000)
   })
   onDestroy(() => {
+    interval && clearInterval(interval)
+    write_danmaku()
     invoke('disconnect', { roomId })
     // 断开连接 解除监听
     if (listener) {
@@ -94,6 +112,7 @@
       listener = null
     }
   })
+  export { roomId, write_danmaku }
 </script>
 
 <div
