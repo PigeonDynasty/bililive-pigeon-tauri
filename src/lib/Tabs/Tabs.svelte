@@ -53,7 +53,7 @@
 
 <div class={tabsClass}>
   <div
-    class="tabs-header flex space-x-1 rounded-lg bg-slate-100 dark:bg-slate-800"
+    class="tabs-header flex space-x-1 rounded-lg bg-slate-100 dark:bg-slate-800 shadow-md"
     class:p-1={tabs.length > 0}
   >
     {#each tabs as { header, key }, index ('tab-header_' + key)}
@@ -69,25 +69,26 @@
         on:click={() => selectTab(key)}
       >
         {header}
-        <button
-          hidden={!closeable}
-          class="w-3 h-3 ml-1 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700"
-          on:click={() => onClose(key, index)}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="2"
-            stroke="currentColor"
+        {#if closeable}
+          <button
+            class="w-3 h-3 ml-1 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700"
+            on:click={() => onClose(key, index)}
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="2"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        {/if}
       </button>
     {/each}
   </div>

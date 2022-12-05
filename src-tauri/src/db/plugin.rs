@@ -39,11 +39,26 @@ pub fn insert(data: &Vec<DbPlugin>) {
 }
 pub fn update_visible(path: &str, visible: &i8) {
     let conn = connect();
-    let mut stmt = conn
-        .prepare("UPDATE plugin SET visible=?1 WHERE path=?2")
+    let sql: &str = "SELECT COUNT(id) FROM plugin WHERE path = ?1";
+    let mut stmt = conn.prepare(sql).unwrap();
+    let count = stmt
+        .query_row([path], |row| row.get(0) as Result<i32, _>)
         .unwrap();
-    stmt.execute([visible.to_string(), path.to_string()])
-        .unwrap();
+    if count > 0 {
+        // 有则更新
+        let mut stmt = conn
+            .prepare("UPDATE plugin SET visible=?1 WHERE path=?2")
+            .unwrap();
+        stmt.execute([visible.to_string(), path.to_string()])
+            .unwrap();
+    } else {
+        // 无则插入
+        let mut stmt = conn
+            .prepare("INSERT INTO plugin (path, visible) VALUES (?1,?2)")
+            .unwrap();
+        stmt.execute([path.to_string(), visible.to_string()])
+            .unwrap();
+    }
 }
 
 pub fn delete(paths: Vec<String>) {

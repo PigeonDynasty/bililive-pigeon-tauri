@@ -11,9 +11,10 @@ use tokio::net::TcpStream;
 use tokio_tungstenite::{MaybeTlsStream, WebSocketStream};
 pub(crate) type WsStream = WebSocketStream<MaybeTlsStream<TcpStream>>;
 use bililive_pigeon::plugin::{PluginData, PluginManager};
-use bililive_pigeon::{db, doc_dir, txt};
+use bililive_pigeon::{db, doc_dir, plugin_dir, txt};
 use once_cell::sync::Lazy;
 use std::fs::create_dir_all;
+use std::path::PathBuf;
 use std::sync::Mutex;
 
 static PLUGIN_MANAGER: Lazy<Mutex<PluginManager>> = Lazy::new(|| Mutex::new(PluginManager::new()));
@@ -39,6 +40,11 @@ async fn disconnect(room_id: i32, window: Window) {
 fn write_danmaku_txt(room_id: i32, date: String, data: Vec<String>) {
     txt::write_danmaku_txt(room_id, date, data);
 }
+// 获取插件目录
+#[tauri::command]
+fn get_plugin_dir() -> PathBuf {
+    plugin_dir()
+}
 // 读取并加载插件 bol判断是否需要加载
 #[tauri::command]
 fn load_plugin_all(load: bool) -> Vec<PluginData> {
@@ -60,6 +66,15 @@ fn load_plugin(name: String) {
 fn unload_plugin(name: String) {
     PLUGIN_MANAGER.lock().unwrap().unload(&name);
 }
+// 更新插件visible
+#[tauri::command]
+fn update_plugin_visible(path: String, visible: bool) {
+    let mut visible_int: i8 = 0;
+    if visible {
+        visible_int = 1;
+    }
+    db::plugin::update_visible(&path, &visible_int);
+}
 fn main() {
     let doc_dir = doc_dir();
     create_dir_all(&doc_dir).unwrap();
@@ -76,9 +91,11 @@ fn main() {
             connect,
             disconnect,
             write_danmaku_txt,
+            get_plugin_dir,
             load_plugin_all,
             load_plugin,
-            unload_plugin
+            unload_plugin,
+            update_plugin_visible,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

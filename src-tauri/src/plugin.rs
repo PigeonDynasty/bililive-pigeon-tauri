@@ -66,6 +66,10 @@ impl PluginManager {
      * @return {*}
      */
     pub fn load_plugin_all(&mut self, need_load: bool) -> Vec<PluginData> {
+        drop(&self);
+        self.plugins = vec![];
+        self.loaded_libraries = vec![];
+        // 开始加载
         let plugins = read_plugin_dir();
         let config = db_plugin::select_all();
         let mut res = vec![];
@@ -179,7 +183,7 @@ impl PluginManager {
             let plugin = &self.plugins[i].plugin;
             if plugin.name() == name {
                 plugin.load(&self.handle);
-                self.plugins[i].visible = false;
+                self.plugins[i].visible = true;
             }
         }
     }

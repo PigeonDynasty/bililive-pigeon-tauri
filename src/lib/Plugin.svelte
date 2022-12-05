@@ -9,11 +9,9 @@
   const resizeObserver = new ResizeObserver(entries => {
     colWidth = headRef.offsetWidth - bodyRef.offsetWidth
   })
-
+  let path = ''
   let data = []
-  onMount(async () => {
-    resizeObserver.observe(bodyRef)
-
+  const loadPlugins = async () => {
     data = await invoke('load_plugin_all', { load: true })
     plugins.appendAll(data.filter(item => item.plugin_type === 'Js'))
     plugins.data.subscribe(value => {
@@ -22,10 +20,8 @@
         if (index > -1) data[index] = item
       })
     })
-  })
-  onDestroy(() => {
-    resizeObserver.unobserve(bodyRef)
-  })
+  }
+
   const toogleChange = row => {
     switch (row.plugin_type) {
       case 'Js':
@@ -37,10 +33,31 @@
           : invoke('unload_plugin', { name: row.name })
         break
     }
+    invoke('update_plugin_visible', { path: row.path, visible: row.visible })
   }
+  const reLoad = () => {
+    plugins.clear()
+    loadPlugins()
+  }
+  onMount(async () => {
+    resizeObserver.observe(bodyRef)
+    path = await invoke('get_plugin_dir')
+    loadPlugins()
+  })
+  onDestroy(() => {
+    resizeObserver.unobserve(bodyRef)
+  })
 </script>
 
 <div class="h-full flex flex-col">
+  <div class="my-1">
+    目录：{path}
+    <button
+      class="btn-warning float-right text-xs leading-3 py-1 px-3 rounded-full"
+      on:click={reLoad}>重载</button
+    >
+  </div>
+
   <div class="table-head">
     <table class="w-full" bind:this={headRef}>
       <colgroup>

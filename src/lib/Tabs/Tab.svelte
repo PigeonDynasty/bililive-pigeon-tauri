@@ -14,9 +14,9 @@
 </script>
 
 <li
-  hidden={$current !== key}
   data-key={key}
   class="tab-content transition h-full"
+  class:hidden={$current !== key}
   in:fade
 >
   <slot />

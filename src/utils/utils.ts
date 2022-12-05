@@ -28,3 +28,7 @@ export function dateFormat(date, fmt = 'yyyy-MM-dd') {
   }
   return fmt
 }
+
+export function html2text(html_str: string): string {
+  return html_str.replace(/<[^<>]+>/g, '')
+}

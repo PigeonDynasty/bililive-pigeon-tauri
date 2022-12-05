@@ -33,6 +33,8 @@
 </script>
 
 <main class="flex h-full py-2 px-1">
+  <!-- 隐藏的div用来防止tailwindcss动态赋css时候不显示相关样式 -->
+  <div class="hidden text-amber-600 text-amber-900" />
   <div class="flex-1 px-1">
     <Tabs class="h-full">
       <Tab header="Info" key="info">
@@ -66,14 +68,11 @@
   <div class="flex flex-1 px-1 flex-col">
     <div class="flex mb-1">
       <input
-        class="rounded-md border-0 py-1 px-2 shadow flex-1 dark:bg-black bg-white"
+        class="rounded-md border-0 py-1 px-2 shadow-md flex-1 dark:bg-black bg-white"
         placeholder="输入房间号"
         bind:value={roomId}
       />
-      <button
-        class="font-semibold text-zinc-600 dark:text-zinc-300 rounded-md py-1 px-3 shadow ml-2 bg-zinc-100 dark:bg-zinc-800"
-        on:click={connect}
-      >
+      <button class="btn-default rounded-md py-1 px-3 ml-2" on:click={connect}>
         连接
       </button>
     </div>

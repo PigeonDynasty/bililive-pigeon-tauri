@@ -2,7 +2,7 @@
   import { onMount, onDestroy } from 'svelte'
   import { invoke } from '@tauri-apps/api/tauri'
   import { appWindow } from '@tauri-apps/api/window'
-  import { dateFormat } from '../utils/utils'
+  import { dateFormat, html2text } from '../utils/utils'
   import { fade } from 'svelte/transition'
   let roomId: string | number
   let listener = null
@@ -11,11 +11,13 @@
   let ulEl // ul dom对象
   let couldScroll: boolean = true // 判断能否自动滚动到底部
   const checkCouldScroll = () => {
-    couldScroll = ulEl.clientHeight + ulEl.scrollTop >= ulEl.scrollHeight
+    couldScroll = ulEl
+      ? ulEl.clientHeight + ulEl.scrollTop >= ulEl.scrollHeight
+      : false
   }
   const toBottom = () => {
     setTimeout(() => {
-      ulEl.scrollTop = ulEl.scrollHeight
+      ulEl && (ulEl.scrollTop = ulEl.scrollHeight)
     }, 300)
   }
 
@@ -24,11 +26,11 @@
   const write_danmaku = () => {
     const end = msg.length
     if (end === txt_index) return
-    console.log('writr:', txt_index, end, msg.slice(txt_index, end))
+    // console.log('write:', txt_index, end, msg.slice(txt_index, end))
     invoke('write_danmaku_txt', {
       roomId,
       date: dateFormat(new Date(), 'yyyy-MM-dd'),
-      data: msg.slice(txt_index, end)
+      data: msg.slice(txt_index, end).map(str => html2text(str))
     })
     txt_index = end
   }
@@ -88,6 +90,47 @@
                   const data = payload.body.data
                   count = data.num
                   break
+                case 'SEND_GIFT': // 礼物
+                  const gift = payload.body.data
+                  msg = [
+                    ...msg,
+                    `<i class="${
+                      gift['coin_type'] === 'gold'
+                        ? 'text-amber-600'
+                        : 'text-amber-900'
+                    }">【礼物】</i>[${dateFormat(
+                      gift['timestamp'] * 1000,
+                      'hh:mm:ss'
+                    )}] ${gift['uname']} ${gift['action']} ${gift['num']} 个 ${
+                      gift['giftName']
+                    }`
+                  ]
+                  break
+                case 'SUPER_CHAT_MESSAGE': //sc
+                case 'SUPER_CHAT_MESSAGE_JP':
+                  const sc = payload.body.data
+                  msg = [
+                    ...msg,
+                    `<i class="text-rose-600">【SC：${
+                      sc['price']
+                    }】</i>[${dateFormat(sc['ts'] * 1000, 'hh:mm:ss')}] ${
+                      sc['user_info']['uname']
+                    }： <span style="color:${sc['message_font_color']};">${
+                      sc['message']
+                    }`
+                  ]
+                  break
+                default: // 其他数据
+                  if (payload.body.cmd.includes('DANMU_MSG')) {
+                    // 遇上了奇怪的 DANMU_MSG 似乎是活动的类型
+                    const info = payload.body.info
+                    msg = [
+                      ...msg,
+                      `[${dateFormat(info[0][4], 'hh:mm:ss')}] ${info[2][1]}：${
+                        info[1]
+                      }`
+                    ]
+                  }
               }
               break
           }
@@ -116,7 +159,7 @@
 </script>
 
 <div
-  class="rounded border-[1px] border-solid relative h-full bg-white dark:bg-black shadow"
+  class="rounded border border-solid relative h-full bg-white dark:bg-black shadow-md"
 >
   <ul
     class="overflow-y-auto h-full py-1 px-2"
@@ -130,7 +173,7 @@
     {/each}
   </ul>
   <span
-    class="absolute top-2 right-6 px-2 flex items-center shadow rounded-lg bg-gray-100 dark:bg-gray-800 text-sm"
+    class="absolute top-2 right-6 px-2 flex items-center shadow-md rounded-lg bg-gray-100 dark:bg-gray-800 text-sm"
     title="看过"
   >
     <svg
@@ -154,25 +197,27 @@
     </svg>
     {count}
   </span>
-  <button
-    class="btn-primary text-xs leading-3 rounded-full py-1 px-2 scale-90 absolute right-1 bottom-1"
-    hidden={couldScroll}
-    on:click={toBottom}
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke-width="2.5"
-      stroke="currentColor"
-      class="w-3 h-3 float-left mr-1"
+  {#if !couldScroll}
+    <button
+      class="btn-primary text-xs leading-3 rounded-full py-1 px-2 scale-90 absolute right-1 bottom-1"
+      transition:fade
+      on:click={toBottom}
     >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M12 4.5v15m0 0l6.75-6.75M12 19.5l-6.75-6.75"
-      />
-    </svg>
-    回到底部
-  </button>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="2.5"
+        stroke="currentColor"
+        class="w-3 h-3 float-left mr-1"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M12 4.5v15m0 0l6.75-6.75M12 19.5l-6.75-6.75"
+        />
+      </svg>
+      回到底部
+    </button>
+  {/if}
 </div>

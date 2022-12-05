@@ -1,6 +1,7 @@
 <script lang="ts">
   import Toogle from './Toogle.svelte'
   import { WebviewWindow, currentMonitor } from '@tauri-apps/api/window'
+  import ColorPicker from './ColorPicker.svelte'
   let web: WebviewWindow = null
   const toogleChange = async e => {
     const val = e.detail
@@ -30,6 +31,8 @@
       web = null
     }
   }
+  let color = ''
 </script>
 
 <Toogle id="toogle" on:change={toogleChange} />
+<ColorPicker bind:value={color} />
