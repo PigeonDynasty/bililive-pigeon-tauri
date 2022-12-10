@@ -1,59 +1,53 @@
 import { writable } from 'svelte/store'
 import { convertFileSrc } from '@tauri-apps/api/tauri'
-function createPlugins() {
-  const plugin_list = writable([])
-  const { set, update } = plugin_list
-  return {
-    data: plugin_list,
-    appendAll: data => {
-      data.forEach(plugin => {
-        plugin.asset_path = convertFileSrc(plugin.path) + '?_t=' + Date.now()
-        const script = document.createElement('script')
-        script.type = 'text/javascript'
-        script.src = plugin.asset_path
-        document.body.appendChild(script)
-      })
-      set(data)
-    },
-    appendSuccess: plugin => {
-      update(p => {
-        const obj = p.find(item => item.asset_path === plugin.getPath())
-        if (obj) {
-          Object.assign(obj, plugin)
-          obj.visible && obj.load()
-        }
-        return p
-      })
-    },
-    splice: (i: number) => {
-      update(p => {
-        p.splice(i, 1)
-        return p
-      })
-    },
-    load: plugin => plugin.load(),
-    unload: plugin => plugin.unload(),
-    clear: () => {
-      update(p => {
-        p.forEach(item => {
-          item.unload && item.unload()
-          const script = document.querySelector(
-            `script[src="${item.asset_path}"]`
-          )
-          script.remove()
-        })
-        return []
-      })
-    }
-  }
+
+const plugins = writable([])
+const { set, update } = plugins
+const pluginAppendAll = data => {
+  data.forEach(plugin => {
+    plugin.asset_path = convertFileSrc(plugin.path) + '?_t=' + Date.now()
+    const script = document.createElement('script')
+    script.type = 'text/javascript'
+    script.src = plugin.asset_path
+    document.body.appendChild(script)
+  })
+  set(data)
 }
-const plugins = createPlugins()
+const _pluginAppendSuccess = plugin => {
+  update(p => {
+    const obj = p.find(item => item.asset_path === plugin.getPath())
+    if (obj) {
+      Object.assign(obj, plugin)
+      obj.visible && obj.load()
+    }
+    return p
+  })
+}
+const pluginSplice = (i: number) => {
+  update(p => {
+    p.splice(i, 1)
+    return p
+  })
+}
+const pluginLoad = plugin => plugin.load()
+const pluginUnload = plugin => plugin.unload()
+const pluginClear = () => {
+  update(p => {
+    p.forEach(item => {
+      item.unload && item.unload()
+      const script = document.querySelector(`script[src="${item.asset_path}"]`)
+      script.remove()
+    })
+    return []
+  })
+}
 
 export default plugins
+export { pluginAppendAll, pluginSplice, pluginLoad, pluginUnload, pluginClear }
 
 globalThis.RegisterBililivePlugin = plugin => {
   plugin.getPath = () => document.currentScript.getAttribute('src')
-  plugins.appendSuccess(plugin)
+  _pluginAppendSuccess(plugin)
 }
 globalThis.BililivePlugin = class BililivePlugin {
   name: string
@@ -69,7 +63,7 @@ globalThis.BililivePlugin = class BililivePlugin {
       this[key] = value
     })
     this.getPath = () => document.currentScript.getAttribute('src')
-    plugins.appendSuccess(this)
+    _pluginAppendSuccess(this)
   }
 }
 

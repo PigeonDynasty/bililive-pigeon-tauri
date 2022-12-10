@@ -1,9 +1,12 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte'
   import { invoke } from '@tauri-apps/api/tauri'
-  import { appWindow } from '@tauri-apps/api/window'
+  import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
   import { dateFormat, html2text } from '../utils/utils'
   import { fade } from 'svelte/transition'
+  import { addRoomId, delRoomId } from '../utils/roomId'
+  import type { info } from 'console'
+
   let roomId: string | number
   let listener = null
   let count = 0
@@ -31,11 +34,13 @@
       roomId,
       date: dateFormat(new Date(), 'yyyy-MM-dd'),
       data: msg.slice(txt_index, end).map(str => html2text(str))
+      // .filter(str => str[0] === '[' || str[0] === '【') // 过滤系统信息
     })
     txt_index = end
   }
   onMount(async () => {
     if (!roomId) return
+    addRoomId(roomId)
     msg = ['开始连接...']
     invoke('connect', { roomId })
     if (listener) {
@@ -76,15 +81,19 @@
               break
             case 5: // wss消息
               // console.log(payload.body)
+              let str = ''
               switch (payload.body.cmd) {
+                case 'LIVE': // 开播
+                  str = `${dateFormat(Date.now(), 'hh:mm:ss')} 开播`
+                  break
+                case 'PREPARING': // 关播
+                  str = `${dateFormat(Date.now(), 'hh:mm:ss')} 关播`
+                  break
                 case 'DANMU_MSG': // 用户发送的消息
                   const info = payload.body.info
-                  msg = [
-                    ...msg,
-                    `[${dateFormat(info[0][4], 'hh:mm:ss')}] ${info[2][1]}：${
-                      info[1]
-                    }`
-                  ]
+                  str = `[${dateFormat(info[0][4], 'hh:mm:ss')}] ${
+                    info[2][1]
+                  }：${info[1]}`
                   break
                 case 'WATCHED_CHANGE': // 多少人看过
                   const data = payload.body.data
@@ -92,45 +101,60 @@
                   break
                 case 'SEND_GIFT': // 礼物
                   const gift = payload.body.data
-                  msg = [
-                    ...msg,
-                    `<i class="${
-                      gift['coin_type'] === 'gold'
-                        ? 'text-amber-600'
-                        : 'text-amber-900'
-                    }">【礼物】</i>[${dateFormat(
-                      gift['timestamp'] * 1000,
-                      'hh:mm:ss'
-                    )}] ${gift['uname']} ${gift['action']} ${gift['num']} 个 ${
-                      gift['giftName']
-                    }`
-                  ]
+                  str = `<i class="${
+                    gift['coin_type'] === 'gold'
+                      ? 'text-amber-600'
+                      : 'text-amber-900'
+                  }">【礼物】</i>[${dateFormat(
+                    gift['timestamp'] * 1000,
+                    'hh:mm:ss'
+                  )}] ${gift['uname']} ${gift['action']} ${gift['num']} 个 ${
+                    gift['giftName']
+                  }`
+                  break
+                case 'GUARD_BUY': // 上舰
+                  const guard = payload.body.data
+                  console.log(guard)
+                  const guardName =
+                    guard['guard_level'] === 3
+                      ? '舰长'
+                      : guard['guard_level'] === 2
+                      ? '提督'
+                      : guard['guard_level'] === 1
+                      ? '总督'
+                      : ''
+                  // FIXME 上舰时间
+                  str = `<i class="text-violet-600">【上舰】</i>[${dateFormat(
+                    Date.now(),
+                    'hh:mm:ss'
+                  )}] ${guard['username']} 购买 ${
+                    guard['num']
+                  } 个月 ${guardName}`
                   break
                 case 'SUPER_CHAT_MESSAGE': //sc
                 case 'SUPER_CHAT_MESSAGE_JP':
                   const sc = payload.body.data
-                  msg = [
-                    ...msg,
-                    `<i class="text-rose-600">【SC：${
-                      sc['price']
-                    }】</i>[${dateFormat(sc['ts'] * 1000, 'hh:mm:ss')}] ${
-                      sc['user_info']['uname']
-                    }： <span style="color:${sc['message_font_color']};">${
-                      sc['message']
-                    }`
-                  ]
+                  str = `<i class="text-rose-600">【SC：${
+                    sc['price']
+                  }】</i>[${dateFormat(sc['ts'] * 1000, 'hh:mm:ss')}] ${
+                    sc['user_info']['uname']
+                  }： <span style="color:${sc['message_font_color']};">${
+                    sc['message']
+                  }`
                   break
                 default: // 其他数据
                   if (payload.body.cmd.includes('DANMU_MSG')) {
                     // 遇上了奇怪的 DANMU_MSG 似乎是活动的类型
                     const info = payload.body.info
-                    msg = [
-                      ...msg,
-                      `[${dateFormat(info[0][4], 'hh:mm:ss')}] ${info[2][1]}：${
-                        info[1]
-                      }`
-                    ]
+                    str = `[${dateFormat(info[0][4], 'hh:mm:ss')}] ${
+                      info[2][1]
+                    }：${info[1]}`
                   }
+              }
+              if (str) {
+                msg = [...msg, str]
+                const sideWindow = WebviewWindow.getByLabel('side-' + roomId)
+                sideWindow && sideWindow.emit('add-' + roomId, str)
               }
               break
           }
@@ -154,6 +178,7 @@
       listener['danmaku']()
       listener = null
     }
+    delRoomId(roomId)
   })
   export { roomId, write_danmaku }
 </script>

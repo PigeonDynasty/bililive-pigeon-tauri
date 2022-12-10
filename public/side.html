@@ -27,9 +27,20 @@
 
 <body>
   <script type="text/javascript">
+    function getQueryString(name, url) {
+      const u = url ? new URL(url) : window.location
+      const reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i')
+      const r = u.search.substring(1).match(reg)
+      if (r != null) {
+        return decodeURIComponent(r[2])
+      }
+      return null
+    }
     window.onload = () => {
+      const id = getQueryString('id')
+      if (!id) return
       const { listen } = window.__TAURI__.event
-      listen('add', ({ event, payload }) => {
+      listen('add-' + id, ({ event, payload }) => {
         console.log(event, payload)
         const div = document.createElement('div')
         div.className = "animate__animated animate__fadeInRightBig"

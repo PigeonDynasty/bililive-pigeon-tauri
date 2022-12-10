@@ -1,20 +1,20 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte'
   import { invoke } from '@tauri-apps/api/tauri'
-  import plugins from '../utils/plugin'
-  import Toogle from './Toogle.svelte'
-  let headRef
-  let bodyRef
+  import plugins, { pluginAppendAll, pluginClear } from '../utils/plugin'
+  import Toggle from './Toggle.svelte'
+  let headEl
+  let bodyEl
   let colWidth = 0
   const resizeObserver = new ResizeObserver(entries => {
-    colWidth = headRef.offsetWidth - bodyRef.offsetWidth
+    colWidth = headEl.offsetWidth - bodyEl.offsetWidth
   })
   let path = ''
   let data = []
   const loadPlugins = async () => {
     data = await invoke('load_plugin_all', { load: true })
-    plugins.appendAll(data.filter(item => item.plugin_type === 'Js'))
-    plugins.data.subscribe(value => {
+    pluginAppendAll(data.filter(item => item.plugin_type === 'Js'))
+    plugins.subscribe(value => {
       value.forEach(item => {
         const index = data.findIndex(ele => ele.path === item.path)
         if (index > -1) data[index] = item
@@ -22,7 +22,7 @@
     })
   }
 
-  const toogleChange = row => {
+  const toggleChange = row => {
     switch (row.plugin_type) {
       case 'Js':
         row.visible ? row.load() : row.unload()
@@ -36,16 +36,16 @@
     invoke('update_plugin_visible', { path: row.path, visible: row.visible })
   }
   const reLoad = () => {
-    plugins.clear()
+    pluginClear()
     loadPlugins()
   }
   onMount(async () => {
-    resizeObserver.observe(bodyRef)
+    resizeObserver.observe(bodyEl)
     path = await invoke('get_plugin_dir')
     loadPlugins()
   })
   onDestroy(() => {
-    resizeObserver.unobserve(bodyRef)
+    resizeObserver.unobserve(bodyEl)
   })
 </script>
 
@@ -59,7 +59,7 @@
   </div>
 
   <div class="table-head">
-    <table class="w-full" bind:this={headRef}>
+    <table class="w-full" bind:this={headEl}>
       <colgroup>
         <col name="col_1" width="120" />
         <col name="col_2" width="120" />
@@ -79,7 +79,7 @@
     </table>
   </div>
   <div class="table-body overflow-auto">
-    <table class="w-full" bind:this={bodyRef}>
+    <table class="w-full" bind:this={bodyEl}>
       <colgroup>
         <col name="col_1" width="120" />
         <col name="col_2" width="120" />
@@ -98,11 +98,11 @@
             <td>{row.description}</td>
             <td>{row.contact}</td>
             <td>
-              <Toogle
+              <Toggle
                 id={'plugin_' + i}
                 class="align-middle my-1"
                 bind:value={row.visible}
-                on:change={e => toogleChange(row)}
+                on:change={e => toggleChange(row)}
               />
             </td>
           </tr>

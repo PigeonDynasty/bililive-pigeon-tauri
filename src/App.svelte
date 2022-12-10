@@ -34,7 +34,7 @@
 
 <main class="flex h-full py-2 px-1">
   <!-- 隐藏的div用来防止tailwindcss动态赋css时候不显示相关样式 -->
-  <div class="hidden text-amber-600 text-amber-900" />
+  <div class="hidden text-amber-600 text-amber-900 text-violet-600" />
   <div class="flex-1 px-1">
     <Tabs class="h-full">
       <Tab header="Info" key="info">
