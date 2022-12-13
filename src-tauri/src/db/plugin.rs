@@ -3,15 +3,14 @@ use super::connect;
 #[derive(Debug)]
 #[allow(dead_code)]
 pub struct DbPlugin {
-    id: i32,
+    id: u32,
     pub path: String,
-    pub visible: i8,
+    pub visible: u8,
 }
 pub fn select_all() -> Vec<DbPlugin> {
     let mut res = vec![];
     let conn = connect();
-    let sql: &str = "SELECT * FROM plugin";
-    let mut stmt = conn.prepare(sql).unwrap();
+    let mut stmt = conn.prepare("SELECT * FROM plugin").unwrap();
     let db_plugin_iter = stmt
         .query_map([], |row| {
             Ok(DbPlugin {
@@ -37,12 +36,12 @@ pub fn insert(data: &Vec<DbPlugin>) {
             .unwrap();
     }
 }
-pub fn update_visible(path: &str, visible: &i8) {
+pub fn update_visible(path: &str, visible: &u8) {
     let conn = connect();
     let sql: &str = "SELECT COUNT(id) FROM plugin WHERE path = ?1";
     let mut stmt = conn.prepare(sql).unwrap();
     let count = stmt
-        .query_row([path], |row| row.get(0) as Result<i32, _>)
+        .query_row([path], |row| row.get(0) as Result<u32, _>)
         .unwrap();
     if count > 0 {
         // 有则更新

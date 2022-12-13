@@ -14,9 +14,9 @@ use tokio::{sync::mpsc, task::JoinHandle, time};
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 use url::Url;
 // 弹幕 线程池
-static DANMAKU_POOL: Lazy<Mutex<HashMap<i32, JoinHandle<()>>>> =
+static DANMAKU_POOL: Lazy<Mutex<HashMap<u32, JoinHandle<()>>>> =
     Lazy::new(|| Mutex::new(HashMap::new()));
-pub async fn new(room_id: i32, win: &Window) {
+pub async fn new(room_id: u32, win: &Window) {
     let key = format!("stream-{}", room_id);
     let _request = Request::new();
     let room_res = _request.get_true_roomid(room_id).await;
@@ -64,7 +64,7 @@ fn try_connect_async(
         }
     })
 }
-async fn join(ws_stream: WsStream, room_id: i32, _room_id: i64, token: &str, win: &Window) {
+async fn join(ws_stream: WsStream, room_id: u32, _room_id: i64, token: &str, win: &Window) {
     let (mut wx, mut rx) = ws_stream.split();
     let raw = serde_json::to_string(&serde_json::json!({
             "uid": 0,
@@ -137,7 +137,7 @@ async fn join(ws_stream: WsStream, room_id: i32, _room_id: i64, token: &str, win
         win.emit(&key, packets).unwrap();
     }
 }
-pub async fn disconnect(room_id: i32, window: &Window, payload: &str) {
+pub async fn disconnect(room_id: u32, window: &Window, payload: &str) {
     let handle = DANMAKU_POOL.lock().unwrap().remove(&room_id);
     handle.unwrap().abort();
     let key = format!("stream-{}", room_id);

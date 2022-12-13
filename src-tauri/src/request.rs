@@ -40,7 +40,7 @@ impl Request {
         self.get(request_builder).await
     }
     // 获取真实房间号
-    pub async fn get_true_roomid(&self, id: i32) -> serde_json::Value {
+    pub async fn get_true_roomid(&self, id: u32) -> serde_json::Value {
         let mut query_map = HashMap::new();
         query_map.insert("id".to_string(), id.to_string());
         let request_builder = HttpRequestBuilder::new(

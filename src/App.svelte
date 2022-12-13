@@ -1,7 +1,7 @@
 <script lang="ts">
   import Greet from './lib/Greet.svelte'
   import Danmaku from './lib/Danmaku.svelte'
-  import { Tabs, Tab } from './lib/Tabs'
+  import { Tabs, Tab } from './components/Tabs'
   import Plugin from './lib/Plugin.svelte'
   import Setting from './lib/Setting.svelte'
   import { appWindow } from '@tauri-apps/api/window'
@@ -25,7 +25,7 @@
   // 自定义关闭事件
   appWindow.listen(TauriEvent.WINDOW_CLOSE_REQUESTED, () => {
     roomRefs.forEach(roomRef => {
-      roomRef.write_danmaku()
+      roomRef && roomRef.write_danmaku()
     })
     // 关闭
     appWindow.close()

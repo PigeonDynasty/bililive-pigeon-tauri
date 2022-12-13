@@ -2,11 +2,11 @@
   import { onMount, onDestroy } from 'svelte'
   import { invoke } from '@tauri-apps/api/tauri'
   import plugins, { pluginAppendAll, pluginClear } from '../utils/plugin'
-  import Toggle from './Toggle.svelte'
+  import Switch from '../components/Switch.svelte'
   let headEl
   let bodyEl
   let colWidth = 0
-  const resizeObserver = new ResizeObserver(entries => {
+  const resizeObserver = new ResizeObserver(_entries => {
     colWidth = headEl.offsetWidth - bodyEl.offsetWidth
   })
   let path = ''
@@ -98,7 +98,7 @@
             <td>{row.description}</td>
             <td>{row.contact}</td>
             <td>
-              <Toggle
+              <Switch
                 id={'plugin_' + i}
                 class="align-middle my-1"
                 bind:value={row.visible}

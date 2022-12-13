@@ -1,7 +1,8 @@
 <script lang="ts">
-  import Toggle from './Toggle.svelte'
+  import Switch from '../components/Switch.svelte'
   import { WebviewWindow, currentMonitor } from '@tauri-apps/api/window'
-  import ColorPicker from './ColorPicker.svelte'
+  import { TauriEvent } from '@tauri-apps/api/event'
+  import ColorPicker from '../components/ColorPicker.svelte'
   import roomIds from '../utils/roomId'
   import toast from '../utils/toast'
   let web: WebviewWindow = null
@@ -13,7 +14,7 @@
         return
       }
       currentMonitor().then(monitor => {
-        web = new WebviewWindow('sidewin-' + roomId, {
+        web = new WebviewWindow('side-' + roomId, {
           url: '/side.html?id=' + roomId,
           // alwaysOnTop: true,
           // decorations: false,
@@ -26,11 +27,10 @@
           height: monitor.size.height,
           width: 300
         })
-        // web.once('tauri://created', () => {
-        //   setTimeout(() => {
-        //     web && web.emit('add-'+roomId, '<p>test</p>')
-        //   }, 5000)
-        // })
+        web.once(TauriEvent.WINDOW_DESTROYED, () => {
+          web = null
+          isSideOpen = false
+        })
       })
     } else if (!isSideOpen && web) {
       await web.close()
@@ -51,7 +51,7 @@
       placeholder="输入已连接的房间号"
       bind:value={roomId}
     />
-    <Toggle id="toggle" bind:value={isSideOpen} on:change={toggleChange} />
+    <Switch id="toggle" bind:value={isSideOpen} on:change={toggleChange} />
   </div>
 </div>
 <ColorPicker bind:value={color} />

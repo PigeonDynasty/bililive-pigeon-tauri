@@ -6,26 +6,26 @@ use std::convert::TryInto;
 use std::io::{Cursor, Read};
 #[derive(Debug, Clone, Serialize)]
 pub struct Packet {
-    // pub packet_len: i32,
-    // pub header_len: i32,
+    // pub packet_len: u32,
+    // pub header_len: u32,
     pub ver: u16,
     pub op: u32,
-    // pub seq: i32,
+    // pub seq: u32,
     pub body: Value,
 }
 impl Packet {}
 
 // 设置值
-fn set_int(mut buffer: Vec<u8>, start: i32, len: i32, value: i32) -> Vec<u8> {
+fn set_int(mut buffer: Vec<u8>, start: u32, len: u32, value: u32) -> Vec<u8> {
     for i in start..start + len {
-        buffer[i as usize] = (value / 256i32.pow((start + len - i - 1) as u32)) as u8;
+        buffer[i as usize] = (value / 256u32.pow(start + len - i - 1)) as u8;
     }
     buffer
 }
 // 编码
-pub fn encode(raw: &str, op: i32) -> Vec<u8> {
+pub fn encode(raw: &str, op: u32) -> Vec<u8> {
     let header_len = 16;
-    let packet_len = raw.len() as i32 + header_len;
+    let packet_len = raw.len() as u32 + header_len;
     let data = raw.as_bytes();
     let header = [0, 0, 0, 0, 0, 16, 0, 1, 0, 0, 0, op as u8, 0, 0, 0, 1];
     let mut packet = set_int(header.to_vec(), 0, 4, packet_len);

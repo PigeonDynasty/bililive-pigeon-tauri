@@ -26,18 +26,18 @@ fn greet(name: &str) -> String {
 
 // 发起连接
 #[tauri::command]
-async fn connect(room_id: i32, window: Window) {
+async fn connect(room_id: u32, window: Window) {
     create_dir_all(txt::room_path(&room_id)).unwrap();
     danmaku::new(room_id, &window).await;
 }
 // 断开连接
 #[tauri::command]
-async fn disconnect(room_id: i32, window: Window) {
+async fn disconnect(room_id: u32, window: Window) {
     danmaku::disconnect(room_id, &window, "disconnect").await;
 }
 // 弹幕信息写入文件
 #[tauri::command]
-fn write_danmaku_txt(room_id: i32, date: String, data: Vec<String>) {
+fn write_danmaku_txt(room_id: u32, date: String, data: Vec<String>) {
     txt::write_danmaku_txt(room_id, date, data);
 }
 // 获取插件目录
@@ -69,7 +69,7 @@ fn unload_plugin(name: String) {
 // 更新插件visible
 #[tauri::command]
 fn update_plugin_visible(path: String, visible: bool) {
-    let mut visible_int: i8 = 0;
+    let mut visible_int: u8 = 0;
     if visible {
         visible_int = 1;
     }

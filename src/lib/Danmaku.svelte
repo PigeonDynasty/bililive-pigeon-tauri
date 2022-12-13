@@ -5,23 +5,94 @@
   import { dateFormat, html2text } from '../utils/utils'
   import { fade } from 'svelte/transition'
   import { addRoomId, delRoomId } from '../utils/roomId'
-  import type { info } from 'console'
 
   let roomId: string | number
   let listener = null
   let count = 0
   let msg = [] // 弹幕数据
-  let ulEl // ul dom对象
-  let couldScroll: boolean = true // 判断能否自动滚动到底部
-  const checkCouldScroll = () => {
-    couldScroll = ulEl
-      ? ulEl.clientHeight + ulEl.scrollTop >= ulEl.scrollHeight
-      : false
+
+  let currentTime = Date.now()
+
+  let lastIndex: number = 0
+  let endIndex: number = 0
+  let itemHeight: number = 24 // 每个项的高度 暂定
+  let viewNum: number = 0 // 可视数量
+  let boxEl // 盒子 dom对象
+  let ulEl // 盒子内部显示的弹幕消息盒子
+  let couldToBottom: boolean = true // 判断能否自动滚动到底部
+  let heightCache: number[] = []
+  let topCache: number[] = []
+  $: msgHeight = heightCache.reduce((prev, next, i) => {
+    topCache[i] = prev
+    return prev + next || 0
+  }, 0)
+
+  $: showMsg = msg.slice(lastIndex, endIndex + 1) // 显示的弹幕数据
+
+  const checkScroll = _e => {
+    const now = Date.now()
+    if (now - currentTime > 30) {
+      currentTime = now
+      window.requestAnimationFrame(scrollHandler)
+    }
+  }
+
+  const resizeObserver = new ResizeObserver(_entries => {
+    ulEl.querySelectorAll('li').forEach((e, i) => {
+      if (!heightCache[lastIndex + i])
+        heightCache[lastIndex + i] = e.offsetHeight
+    })
+  })
+  const getStartIndex = (top: number) => {
+    let index = -1
+    let left = 0,
+      right = topCache.length - 1,
+      mid = Math.floor((left + right) / 2)
+    // 判断 有可循环项时进入 二分查找
+    while (right - left > 1) {
+      // 目标数在左侧
+      if (top < topCache[mid]) {
+        right = mid
+      } else if (top > topCache[mid]) {
+        // 目标数在右侧
+        left = mid
+      } else {
+        index = mid
+        return index
+      }
+      mid = Math.floor((left + right) / 2)
+    }
+    index = left
+    return index
+  }
+  const scrollHandler = () => {
+    const startIndex = getStartIndex(boxEl.scrollTop)
+    console.log('f', lastIndex, startIndex, viewNum)
+    if (lastIndex === startIndex) return
+    lastIndex = startIndex
+    endIndex = startIndex + viewNum - 1
+    if (endIndex >= msg.length - 1) {
+      endIndex = msg.length - 1
+      // 已经是最后一个
+      couldToBottom = true
+    } else {
+      couldToBottom = false
+    }
+    console.log('e', lastIndex, endIndex)
+  }
+  const updateMsg = (str: string) => {
+    msg = [...msg, str]
+    heightCache[msg.length - 1] = itemHeight
+    topCache[msg.length - 1] = topCache[msg.length - 2] + itemHeight
+    couldToBottom && toBottom()
   }
   const toBottom = () => {
-    setTimeout(() => {
-      ulEl && (ulEl.scrollTop = ulEl.scrollHeight)
-    }, 300)
+    endIndex = msg.length - 1
+    lastIndex = endIndex - viewNum < 0 ? 0 : endIndex - viewNum
+    window.requestAnimationFrame(() => {
+      console.log('m', msg.length, msgHeight, topCache[endIndex])
+      boxEl && (boxEl.scrollTop = boxEl.scrollHeight)
+    })
   }
 
   let txt_index = 0 // 记录保存数据第N条
@@ -40,6 +111,9 @@
   }
   onMount(async () => {
     if (!roomId) return
+    resizeObserver.observe(ulEl)
+    // 初始化容器最大容纳值
+    viewNum = Math.ceil(boxEl.offsetHeight / itemHeight) + 1
     addRoomId(roomId)
     msg = ['开始连接...']
     invoke('connect', { roomId })
@@ -51,24 +125,25 @@
       listener = {}
     }
     listener['stream'] = await appWindow.listen('stream-' + roomId, ev => {
+      let str = ''
       switch (ev.payload) {
         case 'connected':
-          msg = [...msg, '连接弹幕服务器成功']
+          str = '连接弹幕服务器成功'
           break
         case 'joined':
-          msg = [...msg, `连接房间成功`]
+          str = '连接房间成功'
           break
         case 'closed':
-          msg = [...msg, `意外关闭，请关闭页签重新连接`]
+          str = '意外关闭，请关闭页签重新连接'
           break
         case 'disconnect':
-          msg = [...msg, `已断开连接`]
+          str = '已断开连接'
           break
         default:
-          msg = [...msg, `真实房间号：${ev.payload}`]
+          str = `真实房间号：${ev.payload}`
           break
       }
-      couldScroll && toBottom()
+      updateMsg(str)
     })
     listener['danmaku'] = await appWindow.listen(
       'danmaku-' + roomId,
@@ -152,15 +227,13 @@
                   }
               }
               if (str) {
-                msg = [...msg, str]
+                updateMsg(str)
                 const sideWindow = WebviewWindow.getByLabel('side-' + roomId)
                 sideWindow && sideWindow.emit('add-' + roomId, str)
               }
               break
           }
         })
-        if (!couldScroll) console.log(roomId)
-        couldScroll && toBottom()
       }
     )
     // 定时写入文件 30s
@@ -169,6 +242,7 @@
     }, 30 * 1000)
   })
   onDestroy(() => {
+    resizeObserver.unobserve(ulEl)
     interval && clearInterval(interval)
     write_danmaku()
     invoke('disconnect', { roomId })
@@ -184,19 +258,27 @@
 </script>
 
 <div
-  class="rounded border border-solid relative h-full bg-white dark:bg-black shadow-md"
+  class="rounded border border-solid h-full bg-white dark:bg-black shadow-md relative"
 >
-  <ul
-    class="overflow-y-auto h-full py-1 px-2"
-    bind:this={ulEl}
-    on:scroll={checkCouldScroll}
+  <div
+    class="overflow-y-auto h-full"
+    id="box"
+    bind:this={boxEl}
+    on:scroll={checkScroll}
   >
-    {#each msg as d, i}
-      <li in:fade>
-        {@html d}
-      </li>
-    {/each}
-  </ul>
+    <ul
+      class="overflow-hidden py-1 px-2"
+      bind:this={ulEl}
+      style:padding-top={topCache[lastIndex] + 'px'}
+      style:padding-bottom={msgHeight - topCache[endIndex] - 24 + 'px'}
+    >
+      {#each showMsg as d, _i}
+        <li in:fade>
+          {@html d}
+        </li>
+      {/each}
+    </ul>
+  </div>
   <span
     class="absolute top-2 right-6 px-2 flex items-center shadow-md rounded-lg bg-gray-100 dark:bg-gray-800 text-sm"
     title="看过"
@@ -222,7 +304,7 @@
     </svg>
     {count}
   </span>
-  {#if !couldScroll}
+  {#if !couldToBottom}
     <button
       class="btn-primary text-xs leading-3 rounded-full py-1 px-2 scale-90 absolute right-1 bottom-1"
       transition:fade
