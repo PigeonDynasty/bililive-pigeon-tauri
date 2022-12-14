@@ -15,7 +15,7 @@
 
   let lastIndex: number = 0
   let endIndex: number = 0
-  let itemHeight: number = 24 // 每个项的高度 暂定
+  let estimatedItemHeight: number = 24 // 预估每个项的高度 这里用单行文本高度
   let viewNum: number = 0 // 可视数量
   let boxEl // 盒子 dom对象
   let ulEl // 盒子内部显示的弹幕消息盒子
@@ -67,7 +67,6 @@
   }
   const scrollHandler = () => {
     const startIndex = getStartIndex(boxEl.scrollTop)
-    console.log('f', lastIndex, startIndex, viewNum)
     if (lastIndex === startIndex) return
     lastIndex = startIndex
     endIndex = startIndex + viewNum - 1
@@ -78,19 +77,17 @@
     } else {
       couldToBottom = false
     }
-    console.log('e', lastIndex, endIndex)
   }
   const updateMsg = (str: string) => {
     msg = [...msg, str]
-    heightCache[msg.length - 1] = itemHeight
-    topCache[msg.length - 1] = topCache[msg.length - 2] + itemHeight
+    heightCache[msg.length - 1] = estimatedItemHeight
+    topCache[msg.length - 1] = topCache[msg.length - 2] + estimatedItemHeight
     couldToBottom && toBottom()
   }
   const toBottom = () => {
     endIndex = msg.length - 1
     lastIndex = endIndex - viewNum < 0 ? 0 : endIndex - viewNum
     window.requestAnimationFrame(() => {
-      console.log('m', msg.length, msgHeight, topCache[endIndex])
       boxEl && (boxEl.scrollTop = boxEl.scrollHeight)
     })
   }
@@ -113,7 +110,7 @@
     if (!roomId) return
     resizeObserver.observe(ulEl)
     // 初始化容器最大容纳值
-    viewNum = Math.ceil(boxEl.offsetHeight / itemHeight) + 1
+    viewNum = Math.ceil(boxEl.offsetHeight / estimatedItemHeight) + 1
     addRoomId(roomId)
     msg = ['开始连接...']
     invoke('connect', { roomId })
@@ -270,7 +267,10 @@
       class="overflow-hidden py-1 px-2"
       bind:this={ulEl}
       style:padding-top={topCache[lastIndex] + 'px'}
-      style:padding-bottom={msgHeight - topCache[endIndex] - 24 + 'px'}
+      style:padding-bottom={msgHeight -
+        topCache[endIndex] -
+        heightCache[endIndex] +
+        'px'}
     >
       {#each showMsg as d, _i}
         <li in:fade>
