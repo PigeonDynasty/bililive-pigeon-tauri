@@ -257,12 +257,7 @@
 <div
   class="rounded border border-solid h-full bg-white dark:bg-black shadow-md relative"
 >
-  <div
-    class="overflow-y-auto h-full"
-    id="box"
-    bind:this={boxEl}
-    on:scroll={checkScroll}
-  >
+  <div class="overflow-y-auto h-full" bind:this={boxEl} on:scroll={checkScroll}>
     <ul
       class="overflow-hidden py-1 px-2"
       bind:this={ulEl}
