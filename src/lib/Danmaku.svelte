@@ -13,7 +13,7 @@
 
   let currentTime = Date.now()
 
-  let lastIndex: number = 0
+  let startIndex: number = 0
   let endIndex: number = 0
   let estimatedItemHeight: number = 24 // 预估每个项的高度 这里用单行文本高度
   let viewNum: number = 0 // 可视数量
@@ -27,20 +27,20 @@
     return prev + next || 0
   }, 0)
 
-  $: showMsg = msg.slice(lastIndex, endIndex + 1) // 显示的弹幕数据
+  $: showMsg = msg.slice(startIndex, endIndex + 1) // 显示的弹幕数据
 
   const checkScroll = _e => {
     const now = Date.now()
-    if (now - currentTime > 30) {
+    if (now - currentTime > 100) {
       currentTime = now
-      window.requestAnimationFrame(scrollHandler)
+      requestAnimationFrame(scrollHandler)
     }
   }
 
   const resizeObserver = new ResizeObserver(_entries => {
     ulEl.querySelectorAll('li').forEach((e, i) => {
-      if (!heightCache[lastIndex + i])
-        heightCache[lastIndex + i] = e.offsetHeight
+      if (!heightCache[startIndex + i])
+        heightCache[startIndex + i] = e.offsetHeight
     })
   })
   const getStartIndex = (top: number) => {
@@ -66,15 +66,16 @@
     return index
   }
   const scrollHandler = () => {
-    const startIndex = getStartIndex(boxEl.scrollTop)
-    if (lastIndex === startIndex) return
-    lastIndex = startIndex
-    endIndex = startIndex + viewNum - 1
-    if (endIndex >= msg.length - 1) {
-      endIndex = msg.length - 1
+    const start_index = getStartIndex(boxEl.scrollTop)
+    if (startIndex === start_index) return
+    startIndex = start_index
+    const end_index = start_index + viewNum - 1
+    if (end_index >= msg.length - 1) {
       // 已经是最后一个
+      endIndex = msg.length - 1
       couldToBottom = true
     } else {
+      endIndex = end_index
       couldToBottom = false
     }
   }
@@ -86,9 +87,10 @@
   }
   const toBottom = () => {
     endIndex = msg.length - 1
-    lastIndex = endIndex - viewNum < 0 ? 0 : endIndex - viewNum
-    window.requestAnimationFrame(() => {
+    startIndex = endIndex - viewNum < 0 ? 0 : endIndex - viewNum
+    requestAnimationFrame(() => {
       boxEl && (boxEl.scrollTop = boxEl.scrollHeight)
+      couldToBottom = true
     })
   }
 
@@ -261,7 +263,7 @@
     <ul
       class="overflow-hidden py-1 px-2"
       bind:this={ulEl}
-      style:padding-top={topCache[lastIndex] + 'px'}
+      style:padding-top={topCache[startIndex] + 'px'}
       style:padding-bottom={msgHeight -
         topCache[endIndex] -
         heightCache[endIndex] +
