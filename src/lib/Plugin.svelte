@@ -11,15 +11,16 @@
   })
   let path = ''
   let data = []
+  const unsubscribe = plugins.subscribe(value => {
+    value.forEach(item => {
+      const index = data.findIndex(ele => ele.path === item.path)
+      if (index > -1) data[index] = item
+    })
+  })
+
   const loadPlugins = async () => {
     data = await invoke('load_plugin_all', { load: true })
     pluginAppendAll(data.filter(item => item.plugin_type === 'Js'))
-    plugins.subscribe(value => {
-      value.forEach(item => {
-        const index = data.findIndex(ele => ele.path === item.path)
-        if (index > -1) data[index] = item
-      })
-    })
   }
 
   const toggleChange = row => {
@@ -46,6 +47,7 @@
   })
   onDestroy(() => {
     resizeObserver.unobserve(bodyEl)
+    unsubscribe()
   })
 </script>
 

@@ -6,26 +6,32 @@
   import Setting from './lib/Setting.svelte'
   import { appWindow } from '@tauri-apps/api/window'
   import { TauriEvent } from '@tauri-apps/api/event'
+  import roomIds, { addRoomId, delRoomId } from './utils/roomId'
 
   let rooms = []
   let roomId = ''
   let tabsRef
-  let roomRefs = []
+  let roomRefs = {}
+
+  roomIds.subscribe(value => {
+    rooms = value
+  })
+
   const connect = () => {
-    if (roomId && !rooms.includes(roomId)) {
-      rooms = [...rooms, roomId]
-      tabsRef.selectTab('room_' + roomId)
-    }
+    addRoomId(roomId)
+    tabsRef.selectTab('room_' + roomId)
   }
+
   const tabClose = e => {
-    const { index } = e.detail
-    rooms.splice(index, 1)
-    rooms = rooms
+    const { key } = e.detail
+    const id = key.replace('room_', '')
+    delRoomId(id)
+    delete roomRefs[id]
   }
   // 自定义关闭事件
   appWindow.listen(TauriEvent.WINDOW_CLOSE_REQUESTED, () => {
-    roomRefs.forEach(roomRef => {
-      roomRef && roomRef.write_danmaku()
+    Object.entries(roomRefs).forEach(([_key, value]) => {
+      value && (value as Danmaku).write_danmaku()
     })
     // 关闭
     appWindow.close()

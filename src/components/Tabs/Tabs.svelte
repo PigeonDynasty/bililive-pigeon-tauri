@@ -1,4 +1,4 @@
-<script context="module">
+<script lang="ts" context="module">
   export const TABS_KEY = Symbol()
 </script>
 
@@ -6,7 +6,6 @@
   import { setContext, onDestroy, createEventDispatcher } from 'svelte'
   import { writable } from 'svelte/store'
   const dispatch = createEventDispatcher()
-  let tabsContentRef
   let className = ''
   let closeable = false
   $: tabsClass = ['tabs flex flex-col', className].join(' ')
@@ -92,7 +91,7 @@
       </button>
     {/each}
   </div>
-  <ul class="tabs-content flex-1 overflow-auto" bind:this={tabsContentRef}>
+  <ul class="tabs-content flex-1 overflow-auto">
     <slot />
   </ul>
 </div>

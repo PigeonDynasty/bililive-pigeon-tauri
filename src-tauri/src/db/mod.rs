@@ -26,12 +26,13 @@ pub fn init() {
 
     conn.execute(
         "CREATE TABLE IF NOT EXISTS gift (
-        timestamp INTEGER,
-        uid VARCHAR(10) NOT NULL,
-        uname VARCHAR(10) NOT NULL,
-        name VARCHAR(10) NOT NULL,
-        num INTEGER
-    )",
+            room_id INTEGER,
+            timestamp INTEGER,
+            uid VARCHAR(10) NOT NULL,
+            uname VARCHAR(10) NOT NULL,
+            name VARCHAR(10) NOT NULL,
+            num INTEGER
+        )",
         (), // empty list of parameters.
     )
     .unwrap();

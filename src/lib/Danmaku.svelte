@@ -4,7 +4,7 @@
   import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
   import { dateFormat, html2text } from '../utils/utils'
   import { fade } from 'svelte/transition'
-  import { addRoomId, delRoomId } from '../utils/roomId'
+  import { delRoomId } from '../utils/roomId'
 
   let roomId: string | number
   let listener = null
@@ -113,7 +113,7 @@
     resizeObserver.observe(ulEl)
     // 初始化容器最大容纳值
     viewNum = Math.ceil(boxEl.offsetHeight / estimatedItemHeight) + 1
-    addRoomId(roomId)
+
     msg = ['开始连接...']
     invoke('connect', { roomId })
     if (listener) {
