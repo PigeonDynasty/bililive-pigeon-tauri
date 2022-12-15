@@ -29,6 +29,10 @@
       })
       return Promise.resolve(key)
     },
+    update: tab => {
+      const index = tabs.findIndex(item => item.key === tab.key)
+      if (index > -1) tabs[index].header = tab.header
+    },
     current
   })
   const selectTab = (key: string | number) => {

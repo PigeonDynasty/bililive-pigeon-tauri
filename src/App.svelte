@@ -6,17 +6,13 @@
   import Setting from './lib/Setting.svelte'
   import { appWindow } from '@tauri-apps/api/window'
   import { TauriEvent } from '@tauri-apps/api/event'
-  import roomIds, { addRoomId, delRoomId } from './utils/roomId'
+  import rooms, { addRoomId, delByRoomId } from './store/room'
 
-  let rooms = []
   let roomId = ''
   let tabsRef
   let roomRefs = {}
 
-  roomIds.subscribe(value => {
-    rooms = value
-  })
-
+  $: tabHeader = room => room.room_id + (room.uname ? `-${room.uname}` : '')
   const connect = () => {
     addRoomId(roomId)
     tabsRef.selectTab('room_' + roomId)
@@ -25,7 +21,7 @@
   const tabClose = e => {
     const { key } = e.detail
     const id = key.replace('room_', '')
-    delRoomId(id)
+    delByRoomId(id)
     delete roomRefs[id]
   }
   // 自定义关闭事件
@@ -88,9 +84,12 @@
       bind:this={tabsRef}
       on:close={tabClose}
     >
-      {#each rooms as roomid ('room_' + roomid)}
-        <Tab header={roomid} key={'room_' + roomid}>
-          <Danmaku bind:this={roomRefs[roomid]} roomId={Number(roomid)} />
+      {#each $rooms as room ('room_' + room.room_id)}
+        <Tab header={tabHeader(room)} key={'room_' + room.room_id}>
+          <Danmaku
+            bind:this={roomRefs[room.room_id]}
+            roomId={Number(room.room_id)}
+          />
         </Tab>
       {/each}
     </Tabs>

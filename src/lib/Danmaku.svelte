@@ -4,7 +4,7 @@
   import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
   import { dateFormat, html2text } from '../utils/utils'
   import { fade } from 'svelte/transition'
-  import { delRoomId } from '../utils/roomId'
+  import { updateRoomInfo } from '../store/room'
 
   let roomId: string | number
   let listener = null
@@ -139,7 +139,8 @@
           str = '已断开连接'
           break
         default:
-          str = `真实房间号：${ev.payload}`
+          str = `真实房间号：${ev.payload['room_id']}`
+          updateRoomInfo(ev.payload)
           break
       }
       updateMsg(str)
@@ -251,7 +252,6 @@
       listener['danmaku']()
       listener = null
     }
-    delRoomId(roomId)
   })
   export { roomId, write_danmaku }
 </script>

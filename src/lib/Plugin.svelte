@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte'
   import { invoke } from '@tauri-apps/api/tauri'
-  import plugins, { pluginAppendAll, pluginClear } from '../utils/plugin'
+  import plugins, { pluginAppendAll, pluginClear } from '../store/plugin'
   import Switch from '../components/Switch.svelte'
   let headEl
   let bodyEl

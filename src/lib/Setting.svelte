@@ -3,12 +3,12 @@
   import { WebviewWindow, currentMonitor } from '@tauri-apps/api/window'
   import { TauriEvent } from '@tauri-apps/api/event'
   import ColorPicker from '../components/ColorPicker.svelte'
-  import roomIds from '../utils/roomId'
+  import rooms from '../store/room'
   import toast from '../utils/toast'
   let web: WebviewWindow = null
   const toggleChange = async _e => {
     if (isSideOpen && !web) {
-      if (!$roomIds.includes(Number(roomId))) {
+      if (!$rooms.some(item => item.room_id === Number(roomId))) {
         toast('输入的房间号未连接')
         isSideOpen = false
         return

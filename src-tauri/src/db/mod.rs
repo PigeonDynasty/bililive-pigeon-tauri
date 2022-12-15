@@ -2,6 +2,7 @@ use crate::db_path;
 use rusqlite::Connection;
 use std::fs::OpenOptions;
 pub mod gift;
+pub mod history;
 pub mod plugin;
 
 // 连接数据库
@@ -16,8 +17,8 @@ pub fn init() {
     // 创建表
     conn.execute(
         "CREATE TABLE IF NOT EXISTS plugin (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            path VARCHAR(10) NOT NULL,
+            _id INTEGER PRIMARY KEY AUTOINCREMENT,
+            path TEXT NOT NULL,
             visible INTEGER
         )",
         (), // empty list of parameters.
@@ -26,12 +27,25 @@ pub fn init() {
 
     conn.execute(
         "CREATE TABLE IF NOT EXISTS gift (
+            _id INTEGER PRIMARY KEY AUTOINCREMENT,
             room_id INTEGER,
             timestamp INTEGER,
-            uid VARCHAR(10) NOT NULL,
-            uname VARCHAR(10) NOT NULL,
-            name VARCHAR(10) NOT NULL,
+            uid TEXT NOT NULL,
+            uname TEXT NOT NULL,
+            name TEXT NOT NULL,
             num INTEGER
+        )",
+        (), // empty list of parameters.
+    )
+    .unwrap();
+
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS history (
+            _id INTEGER PRIMARY KEY AUTOINCREMENT,
+            room_id INTEGER,
+            uid TEXT NOT NULL,
+            uname TEXT NOT NULL,
+            timestamp INTEGER
         )",
         (), // empty list of parameters.
     )

@@ -1,3 +1,4 @@
+use crate::db::history as db_history;
 use crate::request::Request;
 use crate::WsStream;
 use crate::PLUGIN_MANAGER;
@@ -19,9 +20,22 @@ static DANMAKU_POOL: Lazy<Mutex<HashMap<u32, JoinHandle<()>>>> =
 pub async fn new(room_id: u32, win: &Window) {
     let key = format!("stream-{}", room_id);
     let _request = Request::new();
-    let room_res = _request.get_true_roomid(room_id).await;
-    let _room_id = room_res["data"]["room_id"].as_i64().unwrap();
-    win.emit(&key, _room_id).unwrap();
+    let room_res = _request.get_room_info(room_id).await;
+    let _room_id = room_res["data"]["room_info"]["room_id"].as_u64().unwrap();
+    let uid = room_res["data"]["room_info"]["uid"].to_string();
+    let uname = room_res["data"]["anchor_info"]["base_info"]["uname"]
+        .as_str()
+        .unwrap();
+    win.emit(
+        &key,
+        serde_json::json!({
+                "room_id": _room_id,
+                "uid":uid,
+                "uname": uname
+        }),
+    )
+    .unwrap();
+    db_history::update(room_id, &uid, uname);
 
     let res = _request.get_danmaku_hosts(_room_id).await;
     let list = res["data"]["host_list"].as_array().unwrap().to_owned();
@@ -64,7 +78,7 @@ fn try_connect_async(
         }
     })
 }
-async fn join(ws_stream: WsStream, room_id: u32, _room_id: i64, token: &str, win: &Window) {
+async fn join(ws_stream: WsStream, room_id: u32, _room_id: u64, token: &str, win: &Window) {
     let (mut wx, mut rx) = ws_stream.split();
     let raw = serde_json::to_string(&serde_json::json!({
             "uid": 0,

@@ -1,10 +1,15 @@
 <script lang="ts">
   import { getContext } from 'svelte'
   import { TABS_KEY } from './Tabs.svelte'
-  const { register, current }: any = getContext(TABS_KEY)
+  const { register, current, update }: any = getContext(TABS_KEY)
   import { fade } from 'svelte/transition'
   export let header: string | number = ''
   export let key = ''
+  $: update({
+    header,
+    key
+  })
+
   register({
     header,
     key

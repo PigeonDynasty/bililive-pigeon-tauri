@@ -3,7 +3,7 @@ use super::connect;
 #[derive(Debug)]
 #[allow(dead_code)]
 pub struct DbPlugin {
-    id: u32,
+    pub _id: u32,
     pub path: String,
     pub visible: u8,
 }
@@ -14,7 +14,7 @@ pub fn select_all() -> Vec<DbPlugin> {
     let db_plugin_iter = stmt
         .query_map([], |row| {
             Ok(DbPlugin {
-                id: row.get("id").unwrap(),
+                _id: row.get("_id").unwrap(),
                 path: row.get("path").unwrap(),
                 visible: row.get("visible").unwrap(),
             })
@@ -38,10 +38,10 @@ pub fn insert(data: &Vec<DbPlugin>) {
 }
 pub fn update_visible(path: &str, visible: &u8) {
     let conn = connect();
-    let sql: &str = "SELECT COUNT(id) FROM plugin WHERE path = ?1";
+    let sql: &str = "SELECT COUNT(_id) FROM plugin WHERE path = ?1";
     let mut stmt = conn.prepare(sql).unwrap();
     let count = stmt
-        .query_row([path], |row| row.get(0) as Result<u32, _>)
+        .query_row([path], |row| row.get(0) as Result<u8, _>)
         .unwrap();
     if count > 0 {
         // 有则更新

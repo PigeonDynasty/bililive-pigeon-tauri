@@ -1,11 +1,13 @@
 use super::connect;
 
 pub struct DbGift {
-    pub timestamp: u32,
+    pub _id: u64,
+    pub timestamp: u64,
+    pub room_id: u64,
     pub uid: String,
     pub uname: String,
     pub name: String,
-    pub num: u32,
+    pub num: u64,
 }
 
 pub fn select_by_roomid(room_id: u8) -> Vec<DbGift> {
@@ -16,7 +18,9 @@ pub fn select_by_roomid(room_id: u8) -> Vec<DbGift> {
     let db_gift_iter = stmt
         .query_map([room_id], |row| {
             Ok(DbGift {
+                _id: row.get("_id").unwrap(),
                 timestamp: row.get("timestamp").unwrap(),
+                room_id: row.get("room_id").unwrap(),
                 uid: row.get("uid").unwrap(),
                 uname: row.get("uname").unwrap(),
                 name: row.get("name").unwrap(),
