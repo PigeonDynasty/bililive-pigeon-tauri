@@ -1,7 +1,8 @@
 <script lang="ts">
-  import Greet from './lib/Greet.svelte'
-  import Danmaku from './lib/Danmaku.svelte'
   import { Tabs, Tab } from './components/Tabs'
+  // import Greet from './lib/Greet.svelte'
+  import Danmaku from './lib/Danmaku.svelte'
+  import Gift from './lib/Gift.svelte'
   import Plugin from './lib/Plugin.svelte'
   import Setting from './lib/Setting.svelte'
   import { appWindow } from '@tauri-apps/api/window'
@@ -37,9 +38,9 @@
 <main class="flex h-full py-2 px-1">
   <!-- 隐藏的div用来防止tailwindcss动态赋css时候不显示相关样式 -->
   <div class="hidden text-amber-600 text-amber-900 text-violet-600" />
-  <div class="flex-1 px-1">
+  <div class="w-1/2 px-1">
     <Tabs class="h-full">
-      <Tab header="Info" key="info">
+      <!-- <Tab header="Info" key="info">
         <h1>Welcome to Tauri!</h1>
         <div class="row">
           <a href="https://vitejs.dev" target="_blank">
@@ -58,7 +59,10 @@
       <Tab header="Greet" key="greet">
         <Greet />
       </Tab>
-      <Tab header="用户" key="user">用户1</Tab>
+      <Tab header="用户" key="user">用户1</Tab> -->
+      <Tab header="礼物统计" key="gift">
+        <Gift />
+      </Tab>
       <Tab header="插件" key="plugin">
         <Plugin />
       </Tab>
@@ -67,7 +71,7 @@
       </Tab>
     </Tabs>
   </div>
-  <div class="flex flex-1 px-1 flex-col">
+  <div class="w-1/2 px-1 flex flex-col">
     <div class="flex mb-1">
       <input
         class="rounded-md border-0 py-1 px-2 shadow-md flex-1 dark:bg-black bg-white"

@@ -56,12 +56,12 @@
 
 <div class={tabsClass}>
   <div
-    class="tabs-header flex space-x-1 rounded-lg bg-slate-100 dark:bg-slate-800 shadow-md"
+    class="tabs-header flex space-x-1 rounded-lg bg-slate-100 dark:bg-slate-800 shadow-md overflow-x-auto"
     class:p-1={tabs.length > 0}
   >
     {#each tabs as { header, key }, index ('tab-header_' + key)}
       <button
-        class="tab-header cursor-pointer py-1 px-3 rounded-md text-sm font-semibold whitespace-nowrap flex items-center"
+        class="tab-header cursor-pointer py-1 px-3 rounded-md text-sm font-semibold whitespace-nowrap flex items-center flex-shrink-0"
         class:text-slate-600={$current !== key}
         class:dark:text-slate-300={$current !== key}
         class:text-slate-800={$current === key}

@@ -1,4 +1,4 @@
-use crate::db::history as db_history;
+use crate::db::{gift as db_gift, history as db_history};
 use crate::request::Request;
 use crate::WsStream;
 use crate::PLUGIN_MANAGER;
@@ -29,7 +29,8 @@ pub async fn new(room_id: u32, win: &Window) {
     win.emit(
         &key,
         serde_json::json!({
-                "room_id": _room_id,
+                "room_id": room_id,
+                "true_room_id":_room_id,
                 "uid":uid,
                 "uname": uname
         }),
@@ -115,6 +116,28 @@ async fn join(ws_stream: WsStream, room_id: u32, _room_id: u64, token: &str, win
                             match msg.unwrap(){
                                 Message::Binary(bin) => {
                                     let packet = decode(bin);
+                                    for p in &packet{
+                                        match p.op{
+                                            5=>{
+                                                match p.body["cmd"].as_str().unwrap(){
+                                                    "SEND_GIFT"=>{
+                                                        let data=&p.body["data"];
+                                                        db_gift::insert(
+                                                            &room_id,
+                                                            data["timestamp"].as_u64().unwrap(),
+                                                            &data["uid"].to_string(),
+                                                            data["uname"].as_str().unwrap(),
+                                                            data["giftName"].as_str().unwrap(),
+                                                            data["num"].as_u64().unwrap(),
+                                                            data["coin_type"].as_str().unwrap()
+                                                        );
+                                                    }
+                                                    _=>{}
+                                                }
+                                            }
+                                            _=>{}
+                                        }
+                                    }
                                     pack_tx.send(packet).await.unwrap_or_default();
                                 }
                                 Message::Close(_f) => {

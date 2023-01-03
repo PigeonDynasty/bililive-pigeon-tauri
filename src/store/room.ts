@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store'
-
+import { addGiftContent, updateGiftContent } from './gift'
 const rooms = writable([])
 const addRoomId = (roomId: string | number) => {
   rooms.update(value => {
@@ -7,6 +7,7 @@ const addRoomId = (roomId: string | number) => {
       ? value
       : [...value, { room_id: Number(roomId) }]
   })
+  addGiftContent(roomId)
 }
 const updateRoomInfo = info => {
   rooms.update(value => {
@@ -14,6 +15,7 @@ const updateRoomInfo = info => {
     if (obj) Object.assign(obj, info)
     return value
   })
+  updateGiftContent(info)
 }
 const delByRoomId = (roomId: string | number) => {
   rooms.update(value => value.filter(item => item.room_id !== Number(roomId)))

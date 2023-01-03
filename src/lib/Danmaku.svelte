@@ -5,6 +5,7 @@
   import { dateFormat, html2text } from '../utils/utils'
   import { fade } from 'svelte/transition'
   import { updateRoomInfo } from '../store/room'
+  import { addGift } from '../store/gift'
 
   let roomId: string | number
   let listener = null
@@ -39,9 +40,13 @@
 
   const resizeObserver = new ResizeObserver(_entries => {
     ulEl.querySelectorAll('li').forEach((e, i) => {
-      if (!heightCache[startIndex + i])
-        heightCache[startIndex + i] = e.offsetHeight
+      // if (!heightCache[startIndex + i])
+      heightCache[startIndex + i] = e.offsetHeight
+      topCache[startIndex + i] = topCache[startIndex + i - 1] + e.offsetHeight
     })
+  })
+  const boxResizeObserver = new ResizeObserver(_entries => {
+    viewNum = Math.ceil(boxEl.offsetHeight / estimatedItemHeight) + 1
   })
   const getStartIndex = (top: number) => {
     let index = -1
@@ -67,6 +72,7 @@
   }
   const scrollHandler = () => {
     const start_index = getStartIndex(boxEl.scrollTop)
+    // console.log(start_index)
     if (startIndex === start_index) return
     startIndex = start_index
     const end_index = start_index + viewNum - 1
@@ -81,8 +87,8 @@
   }
   const updateMsg = (str: string) => {
     msg = [...msg, str]
-    heightCache[msg.length - 1] = estimatedItemHeight
-    topCache[msg.length - 1] = topCache[msg.length - 2] + estimatedItemHeight
+    heightCache.push(estimatedItemHeight)
+    topCache.push(topCache[topCache.length - 1] + estimatedItemHeight)
     couldToBottom && toBottom()
   }
   const toBottom = () => {
@@ -112,6 +118,7 @@
     if (!roomId) return
     resizeObserver.observe(ulEl)
     // 初始化容器最大容纳值
+    boxResizeObserver.observe(boxEl)
     viewNum = Math.ceil(boxEl.offsetHeight / estimatedItemHeight) + 1
 
     msg = ['开始连接...']
@@ -139,7 +146,7 @@
           str = '已断开连接'
           break
         default:
-          str = `真实房间号：${ev.payload['room_id']}`
+          str = `真实房间号：${ev.payload['true_room_id']}`
           updateRoomInfo(ev.payload)
           break
       }
@@ -149,7 +156,7 @@
       'danmaku-' + roomId,
       (ev: any) => {
         ev.payload.forEach(payload => {
-          console.log('op:', payload.op)
+          // console.log('op:', payload.op)
           switch (payload.op) {
             case 3: //气人值
               // count = payload.body.count
@@ -186,6 +193,14 @@
                   )}] ${gift['uname']} ${gift['action']} ${gift['num']} 个 ${
                     gift['giftName']
                   }`
+                  addGift(
+                    roomId,
+                    gift['uid'],
+                    gift['uname'],
+                    gift['giftName'],
+                    gift['num'],
+                    gift['coin_type']
+                  )
                   break
                 case 'GUARD_BUY': // 上舰
                   const guard = payload.body.data
@@ -243,6 +258,7 @@
   })
   onDestroy(() => {
     resizeObserver.unobserve(ulEl)
+    boxResizeObserver.unobserve(boxEl)
     interval && clearInterval(interval)
     write_danmaku()
     invoke('disconnect', { roomId })
@@ -303,7 +319,7 @@
   </span>
   {#if !couldToBottom}
     <button
-      class="btn-primary text-xs leading-3 rounded-full py-1 px-2 scale-90 absolute right-1 bottom-1"
+      class="btn-sky text-xs leading-3 rounded-full py-1 px-2 scale-90 absolute right-1 bottom-1"
       transition:fade
       on:click={toBottom}
     >

@@ -33,7 +33,8 @@ pub fn init() {
             uid TEXT NOT NULL,
             uname TEXT NOT NULL,
             name TEXT NOT NULL,
-            num INTEGER
+            num INTEGER,
+            coin_type TEXT
         )",
         (), // empty list of parameters.
     )
