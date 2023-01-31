@@ -23,15 +23,16 @@
   let placement: PopoverPlacement = PopoverPlacement.BOTTOM_LEFT
   let offsetLeft: number = 0
   let offsetTop: number = 0
+  let trigger: 'click' | 'manual' = 'click'
 
-  let isOpen: boolean = false
+  let visible: boolean = false
   let pos = {
     left: 0,
     top: 0
   }
-  const toggleOpen = e => {
-    isOpen = !isOpen
-    if (isOpen && triggerEl) {
+  const toggleOpen = _e => {
+    visible = !visible
+    if (visible && triggerEl) {
       const rect = triggerEl.getBoundingClientRect()
       requestAnimationFrame(() => {
         switch (placement) {
@@ -72,11 +73,26 @@
         pos.top += offsetTop
       })
     }
-    dispatch('toggle', isOpen)
+    dispatch('toggle', visible)
   }
-  export { className as class, popoverClass, placement, offsetLeft, offsetTop }
+
+  const windowClick = e => {
+    if (visible && !triggerEl.contains(e.target)) {
+      visible = false
+    }
+  }
+  export {
+    className as class,
+    popoverClass,
+    placement,
+    offsetLeft,
+    offsetTop,
+    trigger,
+    visible
+  }
 </script>
 
+<svelte:window on:click={windowClick} />
 <div
   class={`inline-flex popover-trigger ${className}`}
   bind:this={triggerEl}
@@ -85,14 +101,16 @@
   <slot name="trigger" />
 </div>
 
-{#if isOpen}
+{#if visible}
   <div
     class={`fixed mt-1 rounded-md shadow-lg p-2 bg-white dark:bg-black overflow-auto ${popoverClass}`}
     style:left={pos['left'] + 'px'}
     style:top={pos['top'] + 'px'}
     bind:this={popoverEl}
     transition:fade
-    on:click|stopPropagation={() => (isOpen = false)}
+    on:click|stopPropagation={() => {
+      trigger !== 'manual' && (visible = false)
+    }}
   >
     <slot />
   </div>

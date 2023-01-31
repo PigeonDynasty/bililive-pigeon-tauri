@@ -21,6 +21,9 @@
   .btn-rose {
     @apply bg-rose-400 hover:bg-rose-500 dark:bg-rose-900 dark:hover:bg-rose-800;
   }
+  .input {
+    @apply rounded-md py-1 px-2 shadow-md flex-1 dark:bg-black bg-white;
+  }
 }
 
 @layer base {

@@ -71,7 +71,7 @@
     </svg>
     {value}
   </div>
-  <!-- FIXME 为什么循环不行 fk tailwindcss -->
+  <!-- FIXME 为什么循环不行 fk -->
   <!-- {#each colors as color}
         <div class="flex">
           {#each variants as variant}

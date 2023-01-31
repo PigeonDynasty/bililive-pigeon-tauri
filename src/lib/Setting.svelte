@@ -3,6 +3,7 @@
   import { WebviewWindow, currentMonitor } from '@tauri-apps/api/window'
   import { TauriEvent } from '@tauri-apps/api/event'
   import ColorPicker from '../components/ColorPicker.svelte'
+  import DatePicker from '../components/DatePicker/DatePicker.svelte'
   import rooms from '../store/room'
   import toast from '../utils/toast'
   let web: WebviewWindow = null
@@ -40,6 +41,7 @@
   let color = ''
   let roomId = ''
   let isSideOpen = false
+  let date = ''
 </script>
 
 <div>
@@ -47,7 +49,7 @@
   <div class="flex items-center">
     <span>房间号</span>
     <input
-      class="rounded-md py-1 px-2 mx-2 shadow-md flex-1 dark:bg-black bg-white"
+      class="input mx-2"
       placeholder="输入已连接的房间号"
       bind:value={roomId}
     />
@@ -55,3 +57,4 @@
   </div>
 </div>
 <ColorPicker bind:value={color} />
+<DatePicker bind:value={date} />

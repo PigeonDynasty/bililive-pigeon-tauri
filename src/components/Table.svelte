@@ -22,7 +22,7 @@
     ' '
   )
   $: showEmpty = !$$slots.body || dataLen === 0
-  onMount(async () => {
+  onMount(() => {
     resizeObserver.observe(bodyEl)
   })
   onDestroy(() => {

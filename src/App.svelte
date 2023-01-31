@@ -73,11 +73,7 @@
   </div>
   <div class="w-1/2 px-1 flex flex-col">
     <div class="flex mb-1">
-      <input
-        class="rounded-md border-0 py-1 px-2 shadow-md flex-1 dark:bg-black bg-white"
-        placeholder="输入房间号"
-        bind:value={roomId}
-      />
+      <input class="input" placeholder="输入房间号" bind:value={roomId} />
       <button class="btn-default rounded-md py-1 px-3 ml-2" on:click={connect}>
         连接
       </button>
@@ -99,7 +95,7 @@
     </Tabs>
   </div>
 </main>
-
+<!-- 
 <style>
   :root {
     font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
@@ -160,4 +156,4 @@
   .logo.svelte:hover {
     filter: drop-shadow(0 0 2em #ff3e00);
   }
-</style>
+</style> -->
