@@ -122,7 +122,7 @@ async fn join(ws_stream: WsStream, room_id: u32, _room_id: u64, token: &str, win
                                                 match p.body["cmd"].as_str().unwrap(){
                                                     "SEND_GIFT"=>{
                                                         let data=&p.body["data"];
-                                                        db_gift::insert(
+                                                        db_gift::update(
                                                             &room_id,
                                                             data["timestamp"].as_u64().unwrap(),
                                                             &data["uid"].to_string(),

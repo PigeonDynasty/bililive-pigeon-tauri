@@ -46,7 +46,7 @@ pub fn update(room_id: u32, uid: &str, uname: &str) {
         .unwrap();
     if count > 0 {
         // 有则更新
-        let mut stmt = conn
+        stmt = conn
             .prepare("UPDATE history SET uid=?1, uname=?2, timestamp=?3 WHERE room_id = ?4")
             .unwrap();
         stmt.execute([
@@ -58,7 +58,7 @@ pub fn update(room_id: u32, uid: &str, uname: &str) {
         .unwrap();
     } else {
         // 无则插入
-        let mut stmt = conn
+        stmt = conn
             .prepare("INSERT INTO history (room_id, uid, uname,timestamp) VALUES (?1, ?2, ?3, ?4)")
             .unwrap();
         stmt.execute([
