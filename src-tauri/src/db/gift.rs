@@ -75,7 +75,7 @@ pub fn update(
     let count = match stmt.query_row(
         [
             room_id.to_string().as_str(),
-            (timestamp / 100).to_string().as_str(),
+            (timestamp / 10).to_string().as_str(),
             uid,
             name,
             coin_type,
@@ -93,7 +93,7 @@ pub fn update(
             uname,
             (count + num).to_string().as_str(),
             room_id.to_string().as_str(),
-            (timestamp / 100).to_string().as_str(),
+            (timestamp / 10).to_string().as_str(),
             uid,
             name,
             coin_type,
@@ -105,7 +105,7 @@ pub fn update(
         .unwrap();
         stmt.execute([
             room_id.to_string(),
-            (timestamp / 100).to_string(),
+            (timestamp / 10).to_string(),
             uid.to_string(),
             uname.to_owned(),
             name.to_owned(),
