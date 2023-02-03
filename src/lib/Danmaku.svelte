@@ -6,6 +6,8 @@
   import { fade } from 'svelte/transition'
   import { updateRoomInfo } from '../store/room'
   import { addGift } from '../store/gift'
+  import Eye from '@/icons/Eye.svelte'
+  import ArrowSmallDown from '@/icons/ArrowSmallDown.svelte'
 
   let roomId: string | number
   let listener = null
@@ -296,25 +298,9 @@
     class="absolute top-2 right-6 px-2 flex items-center shadow-md rounded-lg bg-gray-100 dark:bg-gray-800 text-sm"
     title="看过"
   >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke-width="1.5"
-      stroke="currentColor"
-      class="w-4 h-4 mr-2"
-    >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-      />
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-      />
-    </svg>
+    <i class="w-4 h-4 mr-2">
+      <Eye />
+    </i>
     {count}
   </span>
   {#if !couldToBottom}
@@ -323,20 +309,9 @@
       transition:fade
       on:click={toBottom}
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="2.5"
-        stroke="currentColor"
-        class="w-3 h-3 float-left mr-1"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M12 4.5v15m0 0l6.75-6.75M12 19.5l-6.75-6.75"
-        />
-      </svg>
+      <i class="w-3 h-3 float-left mr-1">
+        <ArrowSmallDown />
+      </i>
       回到底部
     </button>
   {/if}

@@ -1,4 +1,8 @@
 <script lang="ts">
+  import ChevronDoubleLeft from '@/icons/ChevronDoubleLeft.svelte'
+  import ChevronDoubleRight from '@/icons/ChevronDoubleRight.svelte'
+  import ChevronLeft from '@/icons/ChevronLeft.svelte'
+  import ChevronRight from '@/icons/ChevronRight.svelte'
   import { createEventDispatcher } from 'svelte'
   export let withSingle: boolean = false
   const dispatch = createEventDispatcher()
@@ -6,41 +10,23 @@
 
 <div class="flex justify-between items-center">
   <div class="inline-flex">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke-width="1.5"
-      stroke="currentColor"
+    <i
       class="w-4 h-4 cursor-pointer hover:text-sky-400"
       on:click={() => {
         dispatch('db-left')
       }}
     >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5"
-      />
-    </svg>
+      <ChevronDoubleLeft />
+    </i>
     {#if withSingle}
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="1.5"
-        stroke="currentColor"
+      <i
         class="w-4 h-4 cursor-pointer hover:text-sky-400"
         on:click={() => {
           dispatch('left')
         }}
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M15.75 19.5L8.25 12l7.5-7.5"
-        />
-      </svg>
+        <ChevronLeft />
+      </i>
     {/if}
   </div>
   <span class="slot">
@@ -48,40 +34,22 @@
   </span>
   <div class="inline-flex">
     {#if withSingle}
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="1.5"
-        stroke="currentColor"
+      <i
         class="w-4 h-4 cursor-pointer hover:text-sky-400"
         on:click={() => {
           dispatch('right')
         }}
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M8.25 4.5l7.5 7.5-7.5 7.5"
-        />
-      </svg>
+        <ChevronRight />
+      </i>
     {/if}
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke-width="1.5"
-      stroke="currentColor"
+    <i
       class="w-4 h-4 cursor-pointer hover:text-sky-400"
       on:click={() => {
         dispatch('db-right')
       }}
     >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M11.25 4.5l7.5 7.5-7.5 7.5m-6-15l7.5 7.5-7.5 7.5"
-      />
-    </svg>
+      <ChevronDoubleRight />
+    </i>
   </div>
 </div>
