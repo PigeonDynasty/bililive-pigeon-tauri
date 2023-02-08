@@ -2,10 +2,11 @@
   import Switch from '../components/Switch.svelte'
   import { WebviewWindow, currentMonitor } from '@tauri-apps/api/window'
   import { TauriEvent } from '@tauri-apps/api/event'
-  import ColorPicker from '../components/ColorPicker.svelte'
+  import ColorSelect from '../components/ColorSelect.svelte'
   import DatePicker from '../components/DatePicker/DatePicker.svelte'
   import rooms from '../store/room'
   import toast from '../utils/toast'
+  import TimePicker from '@/components/TimePicker.svelte'
   let web: WebviewWindow = null
   const toggleChange = async _e => {
     if (isSideOpen && !web) {
@@ -42,6 +43,7 @@
   let roomId = ''
   let isSideOpen = false
   let date = ''
+  let time = ''
 </script>
 
 <div>
@@ -56,5 +58,6 @@
     <Switch id="toggle" bind:value={isSideOpen} on:change={toggleChange} />
   </div>
 </div>
-<ColorPicker bind:value={color} />
+<ColorSelect bind:value={color} />
 <DatePicker bind:value={date} />
+<TimePicker bind:value={time} />

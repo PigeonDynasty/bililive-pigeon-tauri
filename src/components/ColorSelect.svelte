@@ -53,7 +53,7 @@
 <Popover popoverClass="h-48">
   <div
     slot="trigger"
-    class={`inline-flex items-center cursor-pointer py-1 px-2 h-8 shadow-md rounded-md bg-${value} ${textColor()} ${className}`}
+    class={`inline-flex items-center cursor-pointer py-1 px-2 h-8 shadow-md rounded-md text-sm bg-${value} ${textColor()} ${className}`}
     bind:this={colorEl}
   >
     <i class="w-4 h-4" class:mr-1={!!value}>

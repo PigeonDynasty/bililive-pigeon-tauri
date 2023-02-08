@@ -16,9 +16,9 @@
   import TableDate from './TableDate.svelte'
   import TableMonth from './TableMonth.svelte'
   import TableYear from './TableYear.svelte'
-  import XCircle from '@/icons/XCircle.svelte'
+  import Input from '../Input.svelte'
   import CalendarDays from '@/icons/CalendarDays.svelte'
-  export let value: undefined | string | Dayjs | Date
+  export let value: undefined | string | Dayjs | Date | number
   let visible: boolean = false
   const props = writable({
     view: DatePickerSelectType.DATE,
@@ -61,33 +61,14 @@
 </script>
 
 <Popover bind:visible trigger="manual" popoverClass="w-60">
-  <div
+  <Input
     slot="trigger"
-    class="date-picker-trigger inline-flex relative items-center rounded-md py-1 pl-2 pr-6 shadow-md flex-1 dark:bg-black bg-white"
+    value={$props.date ? $props.date.format('YYYY-MM-DD') : ''}
+    placeholder="请选择日期"
+    readonly
+    on:clear={() => clear()}
   >
-    <i class="w-4 h-4 mr-1 text-slate-400">
-      <CalendarDays />
-    </i>
-    <input
-      class="cursor-default outline-none"
-      placeholder="请选择日期"
-      readonly
-      value={$props.date ? $props.date.format('YYYY-MM-DD') : ''}
-    />
-    <i
-      class="date-picker-clear w-4 h-4 absolute right-2 top-2 text-slate-400 cursor-pointer transition hidden"
-      on:click|stopPropagation={() => {
-        clear()
-      }}
-    >
-      <XCircle />
-    </i>
-  </div>
+    <CalendarDays slot="prefixIcon" />
+  </Input>
   <svelte:component this={component} />
 </Popover>
-
-<style scoped>
-  .date-picker-trigger:hover .date-picker-clear {
-    @apply inline-block;
-  }
-</style>
