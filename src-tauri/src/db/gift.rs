@@ -1,5 +1,7 @@
 use super::connect;
+use serde::Serialize;
 
+#[derive(Serialize)]
 pub struct DbGift {
     pub _id: u64,
     pub room_id: u32,

@@ -5,11 +5,13 @@
   import Gift from './lib/Gift.svelte'
   import Plugin from './lib/Plugin.svelte'
   import Setting from './lib/Setting.svelte'
+  import RoomInput from './lib/components/RoomInput.svelte'
   import { appWindow } from '@tauri-apps/api/window'
   import { TauriEvent } from '@tauri-apps/api/event'
   import rooms, { addRoomId, delByRoomId } from './store/room'
 
   let roomId = ''
+  $: disabled = !roomId || isNaN(Number(roomId))
   let tabsRef
   let roomRefs = {}
 
@@ -35,7 +37,7 @@
   })
 </script>
 
-<main class="flex h-full py-2 px-1">
+<main class="flex h-full p-1">
   <!-- 隐藏的div用来防止tailwindcss动态赋css时候不显示相关样式 -->
   <div class="hidden text-amber-600 text-amber-900 text-violet-600" />
   <div class="w-1/2 px-1">
@@ -73,8 +75,12 @@
   </div>
   <div class="w-1/2 px-1 flex flex-col">
     <div class="flex mb-1">
-      <input class="input" placeholder="输入房间号" bind:value={roomId} />
-      <button class="btn-default rounded-md py-1 px-3 ml-2" on:click={connect}>
+      <RoomInput class="flex-1" bind:value={roomId} />
+      <button
+        class="btn-default rounded-md py-1 px-3 ml-2"
+        {disabled}
+        on:click={connect}
+      >
         连接
       </button>
     </div>

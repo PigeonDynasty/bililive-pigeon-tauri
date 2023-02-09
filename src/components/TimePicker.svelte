@@ -84,7 +84,7 @@
   >
     <Clock slot="prefixIcon" />
   </Input>
-  <div class="flex h-40 -m-2 text-xs">
+  <div class="flex h-40 -mx-2 text-xs">
     <ScrollPicker
       bind:value={time[0]}
       data={timeOptions[0]}

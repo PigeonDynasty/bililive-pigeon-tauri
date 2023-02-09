@@ -75,6 +75,11 @@ fn update_plugin_visible(path: String, visible: bool) {
     }
     db::plugin::update_visible(&path, &visible_int);
 }
+// 获取连接历史
+#[tauri::command]
+fn get_history() -> Vec<db::history::DbHistory> {
+    db::history::select_all()
+}
 fn main() {
     let doc_dir = doc_dir();
     create_dir_all(&doc_dir).unwrap();
@@ -96,6 +101,7 @@ fn main() {
             load_plugin,
             unload_plugin,
             update_plugin_visible,
+            get_history,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

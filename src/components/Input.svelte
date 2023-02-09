@@ -24,10 +24,11 @@
     </i>
   {/if}
   <input
-    class="outline-none dark:bg-black bg-white"
+    class="outline-none dark:bg-black bg-white w-full"
     {placeholder}
     {readonly}
     bind:value
+    on:input={() => dispatch('input', value)}
   />
   {#if clearable && value}
     <i

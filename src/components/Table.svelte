@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte'
+  import Empty from './Empty.svelte'
   let className = ''
-  let emptyText = ''
+  let emptyText = '暂无数据'
   let headEl
   let bodyEl
   let dataLen = 0
@@ -44,12 +45,10 @@
       <slot name="body" />
     </table>
     {#if showEmpty}
-      <div class="empty-text text-center p-1">
-        <slot name="emptyText" />
-        {#if !$$slots.emptyText}
-          {emptyText || '暂无数据'}
-        {/if}
-      </div>
+      <slot name="empty" />
+      {#if !$$slots.empty}
+        <Empty class="p-6" text={emptyText} />
+      {/if}
     {/if}
   </div>
 </div>

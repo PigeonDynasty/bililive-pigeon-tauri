@@ -37,7 +37,7 @@
     @apply bg-transparent w-2 h-2;
   }
   *::-webkit-scrollbar-thumb {
-    @apply bg-zinc-600 dark:bg-zinc-300 bg-opacity-50 rounded;
+    @apply bg-zinc-400 bg-opacity-50 rounded;
   }
   html,
   body,
@@ -47,6 +47,9 @@
 
   button {
     @apply relative overflow-hidden;
+  }
+  button:disabled {
+    @apply cursor-not-allowed;
   }
 
   span.ripple {

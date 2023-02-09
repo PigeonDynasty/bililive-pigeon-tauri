@@ -1,6 +1,7 @@
 use super::connect;
+use serde::Serialize;
 use std::time::{SystemTime, UNIX_EPOCH};
-
+#[derive(Serialize)]
 pub struct DbHistory {
     pub _id: u32,
     pub room_id: u32,
