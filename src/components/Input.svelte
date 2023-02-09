@@ -23,7 +23,12 @@
       <slot name="prefixIcon" />
     </i>
   {/if}
-  <input class="outline-none" {placeholder} {readonly} bind:value />
+  <input
+    class="outline-none dark:bg-black bg-white"
+    {placeholder}
+    {readonly}
+    bind:value
+  />
   {#if clearable && value}
     <i
       class="input-clear w-4 h-4 absolute right-2 top-2 text-slate-400 cursor-pointer transition hidden"

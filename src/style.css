@@ -10,7 +10,7 @@
     @apply font-semibold shadow-md text-zinc-100 dark:text-zinc-300;
   }
   .btn-default {
-    @apply text-zinc-600 bg-zinc-100 hover:bg-zinc-200  dark:bg-zinc-800 dark:hover:bg-zinc-700;
+    @apply text-zinc-600 dark:text-zinc-100 bg-zinc-100 hover:bg-zinc-200  dark:bg-zinc-800 dark:hover:bg-zinc-700;
   }
   .btn-sky {
     @apply bg-sky-400 hover:bg-sky-500  dark:bg-sky-800 dark:hover:bg-sky-700;
@@ -22,15 +22,23 @@
     @apply bg-rose-400 hover:bg-rose-500 dark:bg-rose-900 dark:hover:bg-rose-800;
   }
   .input {
-    @apply rounded-md py-1 px-2 shadow-md flex-1 dark:bg-black bg-white outline-none text-sm h-8;
+    @apply rounded-md py-1 px-2 shadow-md dark:shadow-zinc-800 flex-1 dark:bg-black bg-white outline-none text-sm h-8;
+  }
+  .link {
+    @apply hover:text-sky-500 dark:hover:text-sky-700 cursor-pointer;
   }
 }
 
 @layer base {
   :root {
-    @apply font-sans text-zinc-900 bg-zinc-50 dark:text-zinc-50 dark:bg-zinc-900 scroll-smooth transition;
+    @apply font-sans text-zinc-900 bg-zinc-50 dark:text-zinc-50 dark:bg-zinc-900 scroll-smooth transition text-base;
   }
-
+  *::-webkit-scrollbar {
+    @apply bg-transparent w-2 h-2;
+  }
+  *::-webkit-scrollbar-thumb {
+    @apply bg-zinc-600 dark:bg-zinc-300 bg-opacity-50 rounded;
+  }
   html,
   body,
   #app {

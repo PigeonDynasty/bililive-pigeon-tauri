@@ -44,17 +44,14 @@
   on:db-left={() => updateShowYear('subtract')}
   on:db-right={() => updateShowYear('add')}
 >
-  <span
-    class="hover:text-sky-400 cursor-pointer"
-    on:click={() => toSelectYear()}
-  >
+  <span class="link" on:click={() => toSelectYear()}>
     {showYear}
   </span>
 </ChevronHeader>
 <div class="flex flex-wrap">
   {#each Array(12) as _, i}
     <span
-      class="w-1/4 px-1 mt-2 text-center cursor-pointer hover:text-sky-400"
+      class="w-1/4 px-1 mt-2 text-center link"
       class:font-bold={showYear === currentYear && i === currentMonth}
       class:text-sky-400={(showYear === currentYear && i === currentMonth) ||
         (showYear === activeYear && i === activeMonth)}

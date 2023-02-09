@@ -19,6 +19,7 @@
   import Input from '../Input.svelte'
   import CalendarDays from '@/icons/CalendarDays.svelte'
   export let value: undefined | string | Dayjs | Date | number
+  export let time = false
   let visible: boolean = false
   const props = writable({
     view: DatePickerSelectType.DATE,
@@ -28,8 +29,9 @@
   const dispatch = createEventDispatcher()
   setContext(DATEPICKER_KEY, {
     props,
+    time,
     select: (date: Dayjs) => {
-      visible = false
+      if (!time) visible = false
       value = date
       dispatch('select', date)
     }
@@ -63,8 +65,10 @@
 <Popover bind:visible trigger="manual" popoverClass="w-60">
   <Input
     slot="trigger"
-    value={$props.date ? $props.date.format('YYYY-MM-DD') : ''}
-    placeholder="请选择日期"
+    value={$props.date
+      ? $props.date.format(time ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD')
+      : ''}
+    placeholder={time ? '请选择日期时间' : '请选择日期'}
     readonly
     on:clear={() => clear()}
   >

@@ -103,7 +103,7 @@
 
 {#if visible}
   <div
-    class={`fixed mt-1 rounded-md shadow-lg p-2 bg-white dark:bg-black overflow-auto ${popoverClass}`}
+    class={`fixed mt-1 rounded-md shadow-lg p-2 bg-white dark:bg-black overflow-auto z-50 ${popoverClass}`}
     style:left={pos['left'] + 'px'}
     style:top={pos['top'] + 'px'}
     bind:this={popoverEl}

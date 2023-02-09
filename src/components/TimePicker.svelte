@@ -1,10 +1,13 @@
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte'
   import Popover from './Popover.svelte'
   import ScrollPicker from './ScrollPicker.svelte'
   import Input from './Input.svelte'
   import dayjs, { Dayjs } from 'dayjs'
   import Clock from '@/icons/Clock.svelte'
-  export let value: string | Dayjs | Date | number
+  let value: string | Dayjs | Date | number
+  let className: string = ''
+  const dispatch = createEventDispatcher()
   let time = []
   $: showTime = time.join(':')
   let visible = false
@@ -31,6 +34,7 @@
       time[1] = fixTimeNumber(inTime.minute())
       time[2] = fixTimeNumber(inTime.second())
     }
+    select()
   }
   const clear = () => {
     time = []
@@ -42,25 +46,35 @@
     } else if (typeof value === 'number') {
       const outTime = dayjs(value)
         .hour(Number(time[0]))
-        .minute(Number(time[2]))
+        .minute(Number(time[1]))
         .second(Number(time[2]))
       value = String(value).length === 10 ? outTime.unix() : outTime.valueOf()
-    } else if (value instanceof Dayjs) {
-      value = value
-        .hour(Number(time[0]))
-        .minute(Number(time[2]))
-        .second(Number(time[2]))
     } else if (value instanceof Date) {
       value = dayjs(value)
         .hour(Number(time[0]))
-        .minute(Number(time[2]))
+        .minute(Number(time[1]))
         .second(Number(time[2]))
         .toDate()
+    } else if (dayjs.isDayjs(value)) {
+      value = value
+        .hour(Number(time[0]))
+        .minute(Number(time[1]))
+        .second(Number(time[2]))
+    } else {
+      value = dayjs(value)
     }
+    dispatch('change', value)
   }
+  export { value, className as class }
 </script>
 
-<Popover bind:visible trigger="manual" popoverClass="w-52" on:toggle={toggle}>
+<Popover
+  bind:visible
+  trigger="manual"
+  class={className}
+  popoverClass="w-52"
+  on:toggle={e => toggle(e.detail)}
+>
   <Input
     slot="trigger"
     value={showTime}

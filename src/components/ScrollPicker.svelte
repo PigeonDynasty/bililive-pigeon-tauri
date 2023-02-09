@@ -12,12 +12,13 @@
     if (!ulEl) return
     requestAnimationFrame(() => {
       const index = ulEl.scrollTop / selectEl.offsetHeight
+      if (Math.round(index) === selectIndex) return
       selectIndex = Math.round(index)
       value =
         typeof data[selectIndex] === 'object'
           ? data[selectIndex][valueKey]
           : data[selectIndex]
-      if (selectIndex === index) dispatch('select', data[selectIndex])
+      dispatch('select', data[selectIndex])
     })
   }
   const click = i => {
@@ -55,10 +56,11 @@
     <!-- 头部补足 -->
     {#each data as item, i}
       <li
-        class="flex items-center justify-center py-1 h-8 snap-start "
+        class="flex items-center justify-center py-1 h-8 snap-start"
         class:cursor-pointer={i !== selectIndex}
         class:text-slate-400={i !== selectIndex}
         class:text-slate-800={i === selectIndex}
+        class:dark:text-slate-100={i === selectIndex}
         on:click={() => click(i)}
       >
         {typeof item === 'object' ? item[labelKey] : item}

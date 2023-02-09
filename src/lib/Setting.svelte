@@ -44,6 +44,7 @@
   let isSideOpen = false
   let date = ''
   let time = ''
+  let datetime
 </script>
 
 <div>
@@ -61,3 +62,4 @@
 <ColorSelect bind:value={color} />
 <DatePicker bind:value={date} />
 <TimePicker bind:value={time} />
+<DatePicker bind:value={datetime} time />

@@ -3,7 +3,7 @@
   import ChevronHeader from './ChevronHeader.svelte'
   import { DATEPICKER_KEY, DatePickerSelectType } from './DatePicker.svelte'
   import dayjs, { Dayjs } from 'dayjs'
-  const { props, select }: any = getContext(DATEPICKER_KEY)
+  const { props, time, select }: any = getContext(DATEPICKER_KEY)
   const currentDate = dayjs()
   let dateArray = [] // 渲染的日期列表
   const toSelect = (view: DatePickerSelectType) => {
@@ -14,7 +14,13 @@
   }
   const selectDate = (date: Dayjs) => {
     props.update(value => {
-      value.date = date
+      if (time) {
+        value.date = value.date
+          ? value.date.year(date.year()).month(date.month()).date(date.date())
+          : date
+      } else {
+        value.date = date
+      }
       if (!date.isSame(value.showDate, 'month')) {
         value.showDate = date
         initDateArray()
@@ -64,16 +70,10 @@
   on:left={() => updateShowDate('subtract', 'month')}
   on:right={() => updateShowDate('add', 'month')}
 >
-  <span
-    class="hover:text-sky-400 cursor-pointer"
-    on:click={() => toSelect(DatePickerSelectType.YEAR)}
-  >
+  <span class="link" on:click={() => toSelect(DatePickerSelectType.YEAR)}>
     {$props.showDate.year()}年
   </span>
-  <span
-    class="hover:text-sky-400 cursor-pointer ml-2"
-    on:click={() => toSelect(DatePickerSelectType.MONTH)}
-  >
+  <span class="link ml-2" on:click={() => toSelect(DatePickerSelectType.MONTH)}>
     {$props.showDate.month() + 1}月
   </span>
 </ChevronHeader>
@@ -86,17 +86,19 @@
   <span>五</span>
   <span>六</span>
 </div>
-<div class="flex flex-wrap text-center cursor-default">
+<div class="flex flex-wrap text-center">
   {#each dateArray as date}
     <span
-      class="inline-block w-6 h-6 leading-6 text-xs m-1 hover:text-sky-400 rounded-full"
-      class:cursor-pointer={date.isSame($props.showDate, 'month')}
+      class="link inline-block w-6 h-6 leading-6 text-xs m-1 rounded-full"
+      class:cursor-default={!date.isSame($props.showDate, 'month')}
       class:text-slate-400={!date.isSame($props.showDate, 'month')}
       class:font-bold={date.isSame(currentDate, 'day')}
       class:text-sky-400={date.isSame(currentDate, 'day')}
+      class:dark:text-sky-800={date.isSame(currentDate, 'day')}
       class:text-white={$props.date && date.isSame($props.date, 'day')}
       class:hover:text-white={$props.date && date.isSame($props.date, 'day')}
       class:bg-sky-400={$props.date && date.isSame($props.date, 'day')}
+      class:dark:bg-sky-800={$props.date && date.isSame($props.date, 'day')}
       on:click={() => selectDate(date)}
     >
       {date.date()}

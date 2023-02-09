@@ -36,7 +36,7 @@
 <div class="flex flex-wrap">
   {#each Array(10) as _, i}
     <span
-      class="w-1/4 px-1 mt-2 text-center cursor-pointer hover:text-sky-400"
+      class="w-1/4 px-1 mt-2 text-center link"
       class:font-bold={startYear + i === currentYear}
       class:text-sky-400={startYear + i === currentYear ||
         startYear + i === activeYear}
