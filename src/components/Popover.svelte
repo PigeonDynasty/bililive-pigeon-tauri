@@ -75,10 +75,16 @@
     }
     dispatch('toggle', visible)
   }
-
+  const toggleClose = () => {
+    if (trigger !== 'manual') {
+      visible = false
+      dispatch('toggle', false)
+    }
+  }
   const windowClick = e => {
     if (visible && !triggerEl.contains(e.target)) {
       visible = false
+      dispatch('toggle', false)
     }
   }
   export {
@@ -108,9 +114,7 @@
     style:top={pos['top'] + 'px'}
     bind:this={popoverEl}
     transition:fade
-    on:click|stopPropagation={() => {
-      trigger !== 'manual' && (visible = false)
-    }}
+    on:click|stopPropagation={() => toggleClose}
   >
     <slot />
   </div>

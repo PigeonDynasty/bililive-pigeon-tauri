@@ -29,6 +29,8 @@
     {readonly}
     bind:value
     on:input={() => dispatch('input', value)}
+    on:focus={() => dispatch('focus', value)}
+    on:blur={() => dispatch('blur', value)}
   />
   {#if clearable && value}
     <i

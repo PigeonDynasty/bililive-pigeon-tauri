@@ -7,6 +7,7 @@
   import rooms from '../store/room'
   import toast from '../utils/toast'
   import TimePicker from '@/components/TimePicker.svelte'
+  import RoomSelect from './components/RoomSelect.svelte'
   let web: WebviewWindow = null
   const toggleChange = async _e => {
     if (isSideOpen && !web) {
@@ -47,19 +48,48 @@
   let datetime
 </script>
 
-<div>
-  <h5>浮窗设置</h5>
-  <div class="flex items-center">
-    <span>房间号</span>
-    <input
-      class="input mx-2"
-      placeholder="输入已连接的房间号"
-      bind:value={roomId}
-    />
-    <Switch id="toggle" bind:value={isSideOpen} on:change={toggleChange} />
+<h1 class="py-2 text-lg">浮窗设置</h1>
+<div class="flex items-center text-sm mb-2">
+  <span class="w-12 mr-2">房间号</span>
+  <RoomSelect class="flex-1 mr-2" bind:value={roomId} />
+  <Switch
+    id="sideWin"
+    bind:value={isSideOpen}
+    disabled={!roomId}
+    on:change={toggleChange}
+  />
+</div>
+<h2 class="my-2">颜色</h2>
+<div class="flex text-sm mb-2">
+  <div class="flex-1 flex items-center">
+    <span class="w-12 mr-2">SC标记</span>
+    <ColorSelect bind:value={color} />
+  </div>
+  <div class="flex-1 flex items-center">
+    <span class="w-12 mr-2">SC标记</span>
+    <ColorSelect bind:value={color} />
   </div>
 </div>
-<ColorSelect bind:value={color} />
+<div class="flex text-sm mb-2">
+  <div class="flex-1 flex items-center">
+    <span class="w-12 mr-2">SC标记</span>
+    <ColorSelect bind:value={color} />
+  </div>
+  <div class="flex-1 flex items-center">
+    <span class="w-12 mr-2">SC标记</span>
+    <ColorSelect bind:value={color} />
+  </div>
+</div>
+<h2 class="my-2">位置</h2>
+<div class="flex text-sm mb-2">
+  <div class="flex-1 flex items-center">
+    <span class="w-12 mr-2">X</span>
+  </div>
+  <div class="flex-1 flex items-center">
+    <span class="w-12 mr-2">Y</span>
+  </div>
+</div>
+
 <DatePicker bind:value={date} />
 <TimePicker bind:value={time} />
 <DatePicker bind:value={datetime} time />

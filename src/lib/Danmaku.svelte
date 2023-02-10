@@ -168,16 +168,23 @@
               let str = ''
               switch (payload.body.cmd) {
                 case 'LIVE': // 开播
-                  str = `${dateFormat(Date.now(), 'hh:mm:ss')} 开播`
+                  str = `<span class="danmaku-live">${dateFormat(
+                    Date.now(),
+                    'hh:mm:ss'
+                  )} 开播</span>`
                   break
                 case 'PREPARING': // 关播
-                  str = `${dateFormat(Date.now(), 'hh:mm:ss')} 关播`
+                  str = `<span class="danmaku-preparing">${dateFormat(
+                    Date.now(),
+                    'hh:mm:ss'
+                  )} 关播</span>`
                   break
                 case 'DANMU_MSG': // 用户发送的消息
                   const info = payload.body.info
-                  str = `[${dateFormat(info[0][4], 'hh:mm:ss')}] ${
-                    info[2][1]
-                  }：${info[1]}`
+                  str = `<span class="danmaku-time">[${dateFormat(
+                    info[0][4],
+                    'hh:mm:ss'
+                  )}]</span> ${info[2][1]}：${info[1]}`
                   break
                 case 'WATCHED_CHANGE': // 多少人看过
                   const data = payload.body.data
@@ -185,16 +192,14 @@
                   break
                 case 'SEND_GIFT': // 礼物
                   const gift = payload.body.data
-                  str = `<i class="${
-                    gift['coin_type'] === 'gold'
-                      ? 'text-amber-600'
-                      : 'text-amber-900'
-                  }">【礼物】</i>[${dateFormat(
+                  str = `<i class="danmaku-gift-${
+                    gift['coin_type']
+                  }">【礼物】</i><span class="danmaku-time">[${dateFormat(
                     gift['timestamp'] * 1000,
                     'hh:mm:ss'
-                  )}] ${gift['uname']} ${gift['action']} ${gift['num']} 个 ${
-                    gift['giftName']
-                  }`
+                  )}]</span> ${gift['uname']} ${gift['action']} ${
+                    gift['num']
+                  } 个 ${gift['giftName']}`
                   addGift(
                     roomId,
                     gift['uid'],
@@ -216,31 +221,33 @@
                       ? '总督'
                       : ''
                   // FIXME 上舰时间
-                  str = `<i class="text-violet-600">【上舰】</i>[${dateFormat(
+                  str = `<i class="danmaku-guard">【上舰】</i><span class="danmaku-time">[${dateFormat(
                     Date.now(),
                     'hh:mm:ss'
-                  )}] ${guard['username']} 购买 ${
+                  )}]</span> ${guard['username']} 购买 ${
                     guard['num']
                   } 个月 ${guardName}`
                   break
                 case 'SUPER_CHAT_MESSAGE': //sc
                 case 'SUPER_CHAT_MESSAGE_JP':
                   const sc = payload.body.data
-                  str = `<i class="text-rose-600">【SC：${
+                  str = `<i class="danmaku-sc">【SC：${
                     sc['price']
-                  }】</i>[${dateFormat(sc['ts'] * 1000, 'hh:mm:ss')}] ${
-                    sc['user_info']['uname']
-                  }： <span style="color:${sc['message_font_color']};">${
-                    sc['message']
-                  }`
+                  }】</i><span class="danmaku-time">[${dateFormat(
+                    sc['ts'] * 1000,
+                    'hh:mm:ss'
+                  )}]</span> ${sc['user_info']['uname']}： <span style="color:${
+                    sc['message_font_color']
+                  };">${sc['message']}`
                   break
                 default: // 其他数据
                   if (payload.body.cmd.includes('DANMU_MSG')) {
                     // 遇上了奇怪的 DANMU_MSG 似乎是活动的类型
                     const info = payload.body.info
-                    str = `[${dateFormat(info[0][4], 'hh:mm:ss')}] ${
-                      info[2][1]
-                    }：${info[1]}`
+                    str = `<span class="danmaku-time">[${dateFormat(
+                      info[0][4],
+                      'hh:mm:ss'
+                    )}]</span> ${info[2][1]}：${info[1]}`
                   }
               }
               if (str) {
@@ -279,7 +286,7 @@
 >
   <div class="overflow-y-auto h-full" bind:this={boxEl} on:scroll={checkScroll}>
     <ul
-      class="overflow-hidden py-1 px-2"
+      class="danmaku-msg overflow-hidden py-1 px-2"
       bind:this={ulEl}
       style:padding-top={topCache[startIndex] + 'px'}
       style:padding-bottom={msgHeight -
@@ -316,3 +323,30 @@
     </button>
   {/if}
 </div>
+
+<style scoped>
+  .danmaku-msg {
+    --danmaku-msg: initial;
+    --danmaku-time: inherit;
+    --danmaku-gift-gold: #d97706;
+    --danmaku-gift-silver: #78350f;
+    --danmaku-guard: #7c3aed;
+    --danmaku-sc: #e11d48;
+    color: var(--danmaku-msg);
+  }
+  .danmaku-msg .danmaku-time {
+    color: var(--danmaku-time);
+  }
+  .danmaku-msg .danmaku-gift-gold {
+    color: var(--danmaku-gift-gold);
+  }
+  .danmaku-msg .danmaku-gift-silver {
+    color: var(--danmaku-gift-silver);
+  }
+  .danmaku-msg .danmaku-guard {
+    color: var(--danmaku-guard);
+  }
+  .danmaku-msg .danmaku-sc {
+    color: var(--danmaku-sc);
+  }
+</style>

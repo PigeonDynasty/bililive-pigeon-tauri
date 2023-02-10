@@ -20,7 +20,33 @@
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
-      color: #fabf72
+      --danmaku-msg: #facc15;
+      --danmaku-time: inherit;
+      --danmaku-gift-gold: #d97706;
+      --danmaku-gift-silver: #78350f;
+      --danmaku-guard: #7c3aed;
+      --danmaku-sc: #e11d48;
+      color: var(--danmaku-msg);
+    }
+
+    .danmaku-time {
+      color: var(--danmaku-time);
+    }
+
+    .danmaku-gift-gold {
+      color: var(--danmaku-gift-gold);
+    }
+
+    .danmaku-gift-silver {
+      color: var(--danmaku-gift-silver);
+    }
+
+    .danmaku-guard {
+      color: var(--danmaku-guard);
+    }
+
+    .danmaku-sc {
+      color: var(--danmaku-sc);
     }
   </style>
 </head>
@@ -41,7 +67,6 @@
       if (!id) return
       const { listen } = window.__TAURI__.event
       listen('add-' + id, ({ event, payload }) => {
-        console.log(event, payload)
         const div = document.createElement('div')
         div.className = "animate__animated animate__fadeInRightBig"
         div.innerHTML = payload
@@ -53,6 +78,9 @@
             div.remove()
           }, 1000)
         }, 5000)
+      })
+      listen('update-config', (_e, payload) => {
+        console.log(payload)
       })
     }
 

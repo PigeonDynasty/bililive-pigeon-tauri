@@ -4,11 +4,12 @@
   let id = ''
   let value = false
   let className = ''
-  export { className as class, id, value }
+  let disabled = false
   $: labelClass = ['inline-flex w-14', className].join(' ')
   const change = () => {
     dispatch('change', value)
   }
+  export { className as class, id, value, disabled }
 </script>
 
 <label class={labelClass} for={id}>
@@ -16,11 +17,14 @@
     class="sr-only"
     type="checkbox"
     {id}
+    {disabled}
     bind:checked={value}
     on:change={change}
   />
   <div
-    class="h-6 w-full cursor-pointer bg-zinc-200 dark:bg-zinc-700 rounded-full shadow p-0.5"
+    class="h-6 w-full bg-zinc-200 dark:bg-zinc-700 rounded-full shadow p-0.5 "
+    class:cursor-pointer={!disabled}
+    class:cursor-not-allowed={disabled}
   >
     <span
       class="h-5 w-5 rounded-full bg-white dark:bg-zinc-400 shadow-sm inline-block transition-all"
