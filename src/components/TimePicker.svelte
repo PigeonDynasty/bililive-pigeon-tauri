@@ -9,7 +9,7 @@
   let className: string = ''
   const dispatch = createEventDispatcher()
   let time = []
-  $: showTime = time.join(':')
+  $: showTime = () => time.join(':')
   let visible = false
   const fixTimeNumber = num =>
     Number(num) < 10 ? '0' + Number(num) : String(num)
@@ -42,7 +42,7 @@
   }
   const select = () => {
     if (typeof value === 'string') {
-      value = showTime
+      value = showTime()
     } else if (typeof value === 'number') {
       const outTime = dayjs(value)
         .hour(Number(time[0]))
@@ -77,14 +77,14 @@
 >
   <Input
     slot="trigger"
-    value={showTime}
+    value={showTime()}
     placeholder="请选择时间"
     readonly
     on:clear={() => clear()}
   >
     <Clock slot="prefixIcon" />
   </Input>
-  <div class="flex h-40 -mx-2 text-xs">
+  <div class="flex -mx-2 text-xs">
     <ScrollPicker
       bind:value={time[0]}
       data={timeOptions[0]}

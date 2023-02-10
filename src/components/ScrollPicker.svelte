@@ -43,7 +43,8 @@
 
 <div class="relative w-full h-full">
   <ul
-    class="w-full h-full overflow-auto snap-y snap-mandatory"
+    class="w-full overflow-auto snap-y snap-mandatory"
+    style:height={(offsetIndex * 2 + 1) * 2 + 'rem'}
     bind:this={ulEl}
     on:scroll={() => {
       scrollSelect()

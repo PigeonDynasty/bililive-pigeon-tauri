@@ -16,7 +16,7 @@
   export { data }
 </script>
 
-<div class="shadow-md rounded bg-white dark:bg-black mb-2">
+<section class="shadow-md rounded bg-white dark:bg-black mb-2">
   <h5
     class="flex justify-between cursor-pointer p-2"
     on:click={() => (open = !open)}
@@ -75,4 +75,4 @@
       </Table>
     </div>
   {/if}
-</div>
+</section>

@@ -8,6 +8,7 @@
   import toast from '../utils/toast'
   import TimePicker from '@/components/TimePicker.svelte'
   import RoomSelect from './components/RoomSelect.svelte'
+  import Slider from '@/components/Slider.svelte'
   let web: WebviewWindow = null
   const toggleChange = async _e => {
     if (isSideOpen && !web) {
@@ -81,13 +82,9 @@
   </div>
 </div>
 <h2 class="my-2">位置</h2>
-<div class="flex text-sm mb-2">
-  <div class="flex-1 flex items-center">
-    <span class="w-12 mr-2">X</span>
-  </div>
-  <div class="flex-1 flex items-center">
-    <span class="w-12 mr-2">Y</span>
-  </div>
+<div class="flex items-center text-sm mb-2">
+  <span class="w-12 mr-2">X</span>
+  <Slider class="flex-1" />
 </div>
 
 <DatePicker bind:value={date} />
