@@ -17,6 +17,7 @@
   class="input inline-flex relative items-center flex-1"
   class:pl-2={$$slots.prefixIcon}
   class:pr-6={clearable}
+  on:click={() => dispatch('click', value)}
 >
   {#if $$slots.prefixIcon}
     <i class="w-4 h-4 mr-1 text-slate-400">

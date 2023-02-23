@@ -80,6 +80,7 @@
     value={showTime()}
     placeholder="请选择时间"
     readonly
+    on:click={() => (visible = !visible)}
     on:clear={() => clear()}
   >
     <Clock slot="prefixIcon" />

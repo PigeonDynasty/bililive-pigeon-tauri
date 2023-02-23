@@ -70,6 +70,7 @@
       : ''}
     placeholder={time ? '请选择日期时间' : '请选择日期'}
     readonly
+    on:click={() => (visible = !visible)}
     on:clear={() => clear()}
   >
     <CalendarDays slot="prefixIcon" />

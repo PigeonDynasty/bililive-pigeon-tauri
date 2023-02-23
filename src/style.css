@@ -30,8 +30,11 @@
 }
 
 @layer base {
+  * {
+    @apply transition;
+  }
   :root {
-    @apply font-sans text-zinc-900 bg-zinc-50 dark:text-zinc-50 dark:bg-zinc-900 scroll-smooth transition text-base select-text;
+    @apply font-sans text-zinc-900 bg-zinc-50 dark:text-zinc-50 dark:bg-zinc-900 scroll-smooth  text-base select-text;
   }
   *::-webkit-scrollbar {
     @apply bg-transparent w-2 h-2;

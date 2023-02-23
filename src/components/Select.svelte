@@ -57,6 +57,7 @@
   const inputFocus = () => {
     inputPlaceholder = autocomplete ? placeholder : inputValue || placeholder
     inputValue = autocomplete ? inputValue : ''
+    visible = showData().length > 0
   }
   const clear = () => (value = '')
   export {
