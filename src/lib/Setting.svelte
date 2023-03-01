@@ -1,6 +1,12 @@
 <script lang="ts">
+  import { onMount } from 'svelte'
   import Switch from '../components/Switch.svelte'
-  import { WebviewWindow, currentMonitor } from '@tauri-apps/api/window'
+  import {
+    WebviewWindow,
+    currentMonitor,
+    LogicalSize,
+    LogicalPosition
+  } from '@tauri-apps/api/window'
   import { TauriEvent } from '@tauri-apps/api/event'
   import ColorSelect from '../components/ColorSelect.svelte'
   import DatePicker from '../components/DatePicker/DatePicker.svelte'
@@ -10,6 +16,13 @@
   import RoomSelect from './components/RoomSelect.svelte'
   import Slider from '@/components/Slider.svelte'
   let web: WebviewWindow = null
+  let logicalSize: LogicalSize = new LogicalSize(0, 0)
+  let sideConfig = {
+    x: 0,
+    y: 0,
+    width: 300,
+    height: 0
+  }
   const toggleChange = async _e => {
     if (isSideOpen && !web) {
       if (!$rooms.some(item => item.room_id === Number(roomId))) {
@@ -17,29 +30,31 @@
         isSideOpen = false
         return
       }
-      currentMonitor().then(monitor => {
-        web = new WebviewWindow('side-' + roomId, {
-          url: '/side.html?id=' + roomId,
-          // alwaysOnTop: true,
-          // decorations: false,
-          // resizable: false,
-          title: '',
-          // transparent: true,
-          // x: monitor.size.width ,
-          x: 0,
-          y: monitor.size.height,
-          height: monitor.size.height,
-          width: 300
-        })
-        web.once(TauriEvent.WINDOW_DESTROYED, () => {
-          web = null
-          isSideOpen = false
-        })
+      web = new WebviewWindow('side-' + roomId, {
+        url: '/side.html?id=' + roomId,
+        acceptFirstMouse: false,
+        alwaysOnTop: true,
+        decorations: false,
+        resizable: false,
+        hiddenTitle: true,
+        title: '',
+        transparent: true,
+        center: false,
+        ...sideConfig
+      })
+      // FIXME 鼠标穿透无效
+      web.setIgnoreCursorEvents(true)
+      web.once(TauriEvent.WINDOW_DESTROYED, () => {
+        web = null
+        isSideOpen = false
       })
     } else if (!isSideOpen && web) {
       await web.close()
       web = null
     }
+  }
+  const setMonitorPosition = () => {
+    if (web) web.setPosition(new LogicalPosition(sideConfig.x, sideConfig.y))
   }
   let color = ''
   let roomId = ''
@@ -47,6 +62,18 @@
   let date = ''
   let time = ''
   let datetime
+  onMount(async () => {
+    const monitor = await currentMonitor()
+    logicalSize = monitor.size.toLogical(monitor.scaleFactor)
+
+    console.log(monitor, logicalSize)
+    sideConfig = {
+      x: logicalSize.width - 300,
+      y: logicalSize.height / 2,
+      height: logicalSize.height / 2,
+      width: 300
+    }
+  })
 </script>
 
 <h1 class="py-2 text-lg">浮窗设置</h1>
@@ -84,7 +111,23 @@
 <h2 class="my-2">位置</h2>
 <div class="flex items-center text-sm mb-2">
   <span class="w-12 mr-2">X</span>
-  <Slider class="flex-1" />
+  <Slider
+    class="flex-1"
+    bind:value={sideConfig.x}
+    min={0}
+    max={logicalSize.width}
+    on:change={() => setMonitorPosition()}
+  />
+</div>
+<div class="flex items-center text-sm mb-2">
+  <span class="w-12 mr-2">Y</span>
+  <Slider
+    class="flex-1"
+    bind:value={sideConfig.y}
+    min={0}
+    max={logicalSize.height}
+    on:change={() => setMonitorPosition()}
+  />
 </div>
 
 <DatePicker bind:value={date} />

@@ -4,7 +4,19 @@ import { resolve } from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [svelte()],
+  plugins: [
+    svelte({
+      onwarn: (warning, handler) => {
+        // ignore a11y warning
+        const _warnings = [
+          'a11y-click-events-have-key-events'
+          // 'css-unused-selector'
+        ]
+        if (_warnings.includes(warning.code)) return
+        handler(warning)
+      }
+    })
+  ],
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src')

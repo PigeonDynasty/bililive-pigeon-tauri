@@ -45,7 +45,7 @@
   {/if}
 </div>
 
-<style scoped>
+<style>
   .input:hover .input-clear {
     @apply inline-block;
   }

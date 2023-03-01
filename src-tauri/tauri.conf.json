@@ -62,10 +62,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
-        "resizable": true,
+        "height": 576,
+        "resizable": false,
         "title": "Bililive Pigeon",
-        "width": 800
+        "width": 1024
       }
     ],
     "macOSPrivateApi": true

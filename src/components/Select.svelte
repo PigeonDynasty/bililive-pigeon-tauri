@@ -14,8 +14,12 @@
   let visible = false
   let inputValue = ''
   let inputPlaceholder = placeholder
+  let focused = false
   let ulEl
-  $: labelText = i => ulEl.querySelectorAll('li')[i].textContent
+  $: labelText = i =>
+    ulEl.querySelectorAll('li')[i]
+      ? ulEl.querySelectorAll('li')[i].textContent
+      : ''
   $: showData = () =>
     inputValue
       ? filter
@@ -26,9 +30,8 @@
               .includes(inputValue.toLowerCase())
           )
       : data
-  const toggle = async bol => {
+  const toggle = bol => {
     if (!bol) return
-    data = dataMethod ? await dataMethod() : data
     if (autocomplete) inputValue = value
     else {
       const i = data.findIndex(
@@ -44,20 +47,23 @@
     value = String(typeof item === 'object' ? item[valueKey] : item)
     inputValue = autocomplete ? value : labelText(i)
     visible = false
+    focused = false
   }
   const input = () => {
     autocomplete && (value = inputValue)
     visible = showData().length > 0
   }
   const inputBlur = () => {
-    if (autocomplete) return
+    if (!focused || autocomplete) return
     if (inputPlaceholder === placeholder) inputValue = ''
     else if (inputPlaceholder !== inputValue) inputValue = inputPlaceholder
   }
-  const inputFocus = () => {
+  const inputFocus = async () => {
     inputPlaceholder = autocomplete ? placeholder : inputValue || placeholder
     inputValue = autocomplete ? inputValue : ''
+    data = dataMethod ? await dataMethod() : data
     visible = showData().length > 0
+    focused = true
   }
   const clear = () => (value = '')
   export {
@@ -93,7 +99,7 @@
     {#each showData() as item, i}
       <li
         class="px-2 py-1 cursor-pointer hover:bg-sky-50 hover:dark:bg-sky-900 hover:dark:bg-opacity-50 whitespace-nowrap"
-        on:click={() => click(item, i)}
+        on:mousedown={() => click(item, i)}
       >
         <slot {item}>
           {typeof item === 'object' ? item[labelKey] : item}

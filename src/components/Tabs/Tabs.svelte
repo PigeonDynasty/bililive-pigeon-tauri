@@ -38,6 +38,7 @@
   })
   const selectTab = (key: string | number) => {
     current.set(key)
+    dispatch('change', key)
   }
   const onClose = (key: string | number, index: number) => {
     if ($current === key) {

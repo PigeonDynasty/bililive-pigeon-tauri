@@ -185,6 +185,9 @@
                     info[0][4],
                     'hh:mm:ss'
                   )}]</span> ${info[2][1]}：${info[1]}`
+                  if (info[1].indexOf('[') === 0) {
+                    console.log('emoji:', info)
+                  } else console.log('normal:', info)
                   break
                 case 'WATCHED_CHANGE': // 多少人看过
                   const data = payload.body.data
@@ -248,6 +251,9 @@
                       info[0][4],
                       'hh:mm:ss'
                     )}]</span> ${info[2][1]}：${info[1]}`
+                    if (info[1].indexOf('[') === 0) {
+                      console.log('emoji:', info)
+                    }
                   }
               }
               if (str) {
@@ -324,7 +330,7 @@
   {/if}
 </div>
 
-<style scoped>
+<style>
   .danmaku-msg {
     --danmaku-msg: initial;
     --danmaku-time: inherit;
@@ -334,19 +340,19 @@
     --danmaku-sc: #e11d48;
     color: var(--danmaku-msg);
   }
-  .danmaku-msg .danmaku-time {
+  .danmaku-msg :global(.danmaku-time) {
     color: var(--danmaku-time);
   }
-  .danmaku-msg .danmaku-gift-gold {
+  .danmaku-msg :global(.danmaku-gift-gold) {
     color: var(--danmaku-gift-gold);
   }
-  .danmaku-msg .danmaku-gift-silver {
+  .danmaku-msg :global(.danmaku-gift-silver) {
     color: var(--danmaku-gift-silver);
   }
-  .danmaku-msg .danmaku-guard {
+  .danmaku-msg :global(.danmaku-guard) {
     color: var(--danmaku-guard);
   }
-  .danmaku-msg .danmaku-sc {
+  .danmaku-msg :global(.danmaku-sc) {
     color: var(--danmaku-sc);
   }
 </style>
