@@ -2,6 +2,7 @@ pub mod db;
 pub mod fs;
 pub mod packet;
 pub mod plugin;
+pub mod request;
 pub mod txt;
 
 use std::path::PathBuf;
@@ -20,5 +21,11 @@ pub fn plugin_dir() -> PathBuf {
 pub fn db_path() -> PathBuf {
     let mut path = doc_dir();
     path.push("db");
+    path
+}
+
+pub fn emoji_path() -> PathBuf {
+    let mut path = doc_dir();
+    path.push("emoji.json");
     path
 }

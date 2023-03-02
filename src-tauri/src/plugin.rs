@@ -1,4 +1,3 @@
-#![allow(unused)]
 use crate::db::plugin as db_plugin;
 use crate::fs;
 use crate::packet::Packet;
@@ -16,12 +15,12 @@ pub trait Plugin: Any + Send + Sync {
     fn contact(&self) -> &'static str;
     // A callback fired immediately after the plugin is loaded. Usually used
     // for initialization.
-    fn load(&self, handle: &Option<AppHandle>) {}
+    fn load(&self, _handle: &Option<AppHandle>) {}
     // A callback fired immediately before the plugin is unloaded. Use this if
     // you need to do any cleanup.
-    fn unload(&self, handle: &Option<AppHandle>) {}
+    fn unload(&self, _handle: &Option<AppHandle>) {}
     // Inspect (and possibly mutate) the request before it is sent.
-    fn send(&self, _request: &mut Vec<Packet>, handle: &Option<AppHandle>) {}
+    fn send(&self, _request: &mut Vec<Packet>, _handle: &Option<AppHandle>) {}
 }
 #[derive(Serialize)]
 pub struct PluginData {
@@ -212,9 +211,8 @@ macro_rules! declare_plugin {
     };
 }
 
-use crate::{doc_dir, plugin_dir};
-use std::fs::{create_dir_all, metadata, read_dir, File, OpenOptions};
-use std::io::{Read, Write};
+use crate::plugin_dir;
+use std::fs::create_dir_all;
 
 #[derive(Serialize)]
 enum PluginType {

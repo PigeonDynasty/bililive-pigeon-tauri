@@ -1,4 +1,3 @@
-#![allow(unused)]
 use miniz_oxide::inflate;
 use serde::Serialize;
 use serde_json::Value;

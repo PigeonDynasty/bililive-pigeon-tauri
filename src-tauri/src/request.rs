@@ -83,4 +83,17 @@ impl Request {
         .query(query_map);
         self.get(request_builder).await
     }
+    // emoji列表 需要登录
+    // pub async fn get_emoji_list(&self) -> serde_json::Value {
+    //     let mut query_map = HashMap::new();
+    //     query_map.insert("platform".to_string(), "pc".to_string());
+    //     query_map.insert("room_id".to_string(), 5440.to_string());
+    //     let request_builder = HttpRequestBuilder::new(
+    //         "GET",
+    //         "https://api.live.bilibili.com/xlive/web-ucenter/v2/emoticon/GetEmoticons",
+    //     )
+    //     .unwrap()
+    //     .query(query_map);
+    //     self.get(request_builder).await
+    // }
 }

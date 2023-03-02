@@ -104,7 +104,7 @@
 
   let txt_index = 0 // 记录保存数据第N条
   let interval = null
-  const write_danmaku = () => {
+  const writeDanmaku = () => {
     const end = msg.length
     if (end === txt_index) return
     // console.log('write:', txt_index, end, msg.slice(txt_index, end))
@@ -115,6 +115,30 @@
       // .filter(str => str[0] === '[' || str[0] === '【') // 过滤系统信息
     })
     txt_index = end
+  }
+  const formatDanmuMsg = (info): string => {
+    const msg =
+      info[0][13] === '{}'
+        ? replaceEmoji(info[1])
+        : `<img class="danmaku-emoji-custom" alt="${info[1]}" src="${info[0][13].url}"/>`
+    return `<span class="danmaku-time">[${dateFormat(
+      info[0][4],
+      'hh:mm:ss'
+    )}]</span> ${info[2][1]}：${msg}`
+  }
+  const replaceEmoji = async (tem: string): Promise<string> => {
+    let reg = /\[(\w*)\]/g
+    let arr: String[] = Array.from(new Set(tem.match(reg)))
+    const emojis: DbEmoji[] = await invoke('get_emojis', {
+      emoji: arr
+    })
+    emojis.forEach((emoji: DbEmoji) => {
+      tem = tem.replaceAll(
+        emoji.emoji,
+        `<img class="danmaku-emoji" alt="${emoji.emoji}" src="${emoji.url}"/>`
+      )
+    })
+    return tem
   }
   onMount(async () => {
     if (!roomId) return
@@ -180,14 +204,7 @@
                   )} 关播</span>`
                   break
                 case 'DANMU_MSG': // 用户发送的消息
-                  const info = payload.body.info
-                  str = `<span class="danmaku-time">[${dateFormat(
-                    info[0][4],
-                    'hh:mm:ss'
-                  )}]</span> ${info[2][1]}：${info[1]}`
-                  if (info[1].indexOf('[') === 0) {
-                    console.log('emoji:', info)
-                  } else console.log('normal:', info)
+                  str = formatDanmuMsg(payload.body.info)
                   break
                 case 'WATCHED_CHANGE': // 多少人看过
                   const data = payload.body.data
@@ -246,14 +263,7 @@
                 default: // 其他数据
                   if (payload.body.cmd.includes('DANMU_MSG')) {
                     // 遇上了奇怪的 DANMU_MSG 似乎是活动的类型
-                    const info = payload.body.info
-                    str = `<span class="danmaku-time">[${dateFormat(
-                      info[0][4],
-                      'hh:mm:ss'
-                    )}]</span> ${info[2][1]}：${info[1]}`
-                    if (info[1].indexOf('[') === 0) {
-                      console.log('emoji:', info)
-                    }
+                    str = formatDanmuMsg(payload.body.info)
                   }
               }
               if (str) {
@@ -268,14 +278,14 @@
     )
     // 定时写入文件 30s
     interval = setInterval(() => {
-      write_danmaku()
+      writeDanmaku()
     }, 30 * 1000)
   })
   onDestroy(() => {
     resizeObserver.unobserve(ulEl)
     boxResizeObserver.unobserve(boxEl)
     interval && clearInterval(interval)
-    write_danmaku()
+    writeDanmaku()
     invoke('disconnect', { roomId })
     // 断开连接 解除监听
     if (listener) {
@@ -284,7 +294,7 @@
       listener = null
     }
   })
-  export { roomId, write_danmaku }
+  export { roomId, writeDanmaku }
 </script>
 
 <div

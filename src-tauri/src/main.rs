@@ -4,7 +4,6 @@
 )]
 
 mod danmaku;
-mod request;
 
 use tauri::Window;
 use tokio::net::TcpStream;
@@ -80,6 +79,11 @@ fn update_plugin_visible(path: String, visible: bool) {
 fn get_history() -> Vec<db::history::DbHistory> {
     db::history::select_all()
 }
+// 获取emoji
+#[tauri::command]
+fn get_emojis(emojis: Vec<&str>) -> Vec<db::emoji::DbEmoji> {
+    db::emoji::select_by_emojis(emojis)
+}
 fn main() {
     let doc_dir = doc_dir();
     create_dir_all(&doc_dir).unwrap();
@@ -102,6 +106,7 @@ fn main() {
             unload_plugin,
             update_plugin_visible,
             get_history,
+            get_emojis
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

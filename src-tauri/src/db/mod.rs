@@ -1,6 +1,7 @@
 use crate::db_path;
 use rusqlite::Connection;
 use std::fs::OpenOptions;
+pub mod emoji;
 pub mod gift;
 pub mod history;
 pub mod plugin;
@@ -14,7 +15,7 @@ pub fn connect() -> Connection {
 pub fn init() {
     let _file = OpenOptions::new().create(true).open(db_path());
     let conn = connect();
-    // 创建表
+    // 插件表
     conn.execute(
         "CREATE TABLE IF NOT EXISTS plugin (
             _id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -24,7 +25,7 @@ pub fn init() {
         (), // empty list of parameters.
     )
     .unwrap();
-
+    // 礼物表
     conn.execute(
         "CREATE TABLE IF NOT EXISTS gift (
             _id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,7 +40,7 @@ pub fn init() {
         (), // empty list of parameters.
     )
     .unwrap();
-
+    // 连接历史表
     conn.execute(
         "CREATE TABLE IF NOT EXISTS history (
             _id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -51,6 +52,20 @@ pub fn init() {
         (), // empty list of parameters.
     )
     .unwrap();
+    // emoji表
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS emoji (
+            _id INTEGER PRIMARY KEY AUTOINCREMENT,
+            emoji TEXT NOT NULL,
+            emoticon_id INTEGER,
+            emoticon_unique TEXT NOT NULL,
+            url TEXT NOT NULL,
+            timestamp INTEGER
+        )",
+        (), // empty list of parameters.
+    )
+    .unwrap();
+    emoji::init();
     // 中途新增字段
     // if !check_table_column_existed("plugin", "status", &conn) {
     //     conn.execute(

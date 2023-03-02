@@ -30,7 +30,7 @@
   // 自定义关闭事件
   appWindow.listen(TauriEvent.WINDOW_CLOSE_REQUESTED, () => {
     Object.entries(roomRefs).forEach(([_key, value]) => {
-      value && (value as Danmaku).write_danmaku()
+      value && (value as Danmaku).writeDanmaku()
     })
     // 关闭
     appWindow.close()

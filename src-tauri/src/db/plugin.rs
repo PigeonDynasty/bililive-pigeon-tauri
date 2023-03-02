@@ -1,7 +1,6 @@
 use super::connect;
 
 #[derive(Debug)]
-#[allow(dead_code)]
 pub struct DbPlugin {
     pub _id: u32,
     pub path: String,
