@@ -9,7 +9,7 @@ export default defineConfig({
       onwarn: (warning, handler) => {
         // ignore a11y warning
         const _warnings = [
-          'a11y-click-events-have-key-events'
+          // 'a11y-click-events-have-key-events'
           // 'css-unused-selector'
         ]
         if (_warnings.includes(warning.code)) return

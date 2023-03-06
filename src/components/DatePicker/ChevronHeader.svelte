@@ -34,6 +34,7 @@
       on:click={() => {
         dispatch('db-left')
       }}
+      on:keypress={() => {}}
     >
       <ChevronDoubleLeft />
     </i>
@@ -43,6 +44,7 @@
         on:click={() => {
           dispatch('left')
         }}
+        on:keypress={() => {}}
       >
         <ChevronLeft />
       </i>
@@ -58,6 +60,7 @@
         on:click={() => {
           dispatch('right')
         }}
+        on:keypress={() => {}}
       >
         <ChevronRight />
       </i>
@@ -67,6 +70,7 @@
       on:click={() => {
         dispatch('db-right')
       }}
+      on:keypress={() => {}}
     >
       <ChevronDoubleRight />
     </i>

@@ -41,6 +41,7 @@
       class:text-sky-400={startYear + i === currentYear ||
         startYear + i === activeYear}
       on:click={() => selectYear(i)}
+      on:keypress={() => {}}
     >
       {startYear + i}
     </span>

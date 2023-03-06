@@ -63,6 +63,7 @@
         class:text-slate-800={i === selectIndex}
         class:dark:text-slate-100={i === selectIndex}
         on:click={() => click(i)}
+        on:keypress={() => {}}
       >
         {typeof item === 'object' ? item[labelKey] : item}
       </li>

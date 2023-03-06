@@ -53,8 +53,11 @@
       web = null
     }
   }
-  const setMonitorPosition = () => {
+  const setSidePosition = () => {
     if (web) web.setPosition(new LogicalPosition(sideConfig.x, sideConfig.y))
+  }
+  const setSideSize = () => {
+    if (web) web.setSize(new LogicalSize(sideConfig.width, sideConfig.height))
   }
   let color = ''
   let roomId = ''
@@ -69,7 +72,7 @@
     console.log(monitor, logicalSize)
     sideConfig = {
       x: logicalSize.width - 300,
-      y: logicalSize.height / 2,
+      y: 0,
       height: logicalSize.height / 2,
       width: 300
     }
@@ -116,7 +119,7 @@
     bind:value={sideConfig.x}
     min={0}
     max={logicalSize.width}
-    on:change={() => setMonitorPosition()}
+    on:change={() => setSidePosition()}
   />
 </div>
 <div class="flex items-center text-sm mb-2">
@@ -126,7 +129,28 @@
     bind:value={sideConfig.y}
     min={0}
     max={logicalSize.height}
-    on:change={() => setMonitorPosition()}
+    on:change={() => setSidePosition()}
+  />
+</div>
+<h2 class="my-2">尺寸</h2>
+<div class="flex items-center text-sm mb-2">
+  <span class="w-12 mr-2">宽</span>
+  <Slider
+    class="flex-1"
+    bind:value={sideConfig.width}
+    min={0}
+    max={logicalSize.width}
+    on:change={() => setSideSize()}
+  />
+</div>
+<div class="flex items-center text-sm mb-2">
+  <span class="w-12 mr-2">高</span>
+  <Slider
+    class="flex-1"
+    bind:value={sideConfig.height}
+    min={0}
+    max={logicalSize.height}
+    on:change={() => setSideSize()}
   />
 </div>
 

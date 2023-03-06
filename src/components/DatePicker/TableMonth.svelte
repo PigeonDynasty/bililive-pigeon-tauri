@@ -44,7 +44,7 @@
   on:db-left={() => updateShowYear('subtract')}
   on:db-right={() => updateShowYear('add')}
 >
-  <span class="link" on:click={() => toSelectYear()}>
+  <span class="link" on:click={() => toSelectYear()} on:keypress={() => {}}>
     {showYear}
   </span>
 </ChevronHeader>
@@ -56,6 +56,7 @@
       class:text-sky-400={(showYear === currentYear && i === currentMonth) ||
         (showYear === activeYear && i === activeMonth)}
       on:click={() => selectMonth(i)}
+      on:keypress={() => {}}
     >
       {i + 1}月
     </span>

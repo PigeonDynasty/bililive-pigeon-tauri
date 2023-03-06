@@ -143,6 +143,7 @@
   on:click={toggleOpen}
   on:mouseenter={() => mouseHover(true)}
   on:mouseleave={() => mouseHover(false)}
+  on:keypress={() => {}}
 >
   <slot name="trigger" />
 </div>
@@ -154,7 +155,8 @@
     style:top={pos['top'] + 'px'}
     bind:this={popoverEl}
     transition:fade
-    on:click|stopPropagation={() => toggleClose}
+    on:click|stopPropagation={() => toggleClose()}
+    on:keypress={() => {}}
   >
     <slot />
   </div>

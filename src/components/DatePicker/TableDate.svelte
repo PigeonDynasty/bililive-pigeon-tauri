@@ -70,10 +70,18 @@
   on:left={() => updateShowDate('subtract', 'month')}
   on:right={() => updateShowDate('add', 'month')}
 >
-  <span class="link" on:click={() => toSelect(DatePickerSelectType.YEAR)}>
+  <span
+    class="link"
+    on:click={() => toSelect(DatePickerSelectType.YEAR)}
+    on:keypress={() => {}}
+  >
     {$props.showDate.year()}年
   </span>
-  <span class="link ml-2" on:click={() => toSelect(DatePickerSelectType.MONTH)}>
+  <span
+    class="link ml-2"
+    on:click={() => toSelect(DatePickerSelectType.MONTH)}
+    on:keypress={() => {}}
+  >
     {$props.showDate.month() + 1}月
   </span>
 </ChevronHeader>
@@ -100,6 +108,7 @@
       class:bg-sky-400={$props.date && date.isSame($props.date, 'day')}
       class:dark:bg-sky-800={$props.date && date.isSame($props.date, 'day')}
       on:click={() => selectDate(date)}
+      on:keypress={() => {}}
     >
       {date.date()}
     </span>

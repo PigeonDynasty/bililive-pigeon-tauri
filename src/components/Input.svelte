@@ -18,6 +18,7 @@
   class:pl-2={$$slots.prefixIcon}
   class:pr-6={clearable}
   on:click={() => dispatch('click', value)}
+  on:keypress={() => {}}
 >
   {#if $$slots.prefixIcon}
     <i class="w-4 h-4 mr-1 text-slate-400">
@@ -39,6 +40,7 @@
       on:click|stopPropagation={() => {
         clear()
       }}
+      on:keypress={() => {}}
     >
       <XCircle />
     </i>
