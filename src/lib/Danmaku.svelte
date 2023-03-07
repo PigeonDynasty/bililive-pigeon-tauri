@@ -39,16 +39,37 @@
       requestAnimationFrame(scrollHandler)
     }
   }
-
   const resizeObserver = new ResizeObserver(_entries => {
     ulEl.querySelectorAll('li').forEach((e, i) => {
-      // if (!heightCache[startIndex + i])
       heightCache[startIndex + i] = e.offsetHeight
       topCache[startIndex + i] = topCache[startIndex + i - 1] + e.offsetHeight
     })
   })
   const boxResizeObserver = new ResizeObserver(_entries => {
-    viewNum = Math.ceil(boxEl.offsetHeight / estimatedItemHeight) + 1
+    viewNum = Math.ceil(boxEl.offsetHeight / estimatedItemHeight) * 2
+  })
+  const intersectionObserver = new IntersectionObserver(entries => {
+    // 如果 intersectionRatio 为 0，则目标在视野外，
+    // 我们不需要做任何事情。
+    if (entries[0].intersectionRatio <= 0) return
+    requestAnimationFrame(() => {
+      console.log(
+        msg.length,
+        startIndex,
+        endIndex,
+        heightCache[startIndex],
+        topCache[startIndex],
+        couldToBottom
+      )
+      if (startIndex === endIndex) {
+        toBottom()
+      } else {
+        startIndex = endIndex - viewNum < 0 ? 0 : endIndex - viewNum
+        requestAnimationFrame(() => {
+          boxEl && (boxEl.scrollTop = topCache[startIndex])
+        })
+      }
+    })
   })
   const getStartIndex = (top: number) => {
     let index = -1
@@ -70,22 +91,19 @@
       mid = Math.floor((left + right) / 2)
     }
     index = left
-    return index
+    return Math.max(index - Math.ceil(viewNum / 4), 0)
   }
   const scrollHandler = () => {
     const start_index = getStartIndex(boxEl.scrollTop)
     // console.log(start_index)
     if (startIndex === start_index) return
     startIndex = start_index
-    const end_index = start_index + viewNum - 1
-    if (end_index >= msg.length - 1) {
-      // 已经是最后一个
-      endIndex = msg.length - 1
-      couldToBottom = true
-    } else {
-      endIndex = end_index
-      couldToBottom = false
-    }
+    const endIndex = Math.min(
+      msg.length - 1,
+      start_index + Math.ceil((viewNum * 3) / 4)
+    )
+    couldToBottom =
+      endIndex === msg.length - 1 && endIndex - startIndex < viewNum
   }
   const updateMsg = (str: string) => {
     msg = [...msg, str]
@@ -116,26 +134,31 @@
     })
     txt_index = end
   }
-  const formatDanmuMsg = (info): string => {
+  const formatDanmuMsg = async (info): Promise<string> => {
     const msg =
       info[0][13] === '{}'
-        ? replaceEmoji(info[1])
-        : `<img class="danmaku-emoji-custom" alt="${info[1]}" src="${info[0][13].url}"/>`
+        ? await replaceEmoji(info[1])
+        : `<img class="danmaku-emoji${
+            info[0][13].bulge_display === 1 ? '-custom' : ''
+          }"  referrerpolicy="no-referrer" alt="${info[1]}" src="${
+            info[0][13].url
+          }@${info[0][13].bulge_display === 1 ? '80' : '40'}h.webp"/>`
     return `<span class="danmaku-time">[${dateFormat(
       info[0][4],
       'hh:mm:ss'
     )}]</span> ${info[2][1]}：${msg}`
   }
   const replaceEmoji = async (tem: string): Promise<string> => {
-    let reg = /\[(\w*)\]/g
-    let arr: String[] = Array.from(new Set(tem.match(reg)))
+    let reg = /\[(.+?)\]/g
+    let keys: String[] = Array.from(new Set(tem.match(reg)))
+    if (keys.length === 0) return tem
     const emojis: DbEmoji[] = await invoke('get_emojis', {
-      emoji: arr
+      emojis: keys
     })
     emojis.forEach((emoji: DbEmoji) => {
       tem = tem.replaceAll(
         emoji.emoji,
-        `<img class="danmaku-emoji" alt="${emoji.emoji}" src="${emoji.url}"/>`
+        `<img class="danmaku-emoji" referrerpolicy="no-referrer" alt="${emoji.emoji}" src="${emoji.url}@40h.webp"/>`
       )
     })
     return tem
@@ -145,7 +168,8 @@
     resizeObserver.observe(ulEl)
     // 初始化容器最大容纳值
     boxResizeObserver.observe(boxEl)
-    viewNum = Math.ceil(boxEl.offsetHeight / estimatedItemHeight) + 1
+    intersectionObserver.observe(boxEl)
+    viewNum = Math.ceil(boxEl.offsetHeight / estimatedItemHeight) * 2
 
     msg = ['开始连接...']
     invoke('connect', { roomId })
@@ -181,7 +205,7 @@
     listener['danmaku'] = await appWindow.listen(
       'danmaku-' + roomId,
       (ev: any) => {
-        ev.payload.forEach(payload => {
+        ev.payload.forEach(async payload => {
           // console.log('op:', payload.op)
           switch (payload.op) {
             case 3: //气人值
@@ -204,7 +228,7 @@
                   )} 关播</span>`
                   break
                 case 'DANMU_MSG': // 用户发送的消息
-                  str = formatDanmuMsg(payload.body.info)
+                  str = await formatDanmuMsg(payload.body.info)
                   break
                 case 'WATCHED_CHANGE': // 多少人看过
                   const data = payload.body.data
@@ -263,7 +287,7 @@
                 default: // 其他数据
                   if (payload.body.cmd.includes('DANMU_MSG')) {
                     // 遇上了奇怪的 DANMU_MSG 似乎是活动的类型
-                    str = formatDanmuMsg(payload.body.info)
+                    str = await formatDanmuMsg(payload.body.info)
                   }
               }
               if (str) {
@@ -284,6 +308,7 @@
   onDestroy(() => {
     resizeObserver.unobserve(ulEl)
     boxResizeObserver.unobserve(boxEl)
+    intersectionObserver.unobserve(boxEl)
     interval && clearInterval(interval)
     writeDanmaku()
     invoke('disconnect', { roomId })
@@ -340,7 +365,7 @@
   {/if}
 </div>
 
-<style>
+<style lang="postcss">
   .danmaku-msg {
     --danmaku-msg: initial;
     --danmaku-time: inherit;
@@ -364,5 +389,11 @@
   }
   .danmaku-msg :global(.danmaku-sc) {
     color: var(--danmaku-sc);
+  }
+  .danmaku-msg :global(.danmaku-emoji) {
+    @apply inline-block h-5;
+  }
+  .danmaku-msg :global(.danmaku-emoji-custom) {
+    @apply inline-block h-10 rounded;
   }
 </style>

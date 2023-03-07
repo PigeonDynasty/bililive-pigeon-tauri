@@ -20,6 +20,7 @@
   <h5
     class="flex justify-between cursor-pointer p-2"
     on:click={() => (open = !open)}
+    on:keypress={() => {}}
   >
     {cardHeader}
     <div class="inline-flex items-center">

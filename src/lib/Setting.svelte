@@ -15,6 +15,7 @@
   import TimePicker from '@/components/TimePicker.svelte'
   import RoomSelect from './components/RoomSelect.svelte'
   import Slider from '@/components/Slider.svelte'
+
   let web: WebviewWindow = null
   let logicalSize: LogicalSize = new LogicalSize(0, 0)
   let sideConfig = {
@@ -68,8 +69,6 @@
   onMount(async () => {
     const monitor = await currentMonitor()
     logicalSize = monitor.size.toLogical(monitor.scaleFactor)
-
-    console.log(monitor, logicalSize)
     sideConfig = {
       x: logicalSize.width - 300,
       y: 0,

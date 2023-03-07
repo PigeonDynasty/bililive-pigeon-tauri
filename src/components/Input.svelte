@@ -47,7 +47,7 @@
   {/if}
 </div>
 
-<style>
+<style lang="postcss">
   .input:hover .input-clear {
     @apply inline-block;
   }

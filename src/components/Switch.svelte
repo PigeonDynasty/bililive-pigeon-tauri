@@ -32,7 +32,7 @@
   </div>
 </label>
 
-<style scoped>
+<style lang="postcss">
   input:checked + div {
     @apply bg-sky-400 dark:bg-sky-800;
   }
