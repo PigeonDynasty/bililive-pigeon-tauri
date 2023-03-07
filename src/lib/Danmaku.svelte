@@ -53,15 +53,7 @@
     // 我们不需要做任何事情。
     if (entries[0].intersectionRatio <= 0) return
     requestAnimationFrame(() => {
-      console.log(
-        msg.length,
-        startIndex,
-        endIndex,
-        heightCache[startIndex],
-        topCache[startIndex],
-        couldToBottom
-      )
-      if (startIndex === endIndex) {
+      if (startIndex === endIndex || endIndex === msg.length - 1) {
         toBottom()
       } else {
         startIndex = endIndex - viewNum < 0 ? 0 : endIndex - viewNum
@@ -98,7 +90,7 @@
     // console.log(start_index)
     if (startIndex === start_index) return
     startIndex = start_index
-    const endIndex = Math.min(
+    endIndex = Math.min(
       msg.length - 1,
       start_index + Math.ceil((viewNum * 3) / 4)
     )

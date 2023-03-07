@@ -18,6 +18,7 @@
 
   let web: WebviewWindow = null
   let logicalSize: LogicalSize = new LogicalSize(0, 0)
+  // TODO 配置持久化
   let sideConfig = {
     x: 0,
     y: 0,
@@ -89,27 +90,6 @@
     on:change={toggleChange}
   />
 </div>
-<h2 class="my-2">颜色</h2>
-<div class="flex text-sm mb-2">
-  <div class="flex-1 flex items-center">
-    <span class="w-12 mr-2">SC标记</span>
-    <ColorSelect bind:value={color} />
-  </div>
-  <div class="flex-1 flex items-center">
-    <span class="w-12 mr-2">SC标记</span>
-    <ColorSelect bind:value={color} />
-  </div>
-</div>
-<div class="flex text-sm mb-2">
-  <div class="flex-1 flex items-center">
-    <span class="w-12 mr-2">SC标记</span>
-    <ColorSelect bind:value={color} />
-  </div>
-  <div class="flex-1 flex items-center">
-    <span class="w-12 mr-2">SC标记</span>
-    <ColorSelect bind:value={color} />
-  </div>
-</div>
 <h2 class="my-2">位置</h2>
 <div class="flex items-center text-sm mb-2">
   <span class="w-12 mr-2">X</span>
@@ -153,6 +133,29 @@
   />
 </div>
 
+<!-- TODO 文本颜色 -->
+<!-- <h2 class="my-2">颜色</h2>
+<div class="flex text-sm mb-2">
+  <div class="flex-1 flex items-center">
+    <span class="w-12 mr-2">SC标记</span>
+    <ColorSelect bind:value={color} />
+  </div>
+  <div class="flex-1 flex items-center">
+    <span class="w-12 mr-2">SC标记</span>
+    <ColorSelect bind:value={color} />
+  </div>
+</div>
+<div class="flex text-sm mb-2">
+  <div class="flex-1 flex items-center">
+    <span class="w-12 mr-2">SC标记</span>
+    <ColorSelect bind:value={color} />
+  </div>
+  <div class="flex-1 flex items-center">
+    <span class="w-12 mr-2">SC标记</span>
+    <ColorSelect bind:value={color} />
+  </div>
+</div>-->
+<!-- <h2 class="my-2">测试</h2>
 <DatePicker bind:value={date} />
 <TimePicker bind:value={time} />
-<DatePicker bind:value={datetime} time />
+<DatePicker bind:value={datetime} time /> -->
