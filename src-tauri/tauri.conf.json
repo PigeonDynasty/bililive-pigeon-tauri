@@ -18,6 +18,12 @@
         "assetScope": [
           "$DOCUMENT/BililivePigeon/plugins/*.js"
         ]
+      },
+      "http": {
+        "scope": [
+          "http://**",
+          "https://**"
+        ]
       }
     },
     "bundle": {
@@ -39,7 +45,7 @@
       "longDescription": "",
       "macOS": {
         "entitlements": null,
-        "exceptionDomain": "",
+        "exceptionDomain": "i0.hdslb.com",
         "frameworks": [],
         "providerShortName": null,
         "signingIdentity": null
@@ -54,7 +60,7 @@
       }
     },
     "security": {
-      "csp": "script-src 'self' asset"
+      "csp": "script-src 'self' asset: https://asset.localhost"
     },
     "updater": {
       "active": false
