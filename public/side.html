@@ -99,7 +99,9 @@
       }
       return null
     }
-    window.onload = () => {
+    window.onload = async () => {
+      // 鼠标穿透
+      await window.__TAURI__.window.appWindow.setIgnoreCursorEvents(true)
       const id = getQueryString('id')
       if (!id) return
       const { listen } = window.__TAURI__.event

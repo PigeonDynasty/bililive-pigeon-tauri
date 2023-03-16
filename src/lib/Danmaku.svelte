@@ -298,6 +298,8 @@
     }, 30 * 1000)
   })
   onDestroy(() => {
+    const sideWindow = WebviewWindow.getByLabel('side-' + roomId)
+    sideWindow && sideWindow.close()
     resizeObserver.unobserve(ulEl)
     boxResizeObserver.unobserve(boxEl)
     intersectionObserver.unobserve(boxEl)

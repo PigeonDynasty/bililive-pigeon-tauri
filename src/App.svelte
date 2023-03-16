@@ -6,7 +6,7 @@
   import Plugin from './lib/Plugin.svelte'
   import Setting from './lib/Setting.svelte'
   import RoomInput from './lib/components/RoomInput.svelte'
-  import { appWindow } from '@tauri-apps/api/window'
+  import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
   import { TauriEvent } from '@tauri-apps/api/event'
   import rooms, { addRoomId, delByRoomId } from './store/room'
 
@@ -29,12 +29,17 @@
   }
   // 自定义关闭事件
   appWindow.listen(TauriEvent.WINDOW_CLOSE_REQUESTED, () => {
-    Object.entries(roomRefs).forEach(([_key, value]) => {
-      value && (value as Danmaku).writeDanmaku()
+    Object.entries(roomRefs).forEach(([key, value]) => {
+      if (!value) return
+      let danmaku = value as Danmaku
+      danmaku.writeDanmaku()
+      const sideWindow = WebviewWindow.getByLabel('side-' + key)
+      sideWindow && sideWindow.close()
     })
     // 关闭
     appWindow.close()
   })
+  // appWindow.listen(TauriEvent.M
 </script>
 
 <main class="flex h-full p-1">

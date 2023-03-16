@@ -44,8 +44,6 @@
         center: false,
         ...sideConfig
       })
-      // FIXME 鼠标穿透无效
-      web.setIgnoreCursorEvents(true)
       web.once(TauriEvent.WINDOW_DESTROYED, () => {
         web = null
         isSideOpen = false
