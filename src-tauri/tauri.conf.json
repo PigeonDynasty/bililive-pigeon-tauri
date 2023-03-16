@@ -12,14 +12,25 @@
   },
   "tauri": {
     "allowlist": {
-      "all": true,
+      "all": false,
+      "window": {
+        "all": false,
+        "close": true,
+        "create": true,
+        "setIgnoreCursorEvents": true,
+        "setPosition": true,
+        "setSize": true
+      },
       "protocol": {
+        "all": false,
         "asset": true,
         "assetScope": [
           "$DOCUMENT/BililivePigeon/plugins/*.js"
         ]
       },
       "http": {
+        "all": false,
+        "request": true,
         "scope": [
           "http://**",
           "https://**"

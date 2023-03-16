@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { resolve } from 'path'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -15,7 +16,8 @@ export default defineConfig({
         if (_warnings.includes(warning.code)) return
         handler(warning)
       }
-    })
+    }),
+    visualizer()
   ],
   resolve: {
     alias: {
