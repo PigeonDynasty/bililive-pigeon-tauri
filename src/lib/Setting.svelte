@@ -25,6 +25,8 @@
     width: 300,
     height: 0
   }
+  let roomId = ''
+  let isSideOpen = false
   const toggleChange = async _e => {
     if (isSideOpen && !web) {
       if (!$rooms.some(item => item.room_id === Number(roomId))) {
@@ -60,11 +62,10 @@
     if (web) web.setSize(new LogicalSize(sideConfig.width, sideConfig.height))
   }
   let color = ''
-  let roomId = ''
-  let isSideOpen = false
   let date = ''
   let time = ''
   let datetime
+  let slider = 50
   onMount(async () => {
     const monitor = await currentMonitor()
     logicalSize = monitor.size.toLogical(monitor.scaleFactor)
@@ -154,6 +155,10 @@
   </div>
 </div>-->
 <!-- <h2 class="my-2">测试</h2>
-<DatePicker bind:value={date} />
+<div class="flex items-center text-sm mb-2">
+  <span class="w-12 mr-2">测试slider</span>
+  <Slider class="flex-1" bind:value={slider} />
+</div> -->
+<!-- <DatePicker bind:value={date} />
 <TimePicker bind:value={time} />
-<DatePicker bind:value={datetime} time /> -->
+<DatePicker bind:value={datetime} time />  -->

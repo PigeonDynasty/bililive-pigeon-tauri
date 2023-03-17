@@ -18,6 +18,7 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte'
   import { fade } from 'svelte/transition'
+  import portal from '@/utils/portal'
 
   const dispatch = createEventDispatcher()
   let triggerEl
@@ -40,7 +41,6 @@
     setPos()
     dispatch('toggle', visible)
   }
-
   const toggleOpen = _e => {
     if (trigger !== 'click') return
     visible = !visible
@@ -147,9 +147,9 @@
 >
   <slot name="trigger" />
 </div>
-
 {#if visible}
   <div
+    use:portal
     class={`fixed rounded-md shadow-lg dark:shadow-zinc-900 p-2 bg-white dark:bg-black overflow-auto z-50 ${popoverClass}`}
     style:left={pos['left'] + 'px'}
     style:top={pos['top'] + 'px'}
