@@ -2,7 +2,8 @@
   import { onMount, onDestroy } from 'svelte'
   import { invoke } from '@tauri-apps/api/tauri'
   import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
-  import { dateFormat, html2text } from '../utils/utils'
+  import { html2text } from '../utils/utils'
+  import dayjs from 'dayjs'
   import { fade } from 'svelte/transition'
   import { updateRoomInfo } from '../store/room'
   import { addGift } from '../store/gift'
@@ -120,7 +121,7 @@
     // console.log('write:', txt_index, end, msg.slice(txt_index, end))
     invoke('write_danmaku_txt', {
       roomId,
-      date: dateFormat(new Date(), 'yyyy-MM-dd'),
+      date: dayjs().format('YYYY-MM-DD'),
       data: msg.slice(txt_index, end).map(str => html2text(str))
       // .filter(str => str[0] === '[' || str[0] === '【') // 过滤系统信息
     })
@@ -135,9 +136,8 @@
           }"  referrerpolicy="no-referrer" alt="${info[1]}" src="${
             info[0][13].url
           }@${info[0][13].bulge_display === 1 ? '80' : '40'}h.webp"/>`
-    return `<span class="danmaku-time">[${dateFormat(
-      info[0][4],
-      'hh:mm:ss'
+    return `<span class="danmaku-time">[${dayjs(info[0][4]).format(
+      'HH:mm:ss'
     )}]</span> ${info[2][1]}：${msg}`
   }
   const replaceEmoji = async (tem: string): Promise<string> => {
@@ -208,15 +208,13 @@
               let str = ''
               switch (payload.body.cmd) {
                 case 'LIVE': // 开播
-                  str = `<span class="danmaku-live">${dateFormat(
-                    Date.now(),
-                    'hh:mm:ss'
+                  str = `<span class="danmaku-live">${dayjs().format(
+                    'HH:mm:ss'
                   )} 开播</span>`
                   break
                 case 'PREPARING': // 关播
-                  str = `<span class="danmaku-preparing">${dateFormat(
-                    Date.now(),
-                    'hh:mm:ss'
+                  str = `<span class="danmaku-preparing">${dayjs().format(
+                    'HH:mm:ss'
                   )} 关播</span>`
                   break
                 case 'DANMU_MSG': // 用户发送的消息
@@ -230,12 +228,11 @@
                   const gift = payload.body.data
                   str = `<i class="danmaku-gift-${
                     gift['coin_type']
-                  }">【礼物】</i><span class="danmaku-time">[${dateFormat(
-                    gift['timestamp'] * 1000,
-                    'hh:mm:ss'
-                  )}]</span> ${gift['uname']} ${gift['action']} ${
-                    gift['num']
-                  } 个 ${gift['giftName']}`
+                  }">【礼物】</i><span class="danmaku-time">[${dayjs(
+                    gift['timestamp'] * 1000
+                  ).format('HH:mm:ss')}]</span> ${gift['uname']} ${
+                    gift['action']
+                  } ${gift['num']} 个 ${gift['giftName']}`
                   addGift(
                     roomId,
                     gift['uid'],
@@ -257,9 +254,8 @@
                       ? '总督'
                       : ''
                   // FIXME 上舰时间
-                  str = `<i class="danmaku-guard">【上舰】</i><span class="danmaku-time">[${dateFormat(
-                    Date.now(),
-                    'hh:mm:ss'
+                  str = `<i class="danmaku-guard">【上舰】</i><span class="danmaku-time">[${dayjs().format(
+                    'HH:mm:ss'
                   )}]</span> ${guard['username']} 购买 ${
                     guard['num']
                   } 个月 ${guardName}`
@@ -269,12 +265,13 @@
                   const sc = payload.body.data
                   str = `<i class="danmaku-sc">【SC：${
                     sc['price']
-                  }】</i><span class="danmaku-time">[${dateFormat(
-                    sc['ts'] * 1000,
-                    'hh:mm:ss'
-                  )}]</span> ${sc['user_info']['uname']}： <span style="color:${
-                    sc['message_font_color']
-                  };">${sc['message']}`
+                  }】</i><span class="danmaku-time">[${dayjs(
+                    sc['ts'] * 1000
+                  ).format('HH:mm:ss')}]</span> ${
+                    sc['user_info']['uname']
+                  }： <span style="color:${sc['message_font_color']};">${
+                    sc['message']
+                  }`
                   break
                 default: // 其他数据
                   if (payload.body.cmd.includes('DANMU_MSG')) {

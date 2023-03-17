@@ -145,7 +145,6 @@ impl PluginManager {
 
     // Iterate over the plugins, running their `send()` hook.
     pub fn send(&mut self, request: &mut Vec<Packet>) {
-        println!("Firing pre_send hooks");
         for box_plugin in &mut self.plugins {
             if box_plugin.visible == true {
                 println!("Firing send for {:?}", box_plugin.plugin.name());
@@ -157,7 +156,6 @@ impl PluginManager {
     // Unload all plugins and loaded plugin libraries, making sure to fire
     // their `on_plugin_unload()` methods so they can do any necessary cleanup.
     pub fn unload_all(&mut self) {
-        println!("Unloading plugins");
         for mut box_plugin in self.plugins.drain(..) {
             println!("Firing on_plugin_unload for {:?}", box_plugin.plugin.name());
             box_plugin.plugin.unload(&self.handle);
