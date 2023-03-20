@@ -156,13 +156,13 @@
     <ColorSelect bind:value={color} />
   </div>
 </div>-->
-<h2 class="my-2">测试</h2>
-<div class="flex items-center text-sm mb-2">
+<!-- <h2 class="my-2">测试</h2> -->
+<!-- <div class="flex items-center text-sm mb-2">
   <span class="w-12 mr-2">slider</span>
   <Slider class="flex-1" bind:value={slider} />
-</div>
+</div> -->
 <!-- <DatePicker bind:value={date} />
 <TimePicker bind:value={time} />
 <DatePicker bind:value={datetime} time /> -->
-<ColorPicker bind:value={color2} />
-<ColorPicker bind:value={color2} alpha />
+<!-- <ColorPicker bind:value={color2} /> -->
+<!-- <ColorPicker bind:value={color2} alpha /> -->
