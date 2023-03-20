@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { DatePicker } from '@/@types/date-picker'
   import ChevronDoubleLeft from '@/icons/ChevronDoubleLeft.svelte'
   import ChevronDoubleRight from '@/icons/ChevronDoubleRight.svelte'
   import ChevronLeft from '@/icons/ChevronLeft.svelte'
@@ -8,7 +9,7 @@
   import { DATEPICKER_KEY } from './DatePicker.svelte'
   export let withSingle: boolean = false
   const dispatch = createEventDispatcher()
-  const { props, time, select }: any = getContext(DATEPICKER_KEY)
+  const { props, time, select }: DatePicker.Context = getContext(DATEPICKER_KEY)
   const selectTime = date => {
     props.update(value => {
       value.date = date

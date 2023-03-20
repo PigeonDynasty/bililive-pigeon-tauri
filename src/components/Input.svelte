@@ -5,16 +5,21 @@
   let placeholder = ''
   let readonly = false
   let clearable = true
+  let className = ''
+  $: inputClass = [
+    'input inline-flex relative items-center flex-1',
+    className
+  ].join(' ')
   const dispatch = createEventDispatcher()
   const clear = () => {
     value = null
     dispatch('clear')
   }
-  export { value, placeholder, readonly, clearable }
+  export { value, placeholder, readonly, clearable, className as class }
 </script>
 
 <div
-  class="input inline-flex relative items-center flex-1"
+  class={inputClass}
   class:pl-2={$$slots.prefixIcon}
   class:pr-6={clearable}
   on:click={() => dispatch('click', value)}

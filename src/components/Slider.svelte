@@ -15,7 +15,7 @@
       setLeft()
     }
   }
-  const move = _ => {
+  const move = () => {
     value = Math.round((left * (max - min)) / 100 + min)
     popoverRef && popoverRef.setPos()
     dispatch('change', value)
@@ -33,12 +33,12 @@
 <div class={`inline-flex items-center ${className}`}>
   <div class="flex-1 mx-3">
     <Grab
-      class="bg-zinc-200 rounded cursor-pointer relative"
+      class="bg-zinc-200 rounded"
       type={GrabType.X}
       percent
       bind:left
       bind:grabbing
-      on:move={move}
+      on:move={_ => move()}
     >
       <div
         class="bg-sky-400 dark:bg-sky-800 h-2 rounded"

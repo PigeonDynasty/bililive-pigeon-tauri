@@ -3,7 +3,8 @@
   import ChevronHeader from './ChevronHeader.svelte'
   import { DATEPICKER_KEY, DatePickerSelectType } from './DatePicker.svelte'
   import dayjs from 'dayjs'
-  const { props }: any = getContext(DATEPICKER_KEY)
+  import type { DatePicker } from '@/@types/date-picker'
+  const { props }: DatePicker.Context = getContext(DATEPICKER_KEY)
   const currentDate = dayjs()
   const currentYear: number = currentDate.year()
   const currentMonth: number = currentDate.month()

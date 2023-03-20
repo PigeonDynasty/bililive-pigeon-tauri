@@ -141,8 +141,8 @@
     )}]</span> ${info[2][1]}：${msg}`
   }
   const replaceEmoji = async (tem: string): Promise<string> => {
-    let reg = /\[(.+?)\]/g
-    let keys: String[] = Array.from(new Set(tem.match(reg)))
+    const reg = /\[(.+?)\]/g
+    const keys: String[] = Array.from(new Set(tem.match(reg)))
     if (keys.length === 0) return tem
     const emojis: DbEmoji[] = await invoke('get_emojis', {
       emojis: keys

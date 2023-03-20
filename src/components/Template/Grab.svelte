@@ -18,29 +18,45 @@
 
   let grabEl
   $: unit = percent ? '%' : 'px'
+  $: grabClass = () => {
+    const classList = [
+      'absolute -translate-y-1/2 -translate-x-1/2 leading-none'
+    ]
+    switch (type) {
+      case GrabType.X:
+        classList.push('top-1/2')
+        break
+      case GrabType.Y:
+        classList.push('left-1/2')
+        break
+    }
+    return classList.join(' ')
+  }
   const dispatch = createEventDispatcher()
   const mouseMove = e => {
     if (!grabbing) return
+    const rect = grabEl.getBoundingClientRect()
     left = percent
-      ? ((e.clientX - grabEl.offsetLeft) * 100) / grabEl.offsetWidth
-      : e.clientX - grabEl.offsetLeft
+      ? ((e.clientX - rect.left) * 100) / rect.width
+      : e.clientX - rect.left
     if (left < 0) left = 0
-    else if (left > (percent ? 100 : grabEl.offsetWidth))
-      left = percent ? 100 : grabEl.offsetWidth
+    else if (left > (percent ? 100 : rect.width))
+      left = percent ? 100 : rect.width
 
     top = percent
-      ? ((e.clientY - grabEl.offsetTop) * 100) / grabEl.offsetTop
-      : e.clientY - grabEl.offsetTop
+      ? ((e.clientY - rect.top) * 100) / rect.height
+      : e.clientY - rect.top
     if (top < 0) top = 0
-    else if (top > (percent ? 100 : grabEl.offsetHeight))
-      left = percent ? 100 : grabEl.offsetHeight
+    else if (top > (percent ? 100 : rect.height))
+      top = percent ? 100 : rect.height
     requestAnimationFrame(() => {
-      dispatch('move', {
+      const pos: Grab.Pos = {
         left,
         top,
         width: grabEl.offsetWidth,
-        height: grabEl.offsetHeight
-      })
+        height: rect.height
+      }
+      dispatch('move', pos)
     })
   }
   const bgMouseDown = e => {
@@ -55,10 +71,14 @@
   on:mouseup={() => (grabbing = false)}
   class:cursor-grabbing={grabbing}
 />
-<div class={className} bind:this={grabEl} on:mousedown={bgMouseDown}>
+<div
+  class={`cursor-pointer relative ${className}`}
+  bind:this={grabEl}
+  on:mousedown={bgMouseDown}
+>
   <slot />
   <span
-    class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 leading-none"
+    class={grabClass()}
     style:left={type === GrabType.Y ? '' : `${left}${unit}`}
     style:top={type === GrabType.X ? '' : `${top}${unit}`}
     class:cursor-grab={!grabbing}

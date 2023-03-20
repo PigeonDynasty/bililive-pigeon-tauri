@@ -63,7 +63,7 @@
     bind:this={colorEl}
   >
     <i class="w-4 h-4" class:mr-1={!!value}>
-      <Swatch on:keypress={() => {}} />
+      <Swatch />
     </i>
     {value}
   </div>
@@ -1468,7 +1468,7 @@
   </div>
   <div class="text-right mt-2">
     <button
-      class="hover:bg-zinc-100 dark:hover:bg-zinc-800 py-1 px-2 rounded-md text-sm"
+      class="hover:bg-zinc-100 dark:hover:bg-zinc-800 py-1 px-2 rounded-md text-xs"
       on:click={() => clear()}>清除</button
     >
   </div>

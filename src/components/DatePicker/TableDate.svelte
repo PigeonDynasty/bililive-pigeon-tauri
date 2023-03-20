@@ -3,7 +3,8 @@
   import ChevronHeader from './ChevronHeader.svelte'
   import { DATEPICKER_KEY, DatePickerSelectType } from './DatePicker.svelte'
   import dayjs, { Dayjs } from 'dayjs'
-  const { props, time, select }: any = getContext(DATEPICKER_KEY)
+  import type { DatePicker } from '@/@types/date-picker'
+  const { props, time, select }: DatePicker.Context = getContext(DATEPICKER_KEY)
   const currentDate = dayjs()
   let dateArray = [] // 渲染的日期列表
   const toSelect = (view: DatePickerSelectType) => {

@@ -3,7 +3,8 @@
   import ChevronHeader from './ChevronHeader.svelte'
   import { DATEPICKER_KEY, DatePickerSelectType } from './DatePicker.svelte'
   import dayjs from 'dayjs'
-  const { props }: any = getContext(DATEPICKER_KEY)
+  import type { DatePicker } from '@/@types/date-picker'
+  const { props }: DatePicker.Context = getContext(DATEPICKER_KEY)
   const currentYear: number = dayjs().year()
   $: activeYear = $props.date ? $props.date.year() : -1
   $: startYear = Math.floor($props.showDate.year() / 10) * 10

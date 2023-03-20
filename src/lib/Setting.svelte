@@ -8,13 +8,14 @@
     LogicalPosition
   } from '@tauri-apps/api/window'
   import { TauriEvent } from '@tauri-apps/api/event'
-  import ColorSelect from '../components/ColorSelect.svelte'
-  import DatePicker from '../components/DatePicker/DatePicker.svelte'
+  import ColorSelect from '@/components/ColorSelect.svelte'
+  import DatePicker from '@/components/DatePicker/DatePicker.svelte'
   import rooms from '../store/room'
   import toast from '../utils/toast'
   import TimePicker from '@/components/TimePicker.svelte'
   import RoomSelect from './components/RoomSelect.svelte'
   import Slider from '@/components/Slider.svelte'
+  import ColorPicker from '@/components/ColorPicker/ColorPicker.svelte'
 
   let web: WebviewWindow = null
   let logicalSize: LogicalSize = new LogicalSize(0, 0)
@@ -66,6 +67,7 @@
   let time = ''
   let datetime
   let slider = 50
+  let color2 = '#f00'
   onMount(async () => {
     const monitor = await currentMonitor()
     logicalSize = monitor.size.toLogical(monitor.scaleFactor)
@@ -154,11 +156,13 @@
     <ColorSelect bind:value={color} />
   </div>
 </div>-->
-<!-- <h2 class="my-2">测试</h2>
+<h2 class="my-2">测试</h2>
 <div class="flex items-center text-sm mb-2">
-  <span class="w-12 mr-2">测试slider</span>
+  <span class="w-12 mr-2">slider</span>
   <Slider class="flex-1" bind:value={slider} />
-</div> -->
+</div>
 <!-- <DatePicker bind:value={date} />
 <TimePicker bind:value={time} />
-<DatePicker bind:value={datetime} time />  -->
+<DatePicker bind:value={datetime} time /> -->
+<ColorPicker bind:value={color2} />
+<ColorPicker bind:value={color2} alpha />
