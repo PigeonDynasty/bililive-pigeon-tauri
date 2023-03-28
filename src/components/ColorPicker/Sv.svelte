@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getContext, onDestroy } from 'svelte'
 
-  import Grab from '../Template/Grab.svelte'
+  import Grab from '../Grab.svelte'
   import { COLOR_PICKER_KEY } from './ColorPicker.svelte'
   const { hsv }: Color.Context = getContext(COLOR_PICKER_KEY)
   const move = ({ left, top }: Grab.Pos) => {

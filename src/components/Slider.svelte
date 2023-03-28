@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte'
-  import Grab, { GrabType } from './Template/Grab.svelte'
+  import Grab, { GrabType } from './Grab.svelte'
   import Popover, { PopoverPlacement } from './Popover.svelte'
   let value = 0
   let min = 0

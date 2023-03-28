@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getContext } from 'svelte'
-  import Grab, { GrabType } from '../Template/Grab.svelte'
+  import Grab, { GrabType } from '../Grab.svelte'
   import { COLOR_PICKER_KEY } from './ColorPicker.svelte'
   const { hsv }: Color.Context = getContext(COLOR_PICKER_KEY)
 
