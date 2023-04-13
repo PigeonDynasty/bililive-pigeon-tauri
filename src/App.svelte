@@ -4,7 +4,7 @@
   import Gift from './lib/Gift.svelte'
   import Plugin from './lib/Plugin.svelte'
   import Setting from './lib/Setting.svelte'
-  import Test from './lib/Test.svelte'
+  // import Test from './lib/Test.svelte'
   import RoomInput from './lib/components/RoomInput.svelte'
   import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
   import { TauriEvent } from '@tauri-apps/api/event'
@@ -55,9 +55,9 @@
       <Tab header="设置" key="setting">
         <Setting />
       </Tab>
-      <Tab header="测试" key="test">
+      <!-- <Tab header="测试" key="test">
         <Test />
-      </Tab>
+      </Tab> -->
     </Tabs>
   </div>
   <div class="w-1/2 px-1 flex flex-col">
