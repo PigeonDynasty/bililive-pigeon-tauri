@@ -19,6 +19,11 @@
   }
 
   const toggleChange = row => {
+    plugins.update(p => {
+      const obj = p.find(ele => ele.path === row.path)
+      if (obj) obj.visible = row.visible
+      return p
+    })
     switch (row.plugin_type) {
       case 'Js':
         row.visible ? row.load() : row.unload()

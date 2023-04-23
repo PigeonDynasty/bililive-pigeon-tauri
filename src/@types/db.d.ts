@@ -6,3 +6,10 @@ interface DbEmoji {
   url: string
   timestamp: number
 }
+
+interface DbSetting {
+  _id: number
+  room_id: number
+  config: string
+  timestamp: number
+}

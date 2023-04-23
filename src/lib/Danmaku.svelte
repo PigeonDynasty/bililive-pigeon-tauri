@@ -9,6 +9,7 @@
   import { addGift } from '../store/gift'
   import Eye from '@/icons/Eye.svelte'
   import ArrowSmallDown from '@/icons/ArrowSmallDown.svelte'
+  import plugins from '../store/plugin'
 
   let roomId: string | number
   let listener = null
@@ -155,6 +156,11 @@
     })
     return tem
   }
+  const emit2plugins = (type: string, payload: any) => {
+    $plugins.forEach(plugin => {
+      if (plugin.visible && plugin[`on${type}`]) plugin[`on${type}`](payload)
+    })
+  }
   onMount(async () => {
     if (!roomId) return
     resizeObserver.observe(ulEl)
@@ -188,11 +194,12 @@
           str = '已断开连接'
           break
         default:
-          str = `真实房间号：${ev.payload['true_room_id']}`
+          str = `真实房间号：<span class="stream-roomid">${ev.payload['true_room_id']}</span>`
           updateRoomInfo(ev.payload)
           break
       }
       updateMsg(str)
+      emit2plugins('Stream', ev.payload)
     })
     listener['danmaku'] = await appWindow.listen(
       'danmaku-' + roomId,
@@ -208,14 +215,14 @@
               let str = ''
               switch (payload.body.cmd) {
                 case 'LIVE': // 开播
-                  str = `<span class="danmaku-live">${dayjs().format(
+                  str = `<span class="danmaku-time">${dayjs().format(
                     'HH:mm:ss'
-                  )} 开播</span>`
+                  )}</span> 开播`
                   break
                 case 'PREPARING': // 关播
-                  str = `<span class="danmaku-preparing">${dayjs().format(
+                  str = `<span class="danmaku-time">${dayjs().format(
                     'HH:mm:ss'
-                  )} 关播</span>`
+                  )}</span> 关播`
                   break
                 case 'DANMU_MSG': // 用户发送的消息
                   str = await formatDanmuMsg(payload.body.info)
@@ -230,9 +237,13 @@
                     gift['coin_type']
                   }">【礼物】</i><span class="danmaku-time">[${dayjs(
                     gift['timestamp'] * 1000
-                  ).format('HH:mm:ss')}]</span> ${gift['uname']} ${
-                    gift['action']
-                  } ${gift['num']} 个 ${gift['giftName']}`
+                  ).format(
+                    'HH:mm:ss'
+                  )}]</span> <span class="danmake-username">${
+                    gift['uname']
+                  }</span> ${gift['action']} ${gift['num']} 个 ${
+                    gift['giftName']
+                  }`
                   addGift(
                     roomId,
                     gift['uid'],
@@ -256,9 +267,9 @@
                   // FIXME 上舰时间
                   str = `<i class="danmaku-guard">【上舰】</i><span class="danmaku-time">[${dayjs().format(
                     'HH:mm:ss'
-                  )}]</span> ${guard['username']} 购买 ${
-                    guard['num']
-                  } 个月 ${guardName}`
+                  )}]</span> <span class="danmake-username">${
+                    guard['username']
+                  }</span> 购买 ${guard['num']} 个月 ${guardName}`
                   break
                 case 'SUPER_CHAT_MESSAGE': //sc
                 case 'SUPER_CHAT_MESSAGE_JP':
@@ -287,6 +298,7 @@
               break
           }
         })
+        emit2plugins('Danmaku', ev.payload)
       }
     )
     // 定时写入文件 30s
@@ -359,15 +371,23 @@
 <style lang="postcss">
   .danmaku-msg {
     --danmaku-msg: initial;
+    --stream-roomid: inherit;
     --danmaku-time: inherit;
+    --danmaku-username: inherit;
     --danmaku-gift-gold: #d97706;
     --danmaku-gift-silver: #78350f;
     --danmaku-guard: #7c3aed;
     --danmaku-sc: #e11d48;
     color: var(--danmaku-msg);
   }
+  .danmaku-msg :global(.stream-roomid) {
+    color: var(--stream-roomid);
+  }
   .danmaku-msg :global(.danmaku-time) {
     color: var(--danmaku-time);
+  }
+  .danmaku-msg :global(.danmaku-username) {
+    color: var(--danmaku-username);
   }
   .danmaku-msg :global(.danmaku-gift-gold) {
     color: var(--danmaku-gift-gold);

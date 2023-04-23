@@ -58,7 +58,6 @@ globalThis.BililivePlugin = class BililivePlugin {
   unload: Function
   getPath: Function
   constructor(config) {
-    console.log(config)
     Object.entries(config).forEach(([key, value]) => {
       this[key] = value
     })
@@ -80,7 +79,15 @@ globalThis.BililivePlugin = class BililivePlugin {
 //     console.log('loaded 测试JS插件')
 //     this.test()
 //   },
-//   unload: () => { console.log('unloaded 测试JS插件') }
+//   unload: () => {
+//     console.log('unloaded 测试JS插件')
+//   },
+//   onStream: p => {
+//     console.log('onStream', p)
+//   },
+//   onDanmaku: p => {
+//     console.log('onDanmaku', p)
+//   }
 // })
 
 // example plugin 2
@@ -96,5 +103,13 @@ globalThis.BililivePlugin = class BililivePlugin {
 //     console.log('loaded 测试JS插件')
 //     this.test()
 //   },
-//   unload: () => { console.log('unloaded 测试JS插件') }
+//   unload: () => {
+//     console.log('unloaded 测试JS插件')
+//   },
+//   onStream: p => {
+//     console.log('onStream', p)
+//   },
+//   onDanmaku: p => {
+//     console.log('onDanmaku', p)
+//   }
 // })

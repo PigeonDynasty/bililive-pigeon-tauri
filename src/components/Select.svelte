@@ -1,6 +1,9 @@
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte'
   import Popover from '@/components/Popover.svelte'
   import Input from '@/components/Input.svelte'
+
+  const dispatch = createEventDispatcher()
   let value
   let className = ''
   let placeholder = '请选择'
@@ -10,6 +13,7 @@
   let autocomplete = false
   let data = []
   let dataMethod: Function = undefined
+  let disabled = false
 
   let visible = false
   let inputValue = ''
@@ -44,7 +48,11 @@
     if (showData().length === 0) visible = false
   }
   const click = (item, i) => {
-    value = String(typeof item === 'object' ? item[valueKey] : item)
+    const val = String(typeof item === 'object' ? item[valueKey] : item)
+    if (value !== val) {
+      dispatch('change', item)
+    }
+    value = val
     inputValue = autocomplete ? value : labelText(i)
     visible = false
     focused = false
@@ -59,13 +67,17 @@
     else if (inputPlaceholder !== inputValue) inputValue = inputPlaceholder
   }
   const inputFocus = async () => {
+    if (disabled) return
     inputPlaceholder = autocomplete ? placeholder : inputValue || placeholder
     inputValue = autocomplete ? inputValue : ''
     data = dataMethod ? await dataMethod() : data
     visible = showData().length > 0
     focused = true
   }
-  const clear = () => (value = '')
+  const clear = () => {
+    value = ''
+    inputPlaceholder = placeholder
+  }
   export {
     value,
     className as class,
@@ -75,7 +87,8 @@
     labelKey,
     autocomplete,
     data,
-    dataMethod
+    dataMethod,
+    disabled
   }
 </script>
 
@@ -89,6 +102,7 @@
   <Input
     slot="trigger"
     bind:value={inputValue}
+    {disabled}
     placeholder={inputPlaceholder}
     on:input={() => input()}
     on:focus={() => inputFocus()}

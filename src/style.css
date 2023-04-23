@@ -51,7 +51,8 @@
   button {
     @apply relative overflow-hidden;
   }
-  button:disabled {
+  button:disabled,
+  input:disabled {
     @apply cursor-not-allowed;
   }
 

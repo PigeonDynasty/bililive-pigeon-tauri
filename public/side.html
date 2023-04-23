@@ -32,13 +32,14 @@
       justify-content: flex-end;
       font-weight: bold;
       --danmaku-msg: #facc15;
+      --stream-roomid: inherit;
       --danmaku-time: inherit;
+      --danmaku-username: inherit;
       --danmaku-gift-gold: #d97706;
       --danmaku-gift-silver: #78350f;
       --danmaku-guard: #7c3aed;
       --danmaku-sc: #e11d48;
-      --danmaku-bg: #666;
-      --danmaku-bg-opacity: 0.2;
+      --danmaku-bg: rgba(102, 102, 102, 0.2);
     }
 
     body>.danmaku-msg {
@@ -51,8 +52,7 @@
       width: 100%;
       height: 100%;
       z-index: -1;
-      background-color: var(--danmaku-bg);
-      opacity: var(--danmaku-bg-opacity);
+      background: var(--danmaku-bg);
     }
 
     .danmaku-time {
@@ -99,12 +99,19 @@
       }
       return null
     }
+    function toKebabCase(str) {
+      let temp = str.replace(/[A-Z]/g, i => '-' + i.toLowerCase())
+      if (temp.slice(0, 1) === '-') {
+        temp = temp.slice(1)
+      }
+      return temp
+    }
     window.onload = async () => {
       // 鼠标穿透
       await window.__TAURI__.window.appWindow.setIgnoreCursorEvents(true)
       const id = getQueryString('id')
       if (!id) return
-      const { listen } = window.__TAURI__.event
+      const { listen, emit } = window.__TAURI__.event
       listen('add-' + id, ({ event, payload }) => {
         const div = document.createElement('div')
         div.className = "danmaku-msg animate__animated animate__fadeInRightBig"
@@ -118,9 +125,12 @@
           }, 1000)
         }, 5000)
       })
-      listen('update-config', (_e, payload) => {
-        console.log(payload)
+      listen('update-color', ({ _e, payload }) => {
+        Object.entries(payload).forEach(([key, value]) => {
+          document.body.style.setProperty(`--danmaku-${toKebabCase(key)}`, value)
+        })
       })
+      emit('side-loaded', id)
     }
 
   </script>

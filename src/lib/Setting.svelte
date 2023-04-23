@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import { invoke } from '@tauri-apps/api/tauri'
   import Switch from '../components/Switch.svelte'
   import {
     WebviewWindow,
@@ -12,16 +13,28 @@
   import toast from '../utils/toast'
   import RoomSelect from './components/RoomSelect.svelte'
   import Slider from '@/components/Slider.svelte'
+  import ColorPicker from '@/components/ColorPicker/ColorPicker.svelte'
 
   let web: WebviewWindow = null
   let logicalSize: LogicalSize = new LogicalSize(0, 0)
-  // TODO 配置持久化
   let sideConfig = {
     x: 0,
     y: 0,
     width: 300,
     height: 0
   }
+  const defaultSideColor = {
+    msg: '#facc15',
+    bg: 'rgba(102, 102, 102, 0.2)',
+    roomid: '',
+    time: '',
+    username: '',
+    giftGold: '#d97706',
+    giftSilver: '#78350f',
+    guard: '#7c3aed',
+    sc: '#e11d48'
+  }
+  let sideColor = { ...defaultSideColor }
   let roomId = ''
   let isSideOpen = false
   const toggleChange = async _e => {
@@ -41,11 +54,15 @@
         title: '',
         transparent: true,
         center: false,
+        focus: false,
         ...sideConfig
       })
       web.once(TauriEvent.WINDOW_DESTROYED, () => {
         web = null
         isSideOpen = false
+      })
+      web.once('side-loaded', () => {
+        web.emit('update-color', sideColor)
       })
     } else if (!isSideOpen && web) {
       await web.close()
@@ -54,9 +71,24 @@
   }
   const setSidePosition = () => {
     if (web) web.setPosition(new LogicalPosition(sideConfig.x, sideConfig.y))
+    updateConfig()
   }
   const setSideSize = () => {
     if (web) web.setSize(new LogicalSize(sideConfig.width, sideConfig.height))
+    updateConfig()
+  }
+  const colorChange = _ => {
+    if (web) web.emit('update-color', sideColor)
+    updateConfig()
+  }
+  const updateConfig = () => {
+    invoke('update_setting', {
+      roomId: 0,
+      config: JSON.stringify({
+        sideConfig,
+        sideColor
+      })
+    }) // 0 保存默认配置
   }
   onMount(async () => {
     const monitor = await currentMonitor()
@@ -67,13 +99,20 @@
       height: logicalSize.height / 2,
       width: 300
     }
+    // config
+    const res: DbSetting = await invoke('get_setting', { roomId: 0 }) // 0 默认配置
+    console.log(res)
+    if (!res || !res.config) return
+    const config = JSON.parse(res.config)
+    sideColor = config.sideConfig
+    sideColor = config.sideColor
   })
 </script>
 
 <h1 class="py-2 text-lg">浮窗设置</h1>
 <div class="flex items-center text-sm mb-2">
-  <span class="w-12 mr-2">房间号</span>
-  <RoomSelect class="flex-1 mr-2" bind:value={roomId} />
+  <span class="w-20 mr-2">房间号</span>
+  <RoomSelect class="flex-1 mr-2" bind:value={roomId} disabled={isSideOpen} />
   <Switch
     id="sideWin"
     bind:value={isSideOpen}
@@ -83,9 +122,9 @@
 </div>
 <h2 class="my-2">位置</h2>
 <div class="flex items-center text-sm mb-2">
-  <span class="w-12 mr-2">X</span>
+  <span class="w-20 mr-2">X</span>
   <Slider
-    class="flex-1"
+    class="flex-1 -ml-3"
     bind:value={sideConfig.x}
     min={0}
     max={logicalSize.width}
@@ -93,9 +132,9 @@
   />
 </div>
 <div class="flex items-center text-sm mb-2">
-  <span class="w-12 mr-2">Y</span>
+  <span class="w-20 mr-2">Y</span>
   <Slider
-    class="flex-1"
+    class="flex-1 -ml-3"
     bind:value={sideConfig.y}
     min={0}
     max={logicalSize.height}
@@ -104,9 +143,9 @@
 </div>
 <h2 class="my-2">尺寸</h2>
 <div class="flex items-center text-sm mb-2">
-  <span class="w-12 mr-2">宽</span>
+  <span class="w-20 mr-2">宽</span>
   <Slider
-    class="flex-1"
+    class="flex-1 -ml-3"
     bind:value={sideConfig.width}
     min={0}
     max={logicalSize.width}
@@ -114,9 +153,9 @@
   />
 </div>
 <div class="flex items-center text-sm mb-2">
-  <span class="w-12 mr-2">高</span>
+  <span class="w-20 mr-2">高</span>
   <Slider
-    class="flex-1"
+    class="flex-1 -ml-3"
     bind:value={sideConfig.height}
     min={0}
     max={logicalSize.height}
@@ -124,25 +163,44 @@
   />
 </div>
 
-<!-- TODO 文本颜色 -->
-<!-- <h2 class="my-2">颜色</h2>
+<h2 class="my-2">颜色</h2>
 <div class="flex text-sm mb-2">
   <div class="flex-1 flex items-center">
-    <span class="w-12 mr-2">SC标记</span>
-    <ColorSelect bind:value={color} />
+    <span class="w-20 mr-2">全局消息</span>
+    <ColorPicker bind:value={sideColor.msg} on:change={colorChange} />
   </div>
   <div class="flex-1 flex items-center">
-    <span class="w-12 mr-2">SC标记</span>
-    <ColorSelect bind:value={color} />
+    <span class="w-20 mr-2">背景</span>
+    <ColorPicker bind:value={sideColor.bg} alpha on:change={colorChange} />
   </div>
 </div>
 <div class="flex text-sm mb-2">
   <div class="flex-1 flex items-center">
-    <span class="w-12 mr-2">SC标记</span>
-    <ColorSelect bind:value={color} />
+    <span class="w-20 mr-2">时间</span>
+    <ColorPicker bind:value={sideColor.time} on:change={colorChange} />
   </div>
   <div class="flex-1 flex items-center">
-    <span class="w-12 mr-2">SC标记</span>
-    <ColorSelect bind:value={color} />
+    <span class="w-20 mr-2">用户名</span>
+    <ColorPicker bind:value={sideColor.username} on:change={colorChange} />
   </div>
-</div>-->
+</div>
+<div class="flex text-sm mb-2">
+  <div class="flex-1 flex items-center">
+    <span class="w-20 mr-2">金瓜子标记</span>
+    <ColorPicker bind:value={sideColor.giftGold} on:change={colorChange} />
+  </div>
+  <div class="flex-1 flex items-center">
+    <span class="w-20 mr-2">银瓜子标记</span>
+    <ColorPicker bind:value={sideColor.giftSilver} on:change={colorChange} />
+  </div>
+</div>
+<div class="flex text-sm mb-2">
+  <div class="flex-1 flex items-center">
+    <span class="w-20 mr-2">上舰标记</span>
+    <ColorPicker bind:value={sideColor.guard} on:change={colorChange} />
+  </div>
+  <div class="flex-1 flex items-center">
+    <span class="w-20 mr-2">SC标记</span>
+    <ColorPicker bind:value={sideColor.sc} on:change={colorChange} />
+  </div>
+</div>

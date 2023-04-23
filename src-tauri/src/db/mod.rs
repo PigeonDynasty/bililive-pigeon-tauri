@@ -5,7 +5,7 @@ pub mod emoji;
 pub mod gift;
 pub mod history;
 pub mod plugin;
-
+pub mod setting;
 // 连接数据库
 pub fn connect() -> Connection {
     let db_path = db_path();
@@ -60,6 +60,17 @@ pub fn init() {
             emoticon_id INTEGER,
             emoticon_unique TEXT NOT NULL,
             url TEXT NOT NULL,
+            timestamp INTEGER
+        )",
+        (), // empty list of parameters.
+    )
+    .unwrap();
+    // 设置表
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS setting (
+            _id INTEGER PRIMARY KEY AUTOINCREMENT,
+            room_id INTEGER,
+            config TEXT,
             timestamp INTEGER
         )",
         (), // empty list of parameters.

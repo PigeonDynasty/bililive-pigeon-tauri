@@ -4,7 +4,7 @@
 </script>
 
 <script lang="ts">
-  import { setContext, onDestroy } from 'svelte'
+  import { setContext, onDestroy, createEventDispatcher } from 'svelte'
   import { writable } from 'svelte/store'
   import Popover, { PopoverPlacement } from '../Popover.svelte'
   import EyeDropper from '@/icons/EyeDropper.svelte'
@@ -13,6 +13,7 @@
   import Alpha from './Alpha.svelte'
   import Input from '../Input.svelte'
   import { rgb2rgbString, hsv2rgb, rgb2hex, toRgb, rgb2hsv } from './color'
+  const dispatch = createEventDispatcher()
   let value: string = ''
   let alpha: boolean = false
 
@@ -41,11 +42,17 @@
     a.set(rgb.a)
     hsv.set(rgb2hsv(rgb))
   }
+  const colorChange = _ => {
+    rgb = toRgb(color)
+    a.set(rgb.a)
+    hsv.set(rgb2hsv(rgb))
+  }
   const clear = () => {
     value = ''
     visible = false
   }
   const confirm = () => {
+    if (value !== color) dispatch('change', color)
     value = color
     visible = false
   }
@@ -65,10 +72,10 @@
   <div
     slot="trigger"
     class="shadow-md rounded-md alpha-bg overflow-hidden"
-    class:text-slate-800={colorHsv.v >= 50}
-    class:text-slate-100={colorHsv.v < 50}
+    class:text-slate-800={colorHsv.v >= 50 || $a < 0.5}
+    class:text-slate-100={colorHsv.v < 50 && $a >= 0.5}
     on:click={() => {
-      visible = true
+      visible = !visible
     }}
     on:keypress={() => {}}
   >
@@ -97,6 +104,7 @@
       bind:value={color}
       placeholder=""
       clearable={false}
+      on:change={colorChange}
     />
     <button
       class="hover:bg-zinc-100 dark:hover:bg-zinc-800 py-1 px-2 rounded-md text-xs mr-2"
