@@ -139,7 +139,7 @@
           }@${info[0][13].bulge_display === 1 ? '80' : '40'}h.webp"/>`
     return `<span class="danmaku-time">[${dayjs(info[0][4]).format(
       'HH:mm:ss'
-    )}]</span> ${info[2][1]}：${msg}`
+    )}]</span> <span class="danmaku-username">${info[2][1]}</span>：${msg}`
   }
   const replaceEmoji = async (tem: string): Promise<string> => {
     const reg = /\[(.+?)\]/g
@@ -239,7 +239,7 @@
                     gift['timestamp'] * 1000
                   ).format(
                     'HH:mm:ss'
-                  )}]</span> <span class="danmake-username">${
+                  )}]</span> <span class="danmaku-username">${
                     gift['uname']
                   }</span> ${gift['action']} ${gift['num']} 个 ${
                     gift['giftName']
@@ -267,7 +267,7 @@
                   // FIXME 上舰时间
                   str = `<i class="danmaku-guard">【上舰】</i><span class="danmaku-time">[${dayjs().format(
                     'HH:mm:ss'
-                  )}]</span> <span class="danmake-username">${
+                  )}]</span> <span class="danmaku-username">${
                     guard['username']
                   }</span> 购买 ${guard['num']} 个月 ${guardName}`
                   break
@@ -278,9 +278,11 @@
                     sc['price']
                   }】</i><span class="danmaku-time">[${dayjs(
                     sc['ts'] * 1000
-                  ).format('HH:mm:ss')}]</span> ${
+                  ).format(
+                    'HH:mm:ss'
+                  )}]</span> <span class="danmaku-username">${
                     sc['user_info']['uname']
-                  }： <span style="color:${sc['message_font_color']};">${
+                  }</span>： <span style="color:${sc['message_font_color']};">${
                     sc['message']
                   }`
                   break
