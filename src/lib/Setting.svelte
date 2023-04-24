@@ -81,6 +81,10 @@
     if (web) web.emit('update-color', sideColor)
     updateConfig()
   }
+  const colorClear = key => {
+    sideColor[key] = defaultSideColor[key]
+    colorChange(key)
+  }
   const updateConfig = () => {
     invoke('update_setting', {
       roomId: 0,
@@ -101,10 +105,9 @@
     }
     // config
     const res: DbSetting = await invoke('get_setting', { roomId: 0 }) // 0 默认配置
-    console.log(res)
     if (!res || !res.config) return
     const config = JSON.parse(res.config)
-    sideColor = config.sideConfig
+    sideConfig = config.sideConfig
     sideColor = config.sideColor
   })
 </script>
@@ -166,41 +169,74 @@
 <h2 class="my-2">颜色</h2>
 <div class="flex text-sm mb-2">
   <div class="flex-1 flex items-center">
-    <span class="w-20 mr-2">全局消息</span>
-    <ColorPicker bind:value={sideColor.msg} on:change={colorChange} />
+    <span class="w-20 mr-2">消息</span>
+    <ColorPicker
+      bind:value={sideColor.msg}
+      on:change={_ => colorChange('msg')}
+      on:clear={_ => colorClear('msg')}
+    />
   </div>
   <div class="flex-1 flex items-center">
     <span class="w-20 mr-2">背景</span>
-    <ColorPicker bind:value={sideColor.bg} alpha on:change={colorChange} />
+    <ColorPicker
+      bind:value={sideColor.bg}
+      alpha
+      on:change={_ => colorChange('bg')}
+      on:clear={_ => colorClear('bg')}
+    />
   </div>
 </div>
 <div class="flex text-sm mb-2">
   <div class="flex-1 flex items-center">
     <span class="w-20 mr-2">时间</span>
-    <ColorPicker bind:value={sideColor.time} on:change={colorChange} />
+    <ColorPicker
+      bind:value={sideColor.time}
+      on:change={_ => colorChange('time')}
+      on:clear={_ => colorClear('time')}
+    />
   </div>
   <div class="flex-1 flex items-center">
     <span class="w-20 mr-2">用户名</span>
-    <ColorPicker bind:value={sideColor.username} on:change={colorChange} />
+    <ColorPicker
+      bind:value={sideColor.username}
+      on:change={_ => colorChange('username')}
+      on:clear={_ => colorClear('username')}
+    />
   </div>
 </div>
 <div class="flex text-sm mb-2">
   <div class="flex-1 flex items-center">
     <span class="w-20 mr-2">金瓜子标记</span>
-    <ColorPicker bind:value={sideColor.giftGold} on:change={colorChange} />
+    <ColorPicker
+      bind:value={sideColor.giftGold}
+      on:change={_ => colorChange('giftGold')}
+      on:clear={_ => colorClear('giftGold')}
+    />
   </div>
   <div class="flex-1 flex items-center">
     <span class="w-20 mr-2">银瓜子标记</span>
-    <ColorPicker bind:value={sideColor.giftSilver} on:change={colorChange} />
+    <ColorPicker
+      bind:value={sideColor.giftSilver}
+      on:change={_ => colorChange('giftSilver')}
+      on:clear={_ => colorClear('giftSilver')}
+    />
   </div>
 </div>
 <div class="flex text-sm mb-2">
   <div class="flex-1 flex items-center">
     <span class="w-20 mr-2">上舰标记</span>
-    <ColorPicker bind:value={sideColor.guard} on:change={colorChange} />
+    <ColorPicker
+      bind:value={sideColor.guard}
+      on:change={_ => colorChange('guard')}
+      on:clear={_ => colorClear('guard')}
+    />
   </div>
   <div class="flex-1 flex items-center">
     <span class="w-20 mr-2">SC标记</span>
-    <ColorPicker bind:value={sideColor.sc} on:change={colorChange} />
+    <ColorPicker
+      bind:value={sideColor.sc}
+      on:change={_ => colorChange('sc')}
+      on:clear={_ => colorClear('sc')}
+    />
   </div>
 </div>

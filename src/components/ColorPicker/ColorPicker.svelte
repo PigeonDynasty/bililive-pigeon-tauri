@@ -49,11 +49,14 @@
   }
   const clear = () => {
     value = ''
+    dispatch('clear')
     visible = false
   }
   const confirm = () => {
-    if (value !== color) dispatch('change', color)
-    value = color
+    if (value !== color) {
+      value = color
+      dispatch('change', color)
+    }
     visible = false
   }
   onDestroy(() => {

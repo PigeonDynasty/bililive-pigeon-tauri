@@ -67,7 +67,13 @@
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
-        "timestampUrl": ""
+        "timestampUrl": "",
+        "wix": {
+          "language": [
+            "zh-CN",
+            "en-US"
+          ]
+        }
       }
     },
     "security": {
@@ -79,10 +85,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 576,
+        "width": 1280,
+        "height": 720,
         "resizable": false,
-        "title": "Bililive Pigeon",
-        "width": 1024
+        "title": "Bililive Pigeon"
       }
     ],
     "macOSPrivateApi": true

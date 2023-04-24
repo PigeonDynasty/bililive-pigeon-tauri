@@ -89,7 +89,6 @@
   }
   const scrollHandler = () => {
     const start_index = getStartIndex(boxEl.scrollTop)
-    // console.log(start_index)
     if (startIndex === start_index) return
     startIndex = start_index
     endIndex = Math.min(
@@ -119,7 +118,6 @@
   const writeDanmaku = () => {
     const end = msg.length
     if (end === txt_index) return
-    // console.log('write:', txt_index, end, msg.slice(txt_index, end))
     invoke('write_danmaku_txt', {
       roomId,
       date: dayjs().format('YYYY-MM-DD'),
@@ -205,13 +203,11 @@
       'danmaku-' + roomId,
       (ev: any) => {
         ev.payload.forEach(async payload => {
-          // console.log('op:', payload.op)
           switch (payload.op) {
             case 3: //气人值
               // count = payload.body.count
               break
             case 5: // wss消息
-              // console.log(payload.body)
               let str = ''
               switch (payload.body.cmd) {
                 case 'LIVE': // 开播

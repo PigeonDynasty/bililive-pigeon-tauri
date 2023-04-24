@@ -33,19 +33,22 @@
     return classList.join(' ')
   }
   const dispatch = createEventDispatcher()
+  const _mouseXY = {
+    x: null,
+    y: null
+  }
   const mouseMove = e => {
-    if (!grabbing) return
+    if (!grabbing || (_mouseXY.x === e.x && _mouseXY.y === e.y)) return
+    document.body.classList.add('select-none')
+    _mouseXY.x = e.x
+    _mouseXY.y = e.y
     const rect = grabEl.getBoundingClientRect()
-    left = percent
-      ? ((e.clientX - rect.left) * 100) / rect.width
-      : e.clientX - rect.left
+    left = percent ? ((e.x - rect.left) * 100) / rect.width : e.x - rect.left
     if (left < 0) left = 0
     else if (left > (percent ? 100 : rect.width))
       left = percent ? 100 : rect.width
 
-    top = percent
-      ? ((e.clientY - rect.top) * 100) / rect.height
-      : e.clientY - rect.top
+    top = percent ? ((e.y - rect.top) * 100) / rect.height : e.y - rect.top
     if (top < 0) top = 0
     else if (top > (percent ? 100 : rect.height))
       top = percent ? 100 : rect.height
@@ -53,11 +56,15 @@
       const pos: Grab.Pos = {
         left,
         top,
-        width: grabEl.offsetWidth,
+        width: rect.width,
         height: rect.height
       }
       dispatch('move', pos)
     })
+  }
+  const mouseUp = _e => {
+    grabbing = false
+    document.body.classList.remove('select-none')
   }
   const bgMouseDown = e => {
     grabbing = true
@@ -68,7 +75,7 @@
 
 <svelte:window
   on:mousemove={mouseMove}
-  on:mouseup={() => (grabbing = false)}
+  on:mouseup={mouseUp}
   class:cursor-grabbing={grabbing}
 />
 <div
