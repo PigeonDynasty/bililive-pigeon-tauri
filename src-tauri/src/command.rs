@@ -7,11 +7,11 @@ use std::fs::create_dir_all;
 use std::path::PathBuf;
 use tauri::Window;
 
+// 清理弹幕线程池
 #[tauri::command]
-pub fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
+pub async fn clear_danmaku_pool() {
+    danmaku::clear_pool();
 }
-
 // 发起连接
 #[tauri::command]
 pub async fn connect(room_id: u32, window: Window) {

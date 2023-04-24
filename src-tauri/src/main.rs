@@ -28,7 +28,7 @@ fn main() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            command::greet,
+            command::clear_danmaku_pool,
             command::connect,
             command::disconnect,
             command::write_danmaku_txt,

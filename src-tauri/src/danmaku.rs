@@ -17,6 +17,14 @@ use url::Url;
 // 弹幕 线程池
 static DANMAKU_POOL: Lazy<Mutex<HashMap<u32, JoinHandle<()>>>> =
     Lazy::new(|| Mutex::new(HashMap::new()));
+
+pub fn clear_pool() {
+    for (_key, handle) in DANMAKU_POOL.lock().unwrap().iter() {
+        handle.abort();
+    }
+    DANMAKU_POOL.lock().unwrap().clear();
+}
+
 pub async fn new(room_id: u32, win: &Window) {
     let key = format!("stream-{}", room_id);
     let _request = Request::new();
@@ -37,6 +45,13 @@ pub async fn new(room_id: u32, win: &Window) {
     )
     .unwrap();
     db_history::update(room_id, &uid, uname);
+
+    // 检查线程池 防止重复连接
+    if DANMAKU_POOL.lock().unwrap().contains_key(&room_id) {
+        win.emit(&key, "connected").unwrap();
+        win.emit(&key, "joined").unwrap();
+        panic!("{}已连接", room_id);
+    }
 
     let res = _request.get_danmaku_hosts(_room_id).await;
     let list = res["data"]["host_list"].as_array().unwrap().to_owned();

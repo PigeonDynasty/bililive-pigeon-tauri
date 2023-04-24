@@ -20,7 +20,7 @@ pub fn select_all() -> Vec<DbPlugin> {
         })
         .unwrap();
     for db_plugin in db_plugin_iter {
-        println!("Found DbPlugin {:?}", &db_plugin);
+        // println!("Found DbPlugin {:?}", &db_plugin);
         res.push(db_plugin.unwrap());
     }
     res

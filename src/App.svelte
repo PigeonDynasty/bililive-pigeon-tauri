@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from 'svelte'
   import { Tabs, Tab } from './components/Tabs'
   import Danmaku from './lib/Danmaku.svelte'
   import Gift from './lib/Gift.svelte'
@@ -9,7 +10,7 @@
   import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
   import { TauriEvent } from '@tauri-apps/api/event'
   import rooms, { addRoomId, delByRoomId } from './store/room'
-
+  import { invoke } from '@tauri-apps/api/tauri'
   let roomId = ''
   $: disabled = !roomId || isNaN(Number(roomId))
   let tabsRef
@@ -28,7 +29,7 @@
     delete roomRefs[id]
   }
   // 自定义关闭事件
-  appWindow.listen(TauriEvent.WINDOW_CLOSE_REQUESTED, () => {
+  appWindow.once(TauriEvent.WINDOW_CLOSE_REQUESTED, () => {
     Object.entries(roomRefs).forEach(([key, value]) => {
       if (!value) return
       let danmaku = value as Danmaku
@@ -38,6 +39,9 @@
     })
     // 关闭
     appWindow.close()
+  })
+  onMount(() => {
+    invoke('clear_danmaku_pool')
   })
 </script>
 

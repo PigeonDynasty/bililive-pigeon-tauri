@@ -85,8 +85,8 @@
     "windows": [
       {
         "fullscreen": false,
-        "width": 1280,
-        "height": 720,
+        "width": 1152,
+        "height": 648,
         "resizable": false,
         "title": "Bililive Pigeon"
       }
