@@ -5,8 +5,8 @@
 mod command;
 mod danmaku;
 
-use bililive_pigeon::plugin::PluginManager;
-use bililive_pigeon::{db, doc_dir};
+use bililive_pigeon_lib::plugin::PluginManager;
+use bililive_pigeon_lib::{db, doc_dir};
 use once_cell::sync::Lazy;
 use std::sync::Mutex;
 use tokio::net::TcpStream;

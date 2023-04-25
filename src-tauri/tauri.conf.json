@@ -80,7 +80,15 @@
       "csp": "script-src 'self' asset: https://asset.localhost"
     },
     "updater": {
-      "active": false
+      "active": true,
+      "endpoints": [
+        "https://github.com/PigeonDynasty/bililive-pigeon-tauri/releases/download/updater/update.json"
+      ],
+      "dialog": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDIxNDhFRjg2MzBGMUUzNTIKUldSUzQvRXdodTlJSVQrSmlxVi9VRFR1WWV4TFdNSEhaMW93U09YUjZHK2JwdGJHR1BENklsaEIK",
+      "windows": {
+        "installMode": "passive"
+      }
     },
     "windows": [
       {

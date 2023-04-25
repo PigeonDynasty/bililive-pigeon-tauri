@@ -1,8 +1,8 @@
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 use crate::danmaku;
 use crate::PLUGIN_MANAGER;
-use bililive_pigeon::plugin::PluginData;
-use bililive_pigeon::{db, plugin_dir, txt};
+use bililive_pigeon_lib::plugin::PluginData;
+use bililive_pigeon_lib::{db, plugin_dir, txt};
 use std::fs::create_dir_all;
 use std::path::PathBuf;
 use tauri::Window;

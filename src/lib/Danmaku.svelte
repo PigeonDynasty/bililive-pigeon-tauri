@@ -10,6 +10,7 @@
   import Eye from '@/icons/Eye.svelte'
   import ArrowSmallDown from '@/icons/ArrowSmallDown.svelte'
   import plugins from '../store/plugin'
+  import { formatInteractTypeName, formatGuardName } from '../utils/danmaku'
 
   let roomId: string | number
   let listener = null
@@ -126,6 +127,9 @@
     })
     txt_index = end
   }
+  const danmakuTime = (t?: string | number) => {
+    return `<span class="danmaku-time">[${dayjs(t).format('HH:mm:ss')}]</span>`
+  }
   const formatDanmuMsg = async (info): Promise<string> => {
     const msg =
       info[0][13] === '{}'
@@ -135,9 +139,9 @@
           }"  referrerpolicy="no-referrer" alt="${info[1]}" src="${
             info[0][13].url
           }@${info[0][13].bulge_display === 1 ? '80' : '40'}h.webp"/>`
-    return `<span class="danmaku-time">[${dayjs(info[0][4]).format(
-      'HH:mm:ss'
-    )}]</span> <span class="danmaku-username">${info[2][1]}</span>：${msg}`
+    return `${danmakuTime(info[0][4])} <span class="danmaku-username">${
+      info[2][1]
+    }</span>：${msg}`
   }
   const replaceEmoji = async (tem: string): Promise<string> => {
     const reg = /\[(.+?)\]/g
@@ -210,36 +214,36 @@
             case 5: // wss消息
               let str = ''
               switch (payload.body.cmd) {
-                case 'LIVE': // 开播
-                  str = `<span class="danmaku-time">${dayjs().format(
-                    'HH:mm:ss'
-                  )}</span> 开播`
+                case 'LIVE': { // 开播
+                  str = `${danmakuTime()} 开播`
                   break
-                case 'PREPARING': // 关播
-                  str = `<span class="danmaku-time">${dayjs().format(
-                    'HH:mm:ss'
-                  )}</span> 关播`
+                }
+                case 'PREPARING': {
+                  // 关播
+                  str = `${danmakuTime()} 关播`
                   break
-                case 'DANMU_MSG': // 用户发送的消息
+                }
+                case 'DANMU_MSG': {
+                  // 用户发送的消息
                   str = await formatDanmuMsg(payload.body.info)
                   break
-                case 'WATCHED_CHANGE': // 多少人看过
+                }
+                case 'WATCHED_CHANGE': {
+                  // 多少人看过
                   const data = payload.body.data
                   count = data.num
                   break
-                case 'SEND_GIFT': // 礼物
+                }
+                case 'SEND_GIFT': {
+                  // 礼物
                   const gift = payload.body.data
                   str = `<i class="danmaku-gift-${
                     gift['coin_type']
-                  }">【礼物】</i><span class="danmaku-time">[${dayjs(
+                  }">【礼物】</i>${danmakuTime(
                     gift['timestamp'] * 1000
-                  ).format(
-                    'HH:mm:ss'
-                  )}]</span> <span class="danmaku-username">${
-                    gift['uname']
-                  }</span> ${gift['action']} ${gift['num']} 个 ${
-                    gift['giftName']
-                  }`
+                  )} <span class="danmaku-username">${gift['uname']}</span> ${
+                    gift['action']
+                  } ${gift['num']} 个 ${gift['giftName']}`
                   addGift(
                     roomId,
                     gift['uid'],
@@ -249,39 +253,66 @@
                     gift['coin_type']
                   )
                   break
-                case 'GUARD_BUY': // 上舰
+                }
+                case 'GUARD_BUY': {
+                  // 上舰
                   const guard = payload.body.data
                   console.log(guard)
-                  const guardName =
-                    guard['guard_level'] === 3
-                      ? '舰长'
-                      : guard['guard_level'] === 2
-                      ? '提督'
-                      : guard['guard_level'] === 1
-                      ? '总督'
-                      : ''
                   // FIXME 上舰时间
-                  str = `<i class="danmaku-guard">【上舰】</i><span class="danmaku-time">[${dayjs().format(
-                    'HH:mm:ss'
-                  )}]</span> <span class="danmaku-username">${
+                  str = `<i class="danmaku-guard">【上舰】</i>${danmakuTime()} <span class="danmaku-username">${
                     guard['username']
-                  }</span> 购买 ${guard['num']} 个月 ${guardName}`
+                  }</span> 购买 ${guard['num']} 个月 ${formatGuardName(
+                    guard['guard_level']
+                  )}`
                   break
+                }
                 case 'SUPER_CHAT_MESSAGE': //sc
-                case 'SUPER_CHAT_MESSAGE_JP':
+                case 'SUPER_CHAT_MESSAGE_JP': {
                   const sc = payload.body.data
                   str = `<i class="danmaku-sc">【SC：${
                     sc['price']
-                  }】</i><span class="danmaku-time">[${dayjs(
+                  }】</i>${danmakuTime(
                     sc['ts'] * 1000
-                  ).format(
-                    'HH:mm:ss'
-                  )}]</span> <span class="danmaku-username">${
+                  )} <span class="danmaku-username">${
                     sc['user_info']['uname']
                   }</span>： <span style="color:${sc['message_font_color']};">${
                     sc['message']
                   }`
                   break
+                }
+                case 'WELCOME_GUARD': {
+                  const wlGuard = payload.body.data
+                  // FIXME 进入房间时间
+                  console.log(wlGuard)
+                  str = `${danmakuTime()} 欢迎 <i class="danmaku-guard">【${formatGuardName(
+                    wlGuard['guard_level']
+                  )}】</i> <span class="danmaku-username">${
+                    wlGuard['username']
+                  }</span> 进入直播间`
+                  break
+                }
+                case 'INTERACT_WORD': {
+                  // 进入、关注、分享
+                  const iw = payload.body.data
+                  str = `${danmakuTime(
+                    iw['timestamp']
+                  )} <span class="danmaku-username">${
+                    iw['uname']
+                  }</span> <strong>${formatInteractTypeName(
+                    iw['msg_type']
+                  )}</strong> 直播间`
+                  break
+                }
+                case 'WARNING': {
+                  // 警告信息
+                  str = `${danmakuTime()} ${payload.body.msg || 'warning'}`
+                  break
+                }
+                case 'CUT_OFF': {
+                  // 切断直播
+                  str = `${danmakuTime()} ${payload.body.msg || 'cut off'}`
+                  break
+                }
                 default: // 其他数据
                   if (payload.body.cmd.includes('DANMU_MSG')) {
                     // 遇上了奇怪的 DANMU_MSG 似乎是活动的类型

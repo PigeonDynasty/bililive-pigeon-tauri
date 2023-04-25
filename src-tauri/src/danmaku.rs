@@ -1,8 +1,8 @@
 use crate::db::{gift as db_gift, history as db_history};
 use crate::WsStream;
 use crate::PLUGIN_MANAGER;
-use bililive_pigeon::packet::{decode, encode, Packet};
-use bililive_pigeon::request::Request;
+use bililive_pigeon_lib::packet::{decode, encode, Packet};
+use bililive_pigeon_lib::request::Request;
 use futures_util::{SinkExt, StreamExt};
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
