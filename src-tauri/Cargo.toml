@@ -2,7 +2,7 @@
 name = "bililive-pigeon"
 version = "0.0.0"
 description = "A Tauri App"
-authors = ["you"]
+authors = ["takenokos"]
 license = ""
 repository = ""
 edition = "2021"

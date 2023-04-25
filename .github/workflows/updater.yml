@@ -1,0 +1,26 @@
+name: Updater
+run-name: Release update.json
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  release-update:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Pnpm Setup
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+      - name: Install frontend dependencies
+        run: pnpm install
+      - name: Release updater file
+        run: pnpm updater
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
