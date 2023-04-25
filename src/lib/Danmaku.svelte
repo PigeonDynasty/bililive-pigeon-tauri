@@ -214,7 +214,8 @@
             case 5: // wss消息
               let str = ''
               switch (payload.body.cmd) {
-                case 'LIVE': { // 开播
+                case 'LIVE': {
+                  // 开播
                   str = `${danmakuTime()} 开播`
                   break
                 }
@@ -295,7 +296,7 @@
                   // 进入、关注、分享
                   const iw = payload.body.data
                   str = `${danmakuTime(
-                    iw['timestamp']
+                    iw['timestamp'] * 1000
                   )} <span class="danmaku-username">${
                     iw['uname']
                   }</span> <strong>${formatInteractTypeName(
