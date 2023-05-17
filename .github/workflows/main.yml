@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-20.04, windows-latest]
+        platform: [macos-latest, ubuntu-20.04, windows-latest]
     runs-on: ${{ matrix.platform }}
 
     steps:
@@ -31,10 +31,7 @@ jobs:
 
       - name: Rust setup
         uses: dtolnay/rust-toolchain@stable
-      - name: install Rust Target (mac)
-        if: matrix.platform == 'macos-latest'
-        run: |
-          rustup target add ${{ matrix.macos-target }}
+
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
@@ -64,14 +61,14 @@ jobs:
           releaseDraft: true
           prerelease: false
 
-  release-mac:
+  release-mac-aarch64:
     permissions:
       contents: write
     strategy:
       fail-fast: false
       matrix:
         platform: [macos-latest]
-        target: [aarch64-apple-darwin, x86_64-apple-darwin]
+        target: [aarch64-apple-darwin]
     runs-on: ${{ matrix.platform }}
 
     steps:
@@ -84,7 +81,6 @@ jobs:
       - name: Rust setup
         uses: dtolnay/rust-toolchain@stable
       - name: install Rust Target (mac only)
-        if: matrix.platform == 'macos-latest'
         run: |
           rustup target add ${{ matrix.target }}
       - name: Rust cache
@@ -115,3 +111,4 @@ jobs:
           releaseBody: 'See the assets to download and install this version.'
           releaseDraft: true
           prerelease: false
+          args: --target ${{ matrix.target }}
