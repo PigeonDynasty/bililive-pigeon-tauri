@@ -181,7 +181,7 @@
       listener = {}
     }
     listener['stream'] = await appWindow.listen('stream-' + roomId, ev => {
-      let str = danmakuTime()
+      let str = danmakuTime() + ' '
       switch (ev.payload) {
         case 'connected':
           str += '连接弹幕服务器成功'
