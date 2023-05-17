@@ -171,7 +171,7 @@
     intersectionObserver.observe(boxEl)
     viewNum = Math.ceil(boxEl.offsetHeight / estimatedItemHeight) * 2
 
-    msg = ['开始连接...']
+    msg = [`${danmakuTime()} 开始连接...`]
     invoke('connect', { roomId })
     if (listener) {
       // 防止重复监听
@@ -181,22 +181,22 @@
       listener = {}
     }
     listener['stream'] = await appWindow.listen('stream-' + roomId, ev => {
-      let str = ''
+      let str = danmakuTime()
       switch (ev.payload) {
         case 'connected':
-          str = '连接弹幕服务器成功'
+          str += '连接弹幕服务器成功'
           break
         case 'joined':
-          str = '连接房间成功'
+          str += '连接房间成功'
           break
         case 'closed':
-          str = '意外关闭，请关闭页签重新连接'
+          str += '意外关闭，请关闭页签重新连接'
           break
         case 'disconnect':
-          str = '已断开连接'
+          str += '已断开连接'
           break
         default:
-          str = `真实房间号：<span class="stream-roomid">${ev.payload['true_room_id']}</span>`
+          str += `真实房间号：<span class="stream-roomid">${ev.payload['true_room_id']}</span>`
           updateRoomInfo(ev.payload)
           break
       }
