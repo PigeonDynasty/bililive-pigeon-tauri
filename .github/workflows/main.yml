@@ -13,6 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: [macos-latest, ubuntu-20.04, windows-latest]
+        target: [aarch64-apple-darwin, x86_64-apple-darwin]
     runs-on: ${{ matrix.platform }}
 
     steps:
@@ -31,7 +32,10 @@ jobs:
 
       - name: Rust setup
         uses: dtolnay/rust-toolchain@stable
-
+      - name: install dependencies
+        if: matrix.platform == 'macos-latest'
+        run: |
+          rustup target add ${{ matrix.target }}
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
