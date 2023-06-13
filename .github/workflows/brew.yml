@@ -1,0 +1,31 @@
+name: brew
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  test_action:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Pnpm Setup
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+      - name: Install dependencies
+        run: pnpm install
+      - name: create Formula
+        run: pnpm brew
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: Formula # The folder the action should deploy.
+          branch: main
+          repository-name: PigeonDynasty/homebrew-guguguda
+          token: ${{ secrets.GITHUB_TOKEN }}
