@@ -1,0 +1,36 @@
+name: Brew
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  brew:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Pnpm Setup
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+      - name: Install dependencies
+        run: pnpm install
+      - name: Create Cask
+        run: pnpm brew
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: Casks # The folder the action should deploy.
+          branch: main
+          repository-name: PigeonDynasty/homebrew-brew
+          target-folder: Casks
+          clean: false
+          force: false
+          token: ${{ secrets.ACTION_SECRET}}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
