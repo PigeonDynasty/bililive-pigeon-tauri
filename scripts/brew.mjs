@@ -57,7 +57,7 @@ async function resolveBrew() {
   const rubyStr = `cask "${_name}" do
   arch arm: "aarch64", intel: "x64"
   version "${tag.name.substring(1)}"
-  sha256  intel: ""${rubyData.sha['intel']}"",
+  sha256  intel: "${rubyData.sha['intel']}",
           arm:   "${rubyData.sha['arm']}"
           
   url "${rubyData.url}"
