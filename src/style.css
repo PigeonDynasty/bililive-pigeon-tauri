@@ -7,7 +7,7 @@
   .btn-sky,
   .btn-orange,
   .btn-rose {
-    @apply shadow-md text-zinc-100 dark:text-zinc-300;
+    @apply shadow-md text-zinc-100 dark:text-zinc-300 text-sm font-medium text-center;
   }
   .btn-default {
     @apply text-zinc-600 dark:text-zinc-100 bg-zinc-100 hover:bg-zinc-200  dark:bg-zinc-800 dark:hover:bg-zinc-700;
@@ -22,7 +22,7 @@
     @apply bg-rose-400 hover:bg-rose-500 dark:bg-rose-900 dark:hover:bg-rose-800;
   }
   .input {
-    @apply rounded-md py-1 px-2 shadow-md dark:shadow-zinc-800 dark:bg-black bg-white outline-none text-sm h-8;
+    @apply rounded-md py-1 px-2 shadow-md dark:shadow-zinc-800 dark:bg-black bg-white outline-none text-sm;
   }
   .link {
     @apply hover:text-sky-500 dark:hover:text-sky-700 cursor-pointer;
@@ -31,7 +31,7 @@
 
 @layer base {
   * {
-    @apply transition;
+    @apply transition text-sm;
   }
   :root {
     @apply font-sans text-zinc-900 bg-zinc-50 dark:text-zinc-50 dark:bg-zinc-900 scroll-smooth text-base select-text;

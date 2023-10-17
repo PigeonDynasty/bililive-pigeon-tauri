@@ -5,13 +5,16 @@ use bililive_pigeon_lib::packet::{decode, encode, Packet};
 use bililive_pigeon_lib::request::Request;
 use futures_util::{SinkExt, StreamExt};
 use once_cell::sync::Lazy;
+use regex::Regex;
 use std::collections::HashMap;
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::Mutex;
 use std::time::Duration;
+use tauri::api::http::header::{HeaderValue, COOKIE};
 use tauri::Window;
 use tokio::{sync::mpsc, task::JoinHandle, time};
+use tokio_tungstenite::tungstenite::client::IntoClientRequest;
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 use url::Url;
 // 弹幕 线程池
@@ -25,7 +28,7 @@ pub fn clear_pool() {
     DANMAKU_POOL.lock().unwrap().clear();
 }
 
-pub async fn new(room_id: u32, win: &Window) {
+pub async fn new(room_id: u32, cookie: &str, win: &Window) {
     let key = format!("stream-{}", room_id);
     let _request = Request::new();
     let room_res = _request.get_room_info(room_id).await;
@@ -53,18 +56,51 @@ pub async fn new(room_id: u32, win: &Window) {
         panic!("{}已连接", room_id);
     }
 
-    let res = _request.get_danmaku_hosts(_room_id).await;
+    let res = _request.get_danmaku_hosts(_room_id, cookie).await;
     let list = res["data"]["host_list"].as_array().unwrap().to_owned();
     let token = res["data"]["token"].as_str().unwrap();
-    let ws_stream = try_connect_async(list).await.unwrap();
+    // let sessdata = Regex::new(r"\bSESSDATA=([^;]+)\b")
+    //     .unwrap()
+    //     .captures(cookie)
+    //     .unwrap()
+    //     .get(1)
+    //     .unwrap()
+    //     .as_str();
+    // println!("sessdata={:?}", sessdata);
+    let ws_stream = try_connect_async(list, cookie).await.unwrap();
 
     win.emit(&key, "connected").unwrap();
-    join(ws_stream.unwrap(), room_id, _room_id, token, win).await;
+
+    let buvid = Regex::new(r"\bbuvid3=([^;]+)\b")
+        .unwrap()
+        .captures(cookie)
+        .unwrap()
+        .get(1)
+        .unwrap()
+        .as_str();
+    let uid = Regex::new(r"\bDedeUserID=([^;]+)\b")
+        .unwrap()
+        .captures(cookie)
+        .unwrap()
+        .get(1)
+        .unwrap()
+        .as_str();
+    join(
+        ws_stream.unwrap(),
+        uid,
+        room_id,
+        _room_id,
+        buvid,
+        token,
+        win,
+    )
+    .await;
 }
 
 // 递归尝试连接
 fn try_connect_async(
     mut host_list: Vec<serde_json::Value>,
+    cookie: &str,
 ) -> Pin<Box<dyn Future<Output = Result<Option<WsStream>, ()>> + Send>> {
     let host = host_list.pop().unwrap();
     let url = Url::parse(&format!(
@@ -73,8 +109,15 @@ fn try_connect_async(
         host["wss_port"]
     ))
     .unwrap();
+    let mut req = url.into_client_request().unwrap();
+
+    // let _cookie =
+    //     HeaderValue::from_str(&format!("SESSDATA={}", sessdata)).expect("invalid sessdata");
+    let headers = HeaderValue::from_str(cookie).expect("invalid cookie");
+    req.headers_mut().append(COOKIE, headers);
+    let _cookie = cookie.to_owned();
     Box::pin(async move {
-        match connect_async(url).await {
+        match connect_async(req).await {
             Ok((stream, _response)) => {
                 // 打印连接情况
                 // println!("Status code: {}", response.status());
@@ -86,7 +129,8 @@ fn try_connect_async(
             Err(_e) => {
                 println!("Error={:?}", _e);
                 if host_list.len() > 0 {
-                    return try_connect_async(host_list).await;
+                    return try_connect_async(host_list, &_cookie).await;
+                    // return Ok(None);
                 } else {
                     return Ok(None);
                 }
@@ -94,13 +138,23 @@ fn try_connect_async(
         }
     })
 }
-async fn join(ws_stream: WsStream, room_id: u32, _room_id: u64, token: &str, win: &Window) {
+async fn join(
+    ws_stream: WsStream,
+    uid: &str,
+    room_id: u32,
+    _room_id: u64,
+    buvid: &str,
+    token: &str,
+    win: &Window,
+) {
     let (mut wx, mut rx) = ws_stream.split();
     let raw = serde_json::to_string(&serde_json::json!({
-            "uid": 0,
+            "uid":uid.parse::<i32>().unwrap(),
+            // "uid": 0,
             "roomid": _room_id,
             "protover": 3,
-            "platform": "bililive_pigeon",
+            "buvid":buvid,
+            "platform": "web",
             "type":2,
             "key": token,
     }))

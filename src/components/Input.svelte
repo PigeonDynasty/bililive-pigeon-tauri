@@ -1,7 +1,9 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte'
   import XCircle from '@/icons/XCircle.svelte'
+  let inputEl
   let value
+  let type = 'text'
   let placeholder = ''
   let readonly = false
   let disabled = false
@@ -11,6 +13,7 @@
     'input inline-flex relative items-center flex-1',
     className
   ].join(' ')
+  $: inputEl && (inputEl.type = type)
   const dispatch = createEventDispatcher()
   const clear = () => {
     value = null
@@ -18,6 +21,7 @@
   }
   export {
     value,
+    type,
     placeholder,
     readonly,
     disabled,
@@ -38,17 +42,32 @@
       <slot name="prefixIcon" />
     </i>
   {/if}
-  <input
-    class="outline-none dark:bg-black bg-white w-full"
-    {placeholder}
-    {readonly}
-    {disabled}
-    bind:value
-    on:input={() => dispatch('input', value)}
-    on:focus={() => dispatch('focus', value)}
-    on:blur={() => dispatch('blur', value)}
-    on:change={() => dispatch('change', value)}
-  />
+  {#if type === 'textarea'}
+    <textarea
+      class="outline-none dark:bg-black bg-white w-full"
+      {placeholder}
+      {readonly}
+      {disabled}
+      bind:value
+      on:input={() => dispatch('input', value)}
+      on:focus={() => dispatch('focus', value)}
+      on:blur={() => dispatch('blur', value)}
+      on:change={() => dispatch('change', value)}
+    />
+  {:else}
+    <input
+      class="outline-none dark:bg-black bg-white w-full h-6"
+      {placeholder}
+      {readonly}
+      {disabled}
+      bind:this={inputEl}
+      bind:value
+      on:input={() => dispatch('input', value)}
+      on:focus={() => dispatch('focus', value)}
+      on:blur={() => dispatch('blur', value)}
+      on:change={() => dispatch('change', value)}
+    />
+  {/if}
   {#if !disabled && !readonly && clearable && value}
     <i
       class="input-clear w-4 h-4 absolute right-2 top-2 text-slate-400 cursor-pointer transition hidden"

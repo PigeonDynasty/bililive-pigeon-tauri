@@ -1,3 +1,8 @@
+## v0.0.4
+
+### Features
+- 增加Cookie来解决阿B的弹幕限制
+
 ## v0.0.3
 
 ### Features
@@ -6,7 +11,7 @@
 
 ## v0.0.2
 
-### Buf Fixes
+### Bug Fixes
 
 - Fixed INTERACT_WORD time
 

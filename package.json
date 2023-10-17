@@ -14,13 +14,13 @@
     "brew": "node scripts/brew.mjs"
   },
   "dependencies": {
-    "@tauri-apps/api": "^1.2.0",
+    "@tauri-apps/api": "^1.5.0",
     "dayjs": "^1.11.7"
   },
   "devDependencies": {
     "@actions/github": "^5.1.1",
     "@sveltejs/vite-plugin-svelte": "^2.0.3",
-    "@tauri-apps/cli": "^1.2.3",
+    "@tauri-apps/cli": "^1.5.2",
     "@tsconfig/svelte": "^3.0.0",
     "@types/node": "^18.14.2",
     "autoprefixer": "^10.4.13",

@@ -14,9 +14,9 @@ pub async fn clear_danmaku_pool() {
 }
 // 发起连接
 #[tauri::command]
-pub async fn connect(room_id: u32, window: Window) {
+pub async fn connect(room_id: u32, cookie: String, window: Window) {
     create_dir_all(txt::room_path(&room_id)).unwrap();
-    danmaku::new(room_id, &window).await;
+    danmaku::new(room_id, &cookie, &window).await;
 }
 // 断开连接
 #[tauri::command]

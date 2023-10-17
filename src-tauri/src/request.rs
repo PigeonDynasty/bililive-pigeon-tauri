@@ -1,5 +1,8 @@
 use std::collections::HashMap;
-use tauri::api::http::{Client, ClientBuilder, HttpRequestBuilder, ResponseType};
+use tauri::api::http::{
+    header::{HeaderMap, COOKIE},
+    Client, ClientBuilder, HttpRequestBuilder, ResponseType,
+};
 pub struct Request {
     client: Client,
 }
@@ -27,16 +30,19 @@ impl Request {
     }
 
     // 获取wss服务器列表
-    pub async fn get_danmaku_hosts(&self, id: u64) -> serde_json::Value {
+    pub async fn get_danmaku_hosts(&self, id: u64, cookie: &str) -> serde_json::Value {
         let mut query_map = HashMap::new();
+        let mut header_map = HeaderMap::new();
         query_map.insert("id".to_string(), id.to_string());
         query_map.insert("type".to_string(), "0".to_string());
+        header_map.insert(COOKIE, cookie.parse().unwrap());
         let request_builder = HttpRequestBuilder::new(
             "GET",
             "https://api.live.bilibili.com/xlive/web-room/v1/index/getDanmuInfo",
         )
         .unwrap()
-        .query(query_map);
+        .query(query_map)
+        .headers(header_map);
         self.get(request_builder).await
     }
     // 获取真实房间号

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getContext, onDestroy } from 'svelte'
+  import { getContext } from 'svelte'
 
   import Grab from '../Grab.svelte'
   import { COLOR_PICKER_KEY } from './ColorPicker.svelte'
@@ -21,7 +21,7 @@
   on:move={e => move(e.detail)}
 >
   <div
-    class="relative w-72 h-48 "
+    class="relative w-72 h-48"
     style:background={`hsl(${$hsv.h * 3.6}, 100%, 50%)`}
   >
     <div

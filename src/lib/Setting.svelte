@@ -14,9 +14,17 @@
   import RoomSelect from './components/RoomSelect.svelte'
   import Slider from '@/components/Slider.svelte'
   import ColorPicker from '@/components/ColorPicker/ColorPicker.svelte'
+  import Input from '@/components/Input.svelte'
+  import CookieHelper from './components/CookieHelper.svelte'
+  import account from '@/store/account'
 
   let web: WebviewWindow = null
   let logicalSize: LogicalSize = new LogicalSize(0, 0)
+  let accountConfig = {
+    cookie: ''
+  }
+  $: accountConfig && account.set(accountConfig)
+
   let sideConfig = {
     x: 0,
     y: 0,
@@ -89,6 +97,7 @@
     invoke('update_setting', {
       roomId: 0,
       config: JSON.stringify({
+        accountConfig,
         sideConfig,
         sideColor
       })
@@ -107,11 +116,22 @@
     const res: DbSetting = await invoke('get_setting', { roomId: 0 }) // 0 默认配置
     if (!res || !res.config) return
     const config = JSON.parse(res.config)
+    accountConfig = config.accountConfig
     sideConfig = config.sideConfig
     sideColor = config.sideColor
   })
 </script>
 
+<h1 class="py-2 text-lg flex gap-0.5 items-center">Cookie<CookieHelper /></h1>
+<div class=" text-sm mb-2">
+  <Input
+    class="w-full"
+    type="textarea"
+    clearable={false}
+    bind:value={accountConfig.cookie}
+    on:change={updateConfig}
+  />
+</div>
 <h1 class="py-2 text-lg">浮窗设置</h1>
 <div class="flex items-center text-sm mb-2">
   <span class="w-20 mr-2">房间号</span>

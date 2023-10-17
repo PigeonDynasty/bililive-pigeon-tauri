@@ -11,6 +11,7 @@
   import ArrowSmallDown from '@/icons/ArrowSmallDown.svelte'
   import plugins from '../store/plugin'
   import { formatInteractTypeName, formatGuardName } from '../utils/danmaku'
+  import account from '@/store/account'
 
   let roomId: string | number
   let listener = null
@@ -44,12 +45,13 @@
   }
   const resizeObserver = new ResizeObserver(_entries => {
     ulEl.querySelectorAll('li').forEach((e, i) => {
-      heightCache[startIndex + i] = e.offsetHeight
-      topCache[startIndex + i] = topCache[startIndex + i - 1] + e.offsetHeight
+      heightCache[startIndex + i] !== e.offsetHeight &&
+        (heightCache[startIndex + i] = e.offsetHeight)
+      // topCache[startIndex + i] = topCache[startIndex + i - 1] + e.offsetHeight
     })
   })
   const boxResizeObserver = new ResizeObserver(_entries => {
-    viewNum = Math.ceil(boxEl.offsetHeight / estimatedItemHeight) * 2
+    viewNum = Math.ceil(boxEl.offsetHeight / estimatedItemHeight) * 3
   })
   const intersectionObserver = new IntersectionObserver(entries => {
     // 如果 intersectionRatio 为 0，则目标在视野外，
@@ -172,7 +174,7 @@
     viewNum = Math.ceil(boxEl.offsetHeight / estimatedItemHeight) * 2
 
     msg = [`${danmakuTime()} 开始连接...`]
-    invoke('connect', { roomId })
+    invoke('connect', { roomId, cookie: $account.cookie ?? '' })
     if (listener) {
       // 防止重复监听
       listener['stream']()

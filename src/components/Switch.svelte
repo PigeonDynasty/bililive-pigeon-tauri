@@ -22,12 +22,12 @@
     on:change={change}
   />
   <div
-    class="h-6 w-full bg-zinc-200 dark:bg-zinc-700 rounded-full shadow p-0.5 "
+    class="h-6 w-full bg-zinc-200 dark:bg-zinc-700 rounded-full shadow p-0.5"
     class:cursor-pointer={!disabled}
     class:cursor-not-allowed={disabled}
   >
     <span
-      class="h-5 w-5 rounded-full bg-white dark:bg-zinc-400 shadow-sm inline-block transition-all"
+      class="h-5 w-5 rounded-full bg-white dark:bg-zinc-400 shadow-sm inline-block"
     />
   </div>
 </label>
