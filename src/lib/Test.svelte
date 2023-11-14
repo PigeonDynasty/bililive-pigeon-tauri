@@ -4,6 +4,7 @@
   import DatePicker from '@/components/DatePicker/DatePicker.svelte'
   import TimePicker from '@/components/TimePicker.svelte'
   import ColorPicker from '@/components/ColorPicker/ColorPicker.svelte'
+  import Login from './components/Login/Login.svelte'
   let date = ''
   let time = ''
   let datetime
@@ -41,4 +42,8 @@
 <div class="flex items-center text-sm mb-2">
   <span class="w-28 mr-2">ColorPickerAlpha</span>
   <ColorPicker bind:value={color3} alpha />
+</div>
+<div class="flex items-center text-sm mb-2">
+  <span class="w-28 mr-2">Login</span>
+  <Login />
 </div>
