@@ -30,10 +30,7 @@
   }
   // 自定义关闭事件
   appWindow.once(TauriEvent.WINDOW_CLOSE_REQUESTED, () => {
-    Object.entries(roomRefs).forEach(([key, value]) => {
-      if (!value) return
-      let danmaku = value as Danmaku
-      danmaku.writeDanmaku()
+    Object.entries(roomRefs).forEach(([key, _value]) => {
       const sideWindow = WebviewWindow.getByLabel('side-' + key)
       sideWindow && sideWindow.close()
     })
