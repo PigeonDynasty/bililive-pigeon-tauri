@@ -47,7 +47,7 @@ pub struct PluginManager {
     plugins: Vec<BoxPlugin>,
     loaded_libraries: Vec<Library>,
 }
-
+#[allow(dropping_references)]
 impl PluginManager {
     pub fn new() -> PluginManager {
         PluginManager {
