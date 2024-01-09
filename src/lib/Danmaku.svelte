@@ -12,30 +12,51 @@
   import plugins from '../store/plugin'
   import { formatInteractTypeName, formatGuardName } from '../utils/danmaku'
   import account from '@/store/account'
+  import danmakuWorker from '@/workers/danmaku?worker'
 
   let roomId: string | number
   let listener = null
   let count = 0
   let msg = [] // 弹幕数据
-
   let currentTime = Date.now()
-
-  let startIndex: number = 0
-  let endIndex: number = 0
-  let estimatedItemHeight: number = 24 // 预估每个项的高度 这里用单行文本高度
+  const estimatedItemHeight: number = 24 // 预估每个项的高度 这里用单行文本高度
   let viewNum: number = 0 // 可视数量
   let boxEl // 盒子 dom对象
   let ulEl // 盒子内部显示的弹幕消息盒子
   let couldToBottom: boolean = true // 判断能否自动滚动到底部
-  let heightCache: number[] = []
-  let topCache: number[] = []
-  $: msgHeight = heightCache.reduce((prev, next, i) => {
-    topCache[i] = prev
-    return prev + next || 0
-  }, 0)
+  let pt = 0
+  let pb = 0
 
-  $: showMsg = msg.slice(startIndex, endIndex + 1) // 显示的弹幕数据
+  const worker = new danmakuWorker()
+  const onMessage = e => {
+    const { type, data, innerHeight, height, length, paddingTop } = e.data
+    switch (type) {
+      case 'added': {
+        if (couldToBottom) {
+          getLast()
+        } else {
+          pb = height - pt - innerHeight
+        }
+        break
+      }
+      case 'get':
+        msg = [...data]
+        const lastItem = data[data.length - 1]
+        couldToBottom = lastItem ? lastItem.index === length : true
+        pt = paddingTop || 0
 
+        if (couldToBottom) {
+          pb = 0
+          requestAnimationFrame(() => {
+            boxEl && (boxEl.scrollTop = boxEl.scrollHeight)
+            couldToBottom = true
+          })
+        } else {
+          pb = height - pt - innerHeight
+        }
+        break
+    }
+  }
   const checkScroll = _e => {
     const now = Date.now()
     if (now - currentTime > 100) {
@@ -45,90 +66,75 @@
   }
   const resizeObserver = new ResizeObserver(_entries => {
     ulEl.querySelectorAll('li').forEach((e, i) => {
-      heightCache[startIndex + i] !== e.offsetHeight &&
-        (heightCache[startIndex + i] = e.offsetHeight)
-      // topCache[startIndex + i] = topCache[startIndex + i - 1] + e.offsetHeight
+      if (e.offsetHeight > 0 && msg[i].height !== e.offsetHeight) {
+        msg[i].height = e.offsetHeight
+        worker.postMessage({
+          type: 'update',
+          tableName: roomId,
+          data: [msg[i]]
+        })
+      }
     })
   })
   const boxResizeObserver = new ResizeObserver(_entries => {
-    viewNum = Math.ceil(boxEl.offsetHeight / estimatedItemHeight) * 3
+    if (boxEl.offsetHeight)
+      viewNum = Math.ceil(boxEl.offsetHeight / estimatedItemHeight) * 3
   })
   const intersectionObserver = new IntersectionObserver(entries => {
     // 如果 intersectionRatio 为 0，则目标在视野外，
     // 我们不需要做任何事情。
     if (entries[0].intersectionRatio <= 0) return
     requestAnimationFrame(() => {
-      if (startIndex === endIndex || endIndex === msg.length - 1) {
+      if (couldToBottom) {
         toBottom()
       } else {
-        startIndex = endIndex - viewNum < 0 ? 0 : endIndex - viewNum
-        requestAnimationFrame(() => {
-          boxEl && (boxEl.scrollTop = topCache[startIndex])
-        })
+        boxEl && (boxEl.scrollTop = pt)
       }
     })
   })
-  const getStartIndex = (top: number) => {
-    let index = -1
-    let left = 0,
-      right = topCache.length - 1,
-      mid = Math.floor((left + right) / 2)
-    // 判断 有可循环项时进入 二分查找
-    while (right - left > 1) {
-      // 目标数在左侧
-      if (top < topCache[mid]) {
-        right = mid
-      } else if (top > topCache[mid]) {
-        // 目标数在右侧
-        left = mid
-      } else {
-        index = mid
-        return index
-      }
-      mid = Math.floor((left + right) / 2)
-    }
-    index = left
-    return Math.max(index - Math.ceil(viewNum / 4), 0)
-  }
   const scrollHandler = () => {
-    const start_index = getStartIndex(boxEl.scrollTop)
-    if (startIndex === start_index) return
-    startIndex = start_index
-    endIndex = Math.min(
-      msg.length - 1,
-      start_index + Math.ceil((viewNum * 3) / 4)
-    )
-    couldToBottom =
-      endIndex === msg.length - 1 && endIndex - startIndex < viewNum
-  }
-  const updateMsg = (str: string) => {
-    msg = [...msg, str]
-    heightCache.push(estimatedItemHeight)
-    topCache.push(topCache[topCache.length - 1] + estimatedItemHeight)
-    couldToBottom && toBottom()
-  }
-  const toBottom = () => {
-    endIndex = msg.length - 1
-    startIndex = endIndex - viewNum < 0 ? 0 : endIndex - viewNum
-    requestAnimationFrame(() => {
-      boxEl && (boxEl.scrollTop = boxEl.scrollHeight)
-      couldToBottom = true
+    worker.postMessage({
+      type: 'getByTop',
+      tableName: roomId,
+      data: {
+        top: boxEl.scrollTop,
+        viewNum: viewNum
+      }
     })
   }
-
-  let txt_index = 0 // 记录保存数据第N条
-  let interval = null
-  const writeDanmaku = () => {
-    const end = msg.length
-    if (end === txt_index) return
+  const updateMsg = (str: string) => {
+    worker.postMessage({
+      type: 'add',
+      tableName: roomId,
+      data: {
+        msg: str,
+        height: estimatedItemHeight
+      }
+    })
     invoke('write_danmaku_txt', {
       roomId,
       date: dayjs().format('YYYY-MM-DD'),
-      data: msg.slice(txt_index, end).map(str => html2text(str))
-      // .filter(str => str[0] === '[' || str[0] === '【') // 过滤系统信息
+      data: [html2text(str)]
     })
-    txt_index = end
   }
+  const getLast = () => {
+    worker.postMessage({
+      type: 'getLast',
+      tableName: roomId,
+      data: {
+        viewNum: viewNum
+      }
+    })
+  }
+  const toBottom = () => {
+    boxEl && (boxEl.scrollTop = boxEl.scrollHeight)
+    couldToBottom = true
+    pb = 0
+    requestAnimationFrame(() => {
+      getLast()
+    })
+  }
+
   const danmakuTime = (t?: string | number) => {
     return `<span class="danmaku-time">[${dayjs(t).format('HH:mm:ss')}]</span>`
   }
@@ -171,10 +177,10 @@
     // 初始化容器最大容纳值
     boxResizeObserver.observe(boxEl)
     intersectionObserver.observe(boxEl)
-    viewNum = Math.ceil(boxEl.offsetHeight / estimatedItemHeight) * 2
-
-    msg = [`${danmakuTime()} 开始连接...`]
-    invoke('connect', { roomId, cookie: $account.cookie ?? '' })
+    viewNum = Math.ceil(boxEl.offsetHeight / estimatedItemHeight) * 3
+    worker.addEventListener('message', onMessage)
+    updateMsg(`${danmakuTime()} 开始连接...`)
+    invoke('connect', { roomId, cookie: ($account.cookie ?? '').trim() })
     if (listener) {
       // 防止重复监听
       listener['stream']()
@@ -333,10 +339,6 @@
         emit2plugins('Danmaku', ev.payload)
       }
     )
-    // 定时写入文件 30s
-    interval = setInterval(() => {
-      writeDanmaku()
-    }, 30 * 1000)
   })
   onDestroy(() => {
     const sideWindow = WebviewWindow.getByLabel('side-' + roomId)
@@ -344,9 +346,13 @@
     resizeObserver.unobserve(ulEl)
     boxResizeObserver.unobserve(boxEl)
     intersectionObserver.unobserve(boxEl)
-    interval && clearInterval(interval)
-    writeDanmaku()
     invoke('disconnect', { roomId })
+    worker.postMessage({
+      type: 'close',
+      tableName: roomId
+    })
+    worker.removeEventListener('message', onMessage)
+    worker.terminate()
     // 断开连接 解除监听
     if (listener) {
       listener['stream']()
@@ -354,7 +360,7 @@
       listener = null
     }
   })
-  export { roomId, writeDanmaku }
+  export { roomId }
 </script>
 
 <div
@@ -364,15 +370,12 @@
     <ul
       class="danmaku-msg overflow-hidden py-1 px-2"
       bind:this={ulEl}
-      style:padding-top={topCache[startIndex] + 'px'}
-      style:padding-bottom={msgHeight -
-        topCache[endIndex] -
-        heightCache[endIndex] +
-        'px'}
+      style:padding-top={pt + 'px'}
+      style:padding-bottom={pb + 'px'}
     >
-      {#each showMsg as d, _i}
+      {#each msg as d, _i}
         <li in:fade>
-          {@html d}
+          {@html d.msg}
         </li>
       {/each}
     </ul>
