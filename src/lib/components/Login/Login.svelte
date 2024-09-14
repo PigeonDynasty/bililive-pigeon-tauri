@@ -1,14 +1,49 @@
 <script lang="ts">
   import Dialog from '@/components/Dialog.svelte'
+  import Tabs from '@/components/Tabs/Tabs.svelte'
+  import Tab from '@/components/Tabs/Tab.svelte'
+  import { HEADER_TYPES } from '@/components/Tabs/Tabs.svelte'
   import ByPassword from './ByPassword.svelte'
+  import account from '@/store/account'
+  import { updateCookie } from '@/store/account'
+  let confirmVisible: boolean = false
   let visible: boolean = false
+  $: logined = $account.cookie && $account.cookie.includes('SESSDATA')
 </script>
 
-<button class="btn-sky py-1 px-2" on:click={() => (visible = true)}>
-  登录
-</button>
+{#if !logined}
+  <button
+    class="btn-sky py-1 px-2 rounded-sm"
+    on:click={() => (visible = true)}
+  >
+    登录
+  </button>
+{:else}
+  <button
+    class="btn-rose py-1 px-2 rounded-sm"
+    on:click={() => (confirmVisible = true)}
+  >
+    清除Cookie
+  </button>
+{/if}
+<Dialog bind:visible={confirmVisible} title="提示" class="w-1/3">
+  <p class="text-left">确定要清除Cookie吗?</p>
+  <span slot="footer" class="inline-flex gap-2">
+    <button
+      class="btn-sky py-1 px-4 rounded-sm"
+      on:click={() => {
+        updateCookie('')
+        confirmVisible = false
+      }}>确认</button
+    >
+    <button
+      class="btn-default py-1 px-4 rounded-sm"
+      on:click={() => (confirmVisible = false)}>取消</button
+    >
+  </span>
+</Dialog>
 <Dialog bind:visible class="login-content">
-  <div class="flex px-12 py-7 w-full items-center justify-center text-center">
+  <div class="flex px-12 pb-6 w-full items-center justify-center text-center">
     <!-- <div class="text-center">
       <p class="text-lg mb-4">扫描二维码登录</p>
       <div class="qrcode-box">
@@ -54,11 +89,14 @@
     </div> -->
     <!-- <div class="w-[1px] mx-10 h-64 block bg-zinc-200" /> -->
     <div class="w-2/3">
-      <div class="flex divide-x divide-zinc-200 mb-4">
-        <span class="text-sky-400 flex-1 text-lg"> 密码登录 </span>
-        <!-- <span class="flex-1 text-lg"> 短信登录 </span> -->
-      </div>
-      <ByPassword />
+      <Tabs headerType={HEADER_TYPES.link}>
+        <Tab header="密码登录" key="password">
+          <ByPassword on:success={() => (visible = false)} />
+        </Tab>
+        <!-- <Tab header="短信登录" key="sms">
+                    <ByPassword />
+                </Tab> -->
+      </Tabs>
       <!-- <div class="third-party-login-wrapper">
         <div class="title">其他方式登录</div>
         <div class="sns">
@@ -69,35 +107,41 @@
       </div> -->
     </div>
   </div>
-  <div class="text-xs text-zinc-400">
-    <!-- <p>未注册过哔哩哔哩的手机号，我们将自动帮你注册账号</p> -->
-    <p>
-      登录或完成注册即代表你同意
-      <a
-        class="text-sky-400"
-        rel="noreferrer"
-        target="_blank"
-        href="https://www.bilibili.com/protocal/licence.html"
-      >
-        用户协议
-      </a>
-      和
-      <a
-        class="text-sky-400"
-        rel="noreferrer"
-        target="_blank"
-        href="https://www.bilibili.com/blackboard/privacy-pc.html"
-      >
-        隐私政策
-      </a>
+  <div class="text-xs text-zinc-400 text-center">
+    <p>免责声明: 登录直接使用的Bilibili的Api,不经过任何第三方服务器</p>
+    <p class="text-rose-500 font-semibold">
+      请注意: 代理会让连接经过代理服务器,存在私人Cookie暴露风险
     </p>
+    <!-- <p>未注册过哔哩哔哩的手机号，我们将自动帮你注册账号</p> -->
+    <!-- <p>
+            登录或完成注册即代表你同意
+            <a
+                class="text-sky-400"
+                rel="noreferrer"
+                target="_blank"
+                href="https://www.bilibili.com/protocal/licence.html"
+            >
+                用户协议
+            </a>
+            和
+            <a
+                class="text-sky-400"
+                rel="noreferrer"
+                target="_blank"
+                href="https://www.bilibili.com/blackboard/privacy-pc.html"
+            >
+                隐私政策
+            </a>
+        </p> -->
   </div>
 </Dialog>
 
 <style lang="postcss">
   :global(.login-content) {
     background-image: url(/img/22.png), url(/img/33.png);
-    background-position: 0 100%, 100% 100%;
+    background-position:
+      0 100%,
+      100% 100%;
     background-repeat: no-repeat, no-repeat;
     background-size: 14%;
   }

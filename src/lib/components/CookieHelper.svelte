@@ -38,5 +38,8 @@
     <small class="text-rose-400">
       tip: 请注意复制完整,图片马赛克位置内容没有截全
     </small>
+    <p class="font-semibold text-rose-500">
+      请注意: 代理会让连接经过代理服务器,存在私人Cookie暴露风险
+    </p>
   </article>
 </Dialog>

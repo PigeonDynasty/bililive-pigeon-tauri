@@ -1,5 +1,5 @@
 use crate::doc_dir;
-use std::fs::OpenOptions;
+use std::fs::{create_dir_all, OpenOptions};
 use std::io::{BufWriter, Write};
 use std::path::PathBuf;
 
@@ -15,11 +15,16 @@ pub fn room_date_path(room_id: &u32, date: &String) -> PathBuf {
 }
 
 pub fn write_danmaku_txt(room_id: u32, date: String, data: Vec<String>) {
+    let path: PathBuf = room_date_path(&room_id, &date);
+    let dir = path.parent().unwrap(); // Get the parent directory
+    if !dir.exists() {
+        create_dir_all(dir).expect("Failed to create the directory"); // Create the directory if it doesn't exist
+    }
     let file = OpenOptions::new()
         .create(true)
         .append(true)
-        .open(room_date_path(&room_id, &date))
-        .unwrap();
+        .open(&path)
+        .expect("Failed to open or create the file");
     let mut bw = BufWriter::new(file);
     for str in data {
         bw.write(("".to_owned() + &str + "\r\n").as_bytes())

@@ -15,4 +15,16 @@ namespace Color {
     hsv: Writable<HSV>
     a: Writable<number>
   }
+
+  interface SideColorOption extends Object {
+    msg: string
+    bg: string
+    roomid: string
+    time: string
+    username: string
+    giftGold: string
+    giftSilver: string
+    guard: string
+    sc: string
+  }
 }

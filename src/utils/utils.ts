@@ -15,3 +15,14 @@ function _htmlReplaceImg(html_str: string): string {
   })
   return html_str
 }
+
+export function setCookieToCookieStr(str: string, cookieMap?: Map<string, string>): string {
+  if (!cookieMap) cookieMap = new Map()
+  const cookies = str.split('&&')
+  cookies.forEach((item: string) => {
+    const parts = item.split(';')
+    const [name, value] = parts[0].split('=')
+    cookieMap.set(name, value)
+  })
+  return Array.from(cookieMap.entries()).map(([key, val]) => `${key}=${val}`).join(';')
+}

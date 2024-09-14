@@ -303,6 +303,7 @@
                 case 'INTERACT_WORD': {
                   // 进入、关注、分享
                   const iw = payload.body.data
+                  // console.log('INTERACT_WORD', iw)
                   str = `${danmakuTime(
                     iw['timestamp'] * 1000
                   )} <span class="danmaku-username">${

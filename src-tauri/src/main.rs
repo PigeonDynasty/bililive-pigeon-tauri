@@ -40,7 +40,11 @@ fn main() {
             command::get_history,
             command::get_emojis,
             command::get_setting,
-            command::update_setting
+            command::update_setting,
+            command::get_buvid,
+            command::get_b_nut,
+            command::get_captcha,
+            command::login_by_password,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

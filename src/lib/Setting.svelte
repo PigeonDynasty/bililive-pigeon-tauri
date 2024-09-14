@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
   import { invoke } from '@tauri-apps/api/tauri'
   import Switch from '../components/Switch.svelte'
   import {
@@ -16,22 +16,19 @@
   import ColorPicker from '@/components/ColorPicker/ColorPicker.svelte'
   import Input from '@/components/Input.svelte'
   import CookieHelper from './components/CookieHelper.svelte'
+  import Login from './components/Login/Login.svelte'
   import account from '@/store/account'
 
-  let web: WebviewWindow = null
+  let web: WebviewWindow | null = null
   let logicalSize: LogicalSize = new LogicalSize(0, 0)
-  let accountConfig = {
-    cookie: ''
-  }
-  $: accountConfig && account.set(accountConfig)
-
+  $: $account.cookie && updateConfig()
   let sideConfig = {
     x: 0,
     y: 0,
     width: 300,
     height: 0
   }
-  const defaultSideColor = {
+  const defaultSideColor: Color.SideColorOption = {
     msg: '#facc15',
     bg: 'rgba(102, 102, 102, 0.2)',
     roomid: '',
@@ -42,10 +39,10 @@
     guard: '#7c3aed',
     sc: '#e11d48'
   }
-  let sideColor = { ...defaultSideColor }
+  let sideColor: Color.SideColorOption = { ...defaultSideColor }
   let roomId = ''
   let isSideOpen = false
-  const toggleChange = async _e => {
+  const toggleChange = async (_e: CustomEvent) => {
     if (isSideOpen && !web) {
       if (!$rooms.some(item => item.room_id === Number(roomId))) {
         toast('输入的房间号未连接')
@@ -70,7 +67,7 @@
         isSideOpen = false
       })
       web.once('side-loaded', () => {
-        web.emit('update-color', sideColor)
+        web?.emit('update-color', sideColor)
       })
     } else if (!isSideOpen && web) {
       await web.close()
@@ -85,11 +82,11 @@
     if (web) web.setSize(new LogicalSize(sideConfig.width, sideConfig.height))
     updateConfig()
   }
-  const colorChange = _ => {
+  const colorChange = (_: any) => {
     if (web) web.emit('update-color', sideColor)
     updateConfig()
   }
-  const colorClear = key => {
+  const colorClear = (key: string) => {
     sideColor[key] = defaultSideColor[key]
     colorChange(key)
   }
@@ -97,7 +94,7 @@
     invoke('update_setting', {
       roomId: 0,
       config: JSON.stringify({
-        accountConfig,
+        accountConfig: $account,
         sideConfig,
         sideColor
       })
@@ -105,7 +102,7 @@
   }
   onMount(async () => {
     const monitor = await currentMonitor()
-    logicalSize = monitor.size.toLogical(monitor.scaleFactor)
+    if (monitor) logicalSize = monitor.size.toLogical(monitor.scaleFactor)
     sideConfig = {
       x: logicalSize.width - 300,
       y: 0,
@@ -116,20 +113,22 @@
     const res: DbSetting = await invoke('get_setting', { roomId: 0 }) // 0 默认配置
     if (!res || !res.config) return
     const config = JSON.parse(res.config)
-    accountConfig = config.accountConfig
+    account.set(config.accountConfig)
     sideConfig = config.sideConfig
     sideColor = config.sideColor
   })
 </script>
 
-<h1 class="py-2 text-lg flex gap-0.5 items-center">Cookie<CookieHelper /></h1>
+<h1 class="py-2 text-lg flex gap-0.5 items-center justify-between">
+  <span>Cookie<CookieHelper /></span>
+  <Login />
+</h1>
 <div class=" text-sm mb-2">
   <Input
     class="w-full"
     type="textarea"
     clearable={false}
-    bind:value={accountConfig.cookie}
-    on:change={updateConfig}
+    bind:value={$account.cookie}
   />
 </div>
 <h1 class="py-2 text-lg">浮窗设置</h1>

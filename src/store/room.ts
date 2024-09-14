@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store'
 import { addGiftContent, updateGiftContent } from './gift'
-const rooms = writable([])
+const rooms = writable<Room.Info[]>([])
 const addRoomId = (roomId: string | number) => {
   rooms.update(value => {
     return value.some(item => item.room_id === Number(roomId))
@@ -9,7 +9,7 @@ const addRoomId = (roomId: string | number) => {
   })
   addGiftContent(roomId)
 }
-const updateRoomInfo = info => {
+const updateRoomInfo = (info: Room.Info) => {
   rooms.update(value => {
     const obj = value.find(item => item.room_id === info.room_id)
     if (obj) Object.assign(obj, info)

@@ -11,11 +11,16 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::Mutex;
 use std::time::Duration;
-use tauri::api::http::header::{HeaderValue, COOKIE};
 use tauri::Window;
 use tokio::{sync::mpsc, task::JoinHandle, time};
-use tokio_tungstenite::tungstenite::client::IntoClientRequest;
-use tokio_tungstenite::{connect_async, tungstenite::Message};
+use tokio_tungstenite::{
+    connect_async,
+    tungstenite::{
+        client::IntoClientRequest,
+        http::header::{HeaderValue, COOKIE},
+        Message,
+    },
+};
 use url::Url;
 // 弹幕 线程池
 static DANMAKU_POOL: Lazy<Mutex<HashMap<u32, JoinHandle<()>>>> =
@@ -96,25 +101,26 @@ pub async fn new(room_id: u32, cookie: &str, win: &Window) {
     )
     .await;
 }
-
 // 递归尝试连接
 fn try_connect_async(
     mut host_list: Vec<serde_json::Value>,
     cookie: &str,
 ) -> Pin<Box<dyn Future<Output = Result<Option<WsStream>, ()>> + Send>> {
     let host = host_list.pop().unwrap();
-    let url = Url::parse(&format!(
+    let uri = Url::parse(&format!(
         "wss://{}:{}/sub",
         host["host"].as_str().unwrap(),
         host["wss_port"]
     ))
     .unwrap();
-    let mut req = url.into_client_request().unwrap();
-
+    let mut req = uri.as_str().into_client_request().unwrap();
     // let _cookie =
     //     HeaderValue::from_str(&format!("SESSDATA={}", sessdata)).expect("invalid sessdata");
-    let headers = HeaderValue::from_str(cookie).expect("invalid cookie");
-    req.headers_mut().append(COOKIE, headers);
+    req.headers_mut().append(
+        COOKIE,
+        HeaderValue::from_str(cookie).expect("invalid cookie"),
+    );
+    println!("try_connect_async req: {:?}", req);
     let _cookie = cookie.to_owned();
     Box::pin(async move {
         match connect_async(req).await {
@@ -170,6 +176,9 @@ async fn join(
         }
         other @ _ => {
             println!("other={:?}", other);
+            // disconnect(room_id, &win, "closed").await;
+            let key = format!("stream-{}", room_id);
+            win.emit(&key, "closed").unwrap();
         }
     };
     // mpsc 线程通信

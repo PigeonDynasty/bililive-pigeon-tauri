@@ -1,8 +1,13 @@
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 use crate::danmaku;
 use crate::PLUGIN_MANAGER;
+use base64::{engine::general_purpose, Engine};
 use bililive_pigeon_lib::plugin::PluginData;
+use bililive_pigeon_lib::request::Request;
 use bililive_pigeon_lib::{db, plugin_dir, txt};
+use rand::rngs::OsRng;
+use rsa::pkcs8::DecodePublicKey;
+use rsa::{Pkcs1v15Encrypt, RsaPublicKey};
 use std::fs::create_dir_all;
 use std::path::PathBuf;
 use tauri::Window;
@@ -15,7 +20,7 @@ pub async fn clear_danmaku_pool() {
 // 发起连接
 #[tauri::command]
 pub async fn connect(room_id: u32, cookie: String, window: Window) {
-    create_dir_all(txt::room_path(&room_id)).unwrap();
+    create_dir_all(txt::room_path(&room_id)).expect("create_dir_all failed");
     danmaku::new(room_id, &cookie, &window).await;
 }
 // 断开连接
@@ -83,4 +88,67 @@ pub fn get_setting(room_id: u32) -> Option<db::setting::DbSetting> {
 #[tauri::command]
 pub fn update_setting(room_id: u32, config: &str) {
     db::setting::update(room_id, config);
+}
+
+// 获取buvid
+#[tauri::command]
+pub async fn get_buvid() -> serde_json::Value {
+    Request::new().get_buvid().await
+}
+
+//获取b_nut
+#[tauri::command]
+pub async fn get_b_nut() -> serde_json::Value {
+    Request::new().get_b_nut().await
+}
+
+// 获取验证码
+#[tauri::command]
+pub async fn get_captcha(web_location: String) -> serde_json::Value {
+    Request::new().get_captcha(web_location).await
+}
+
+// 根据密码登录
+#[tauri::command]
+pub async fn login_by_password(
+    ua: String,
+    cookie: String,
+    username: String,
+    password: String,
+    web_location: String,
+    token: String,
+    challenge: String,
+    validate: String,
+    seccode: String,
+) -> serde_json::Value {
+    let req = Request::new();
+    let rsa_json = req.get_login_key(web_location).await;
+    let hash = rsa_json["data"]["hash"].to_string().replace("\"", "");
+    let key = rsa_json["data"]["key"]
+        .to_string()
+        .replace("\\n", "\n")
+        .replace("\"", "");
+    let public_key = RsaPublicKey::from_public_key_pem(&key).expect("Failed to create public key");
+    let mut rng = OsRng;
+    println!("&hash + &password: {:?}", hash.clone() + &password);
+    let encrypted_data = public_key
+        .encrypt(&mut rng, Pkcs1v15Encrypt, (hash + &password).as_bytes())
+        .expect("Failed to encrypt");
+    let encrypted_password = general_purpose::STANDARD.encode(&encrypted_data);
+    let ua_str = if ua.is_empty() {
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.207.132.170 Safari/537.36 Edg/112.0.1722.68".to_string()
+    } else {
+        ua
+    };
+    req.login_by_password(
+        ua_str,
+        cookie,
+        username,
+        encrypted_password,
+        token,
+        challenge,
+        validate,
+        seccode,
+    )
+    .await
 }
